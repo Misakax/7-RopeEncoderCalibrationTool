@@ -1,0 +1,10 @@
+﻿R7.2.2 static contract validation
+
+PASS: no 'candidateD[5] = 0' calibration assignment.
+PASS: D6 role is explicitly 'not rope calibration parameter'.
+PASS: D7 no-write marker is present.
+PASS: calibration write loop writes D indices 2..5 only.
+PASS: structural repair uses IDN D index 6 only, after explicit confirmation.
+PASS: no D index 7 write call exists in the R7.2.2 save handler.
+PASS: post-save verification requires D7 == pre-write D7.
+PASS: R7.2.1 0.001 float quantization and integer 1127.13 formatting are retained.

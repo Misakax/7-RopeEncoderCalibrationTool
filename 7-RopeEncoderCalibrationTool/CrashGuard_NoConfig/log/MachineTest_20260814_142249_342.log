@@ -1,0 +1,4 @@
+2026-08-14 14:22:49.342 [T33500] [SESSION] application start; build=MathematicalDLL CalibrationV2 Aug 14 2026 14:20:40; mode=CONTROLLED_MACHINE_TEST; v2WriteBack=disabled; workingDirectory=C:\Users\1282\Desktop\À­Ïß±àÂë\7-RopeEncoderCalibrationTool\CrashGuard_NoConfig
+2026-08-14 14:22:49.347 [T33500] [CONFIG_REJECTED] robot combo has no valid selection
+2026-08-14 14:22:49.349 [T33500] [COMM_INIT] QKMLink initialization FAILED; HRESULT=-2147221164
+2026-08-14 14:22:49.349 [T33500] [COMM_INIT] websocket endpoint initialized

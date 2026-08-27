@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--File name: Controller -->
+<!--File creation date: 2026-06-18-->
+<!--File release date: 2026-06-18-->
+<!--File release version: V2.5.0.0-->
+<Controller>
+	<Item IDN="5.0" Label="Ignore node type from hardware" Index="0.0.0">0</Item>
+	<Item IDN="5.1" Label="Node's hardware type identification" Index="0.0.0">137</Item>
+
+	<Item IDN="21.1" Label="Time zone and DST flag" Index="1.0.0">Asia/Shanghai</Item>
+	<Item IDN="21.2" Label="Language selection" Index="1.0.0">EN</Item>
+	<Item IDN="21.40" Label="Double system boot configuration" Index="1.0.0">1</Item>
+	<Item IDN="21.41" Label="Handshake timeout for system startup|[sec]" Index="1.0.0">-1</Item>
+	<Item IDN="21.42" Label="Request model info timeout for Comm RTEMS|[msec]" Index="1.0.0">2000</Item>
+	<Item IDN="21.43" Label="Notify model info timeout fo Cell|[msec]" Index="1.0.0">2000</Item>
+	<Item IDN="21.70" Label="Controller network control word" Index="1.0.0">65535</Item>
+	<Item IDN="21.71" Label="Led blink control switch" Index="1.0.0">1</Item>
+
+	<Item IDN="23.30" Label="Local node DI number" Index="0.0.0">20</Item>
+	<Item IDN="23.31" Label="Local node DO number" Index="0.0.0">16</Item>
+	<Item IDN="23.32" Label="Local node HDI number" Index="0.0.0">4</Item>
+	<Item IDN="23.33" Label="Local node HDO number" Index="0.0.0">0</Item>
+	<Item IDN="23.34" Label="Local node AIN number" Index="0.0.0">0</Item>
+	<Item IDN="23.35" Label="Local node AOUT number" Index="0.0.0">0</Item>
+	<Item IDN="23.36" Label="Local node XDI number" Index="0.0.0">0</Item>
+	<Item IDN="23.37" Label="Local node XHDI number" Index="0.0.0">0</Item>
+	<Item IDN="23.38" Label="Local node XDO number" Index="0.0.0">0</Item>
+	<Item IDN="23.39" Label="Local node XAIN number" Index="0.0.0">0</Item>
+	<Item IDN="23.40" Label="Local node DI offset" Index="0.0.0">13</Item>
+	<Item IDN="23.41" Label="Local node DO offset" Index="0.0.0">5</Item>
+	<Item IDN="23.42" Label="Local node HDI offset" Index="0.0.0">2</Item>
+	<Item IDN="23.43" Label="Local node HDO offset" Index="0.0.0">0</Item>
+	<Item IDN="23.44" Label="Local node AIN offset" Index="0.0.0">0</Item>
+	<Item IDN="23.45" Label="Local node AOUT offset" Index="0.0.0">0</Item>
+	<Item IDN="23.46" Label="Local node XDI offset" Index="0.0.0">0</Item>
+	<Item IDN="23.47" Label="Local node XHDI offset" Index="0.0.0">0</Item>
+	<Item IDN="23.48" Label="Local node XDO offset" Index="0.0.0">0</Item>
+	<Item IDN="23.49" Label="Local node XAIN offset" Index="0.0.0">0</Item>
+	<Item IDN="23.70" Label="XDI enable bit" Index="1.0.0">0, 0, 0</Item>
+	<Item IDN="23.71" Label="XDO enable bit" Index="1.0.0">0, 0, 0</Item>
+	<Item IDN="23.72" Label="XAIN enable bit" Index="1.0.0">0, 0, 0</Item>
+
+	<Item IDN="25.0" Label="CP control word" Index="1.0.0">0</Item>
+
+	<Item IDN="27.0" Label="Number of robot" Index="1.0.0">1</Item>
+	<Item IDN="27.1" Label="Robot types" Index="1.0.0">19</Item>
+	<Item IDN="27.2" Label="Robot ID" Index="1.0.0">1</Item>
+	<Item IDN="27.4" Label="System speed percentage|[]" Index="1.0.0">100.00</Item>
+	<Item IDN="27.5" Label="Robot is real or virtual" Index="1.0.0">1</Item>
+	<Item IDN="27.11" Label="Robot motion group ID" Index="1.0.0">1</Item>
+
+	<Item IDN="29.0" Label="Total number of conveyor" Index="1.0.0">4</Item>
+	<Item IDN="29.1" Label="Conveyor ID" Index="1.0.0">1, 2, 3, 4</Item>
+	<Item IDN="29.2" Label="Type of conveyor" Index="1.0.0">0, 0, 0, 0</Item>
+
+	<Item IDN="31.0" Label="Total number of I/O station" Index="1.0.0">1</Item>
+	<Item IDN="31.1" Label="I/O station type" Index="1.0.0">0</Item>
+	<Item IDN="31.2" Label="I/O station ID" Index="1.0.0">1</Item>
+	<Item IDN="31.150" Label="The current controller I/O station number" Index="1.0.0">1</Item>
+
+	<Item IDN="33.0" Label="Power domian number" Index="1.0.0">1</Item>
+	<Item IDN="33.1" Label="Power domian ID" Index="1.0.0">1</Item>
+	<Item IDN="33.2" Label="Robot number in power domian" Index="1.0.0">1</Item>
+
+	<Item IDN="35.0" Label="Slave mode" Index="1.0.0">1</Item>
+	<Item IDN="35.10" Label="Master/Slave transition action" Index="1.0.0">983287</Item>
+
+	<Item IDN="101.1" Label="Total # of non-blocking channel" Index="0.0.0">1</Item>
+	<Item IDN="101.2" Label="Total # of blocking channel" Index="0.0.0">4</Item>
+	<Item IDN="101.3" Label="Heartbeat enable" Index="0.0.0">1</Item>
+	<Item IDN="101.4" Label="Heartbeat rate|[msec]" Index="0.0.0">1000</Item>
+	<Item IDN="101.5" Label="Heartbeat miss count limit" Index="0.0.0">3</Item>
+
+	<Item IDN="105.0" Label="Syslog output method" Index="1.0.0">2, 3</Item>
+	<Item IDN="105.1" Label="Syslog file path" Index="1.0.0">/media/card/syslog/, /media/card/syslog/</Item>
+	<Item IDN="105.2" Label="Syslog enable duplicate log entries" Index="1.0.0">1, 1</Item>
+	<Item IDN="105.3" Label="Flow control enable" Index="1.0.0">1, 1</Item>
+	<Item IDN="105.4" Label="Flow control threshold|[KB]" Index="1.0.0">20480, 20480</Item>
+	<Item IDN="105.5" Label="Overflow exception report" Index="1.0.0">1, 1</Item>
+	<Item IDN="105.6" Label="Output buffer refresh cycle|[sec]" Index="1.0.0">3, 3</Item>
+	<Item IDN="105.7" Label="Syslog rolling file size limit|[KB]" Index="1.0.0">10240, 10240</Item>
+	<Item IDN="105.8" Label="Syslog rolling file size|[KB]" Index="1.0.0">1024, 1024</Item>
+	<Item IDN="105.9" Label="Syslog rolling file number limit" Index="1.0.0">10, 10</Item>
+	<Item IDN="105.10" Label="Syslog rolling file number" Index="1.0.0">10, 10</Item>
+	<Item IDN="105.50" Label="Syslog filter enable" Index="1.0.0">1, 1</Item>
+	<Item IDN="105.51" Label="Syslog global filter level" Index="1.0.0">5, 4</Item>
+	<Item IDN="105.54" Label="Syslog filter level" Index="1.0.1">9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+9</Item>
+	<Item IDN="105.54" Label="Syslog filter level" Index="1.0.2">9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9</Item>
+
+	<Item IDN="107.200" Label="The flag of enables the function of timing each module in the ISR" Index="0.0.0">0</Item>
+
+	<Item IDN="109.50" Label="Enable Comm Datalogger function when error is occur" Index="0.0.0">1</Item>
+	<Item IDN="109.51" Label="Datalogger all time in Comm node|[sec]" Index="0.0.0">10.000</Item>
+	<Item IDN="109.52" Label="Datalogger time after error is occur in Comm node|[sec]" Index="0.0.0">3.000</Item>
+	<Item IDN="109.53" Label="Comm Datalogger file number" Index="0.0.0">5</Item>
+	<Item IDN="109.60" Label="Enable Cell Datalogger function when error is occur" Index="0.0.0">1</Item>
+	<Item IDN="109.61" Label="Datalogger all time in Cell node|[sec]" Index="0.0.0">3.000</Item>
+	<Item IDN="109.62" Label="Datalogger time after error is occur in  Cell node|[sec]" Index="0.0.0">1.000</Item>
+	<Item IDN="109.63" Label="Cell Datalogger file number" Index="0.0.0">3</Item>
+
+	<Item IDN="111.30" Label="48V relay board start delay|[msec]" Index="1.0.0">0</Item>
+	<Item IDN="111.31" Label="Enable of Estop off 48V" Index="1.0.0">1</Item>
+	<Item IDN="111.40" Label="Servo interval time on each axis|[msec]" Index="1.0.0">400</Item>
+	<Item IDN="111.41" Label="The order level of the user-defined servo on" Index="1.0.0">1, 1, 2, 2, 3, 3, 3</Item>
+	<Item IDN="111.42" Label="Delay time of FPGA protect after ESTOP|[sec]" Index="1.0.0">0.500</Item>
+	<Item IDN="111.43" Label="Max delay time of FPGA protect after ESTOP|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="111.44" Label="Encoder error limit of joint|[ecnt]" Index="1.0.0">1000, 1000, 1000, 1000, 1000, 1000, 1000</Item>
+	<Item IDN="111.80" Label="The time to wait for the bus voltage to rise|[sec]" Index="1.0.0">2.000000</Item>
+	<Item IDN="111.81" Label="The voltage fluctuation threshold of each axis bus voltage|[V]" Index="1.0.0">10</Item>
+	<Item IDN="111.90" Label="Bus voltage level 1|[V]" Index="1.0.0">50</Item>
+	<Item IDN="111.91" Label="Bus voltage level 2|[V]" Index="1.0.0">230</Item>
+	<Item IDN="111.100" Label="Power sequence mask ctrl word" Index="1.0.0">15</Item>
+	<Item IDN="111.101" Label="Power sequence task period|[msec]" Index="1.0.0">2</Item>
+	<Item IDN="111.102" Label="Power sequence check status interval time|[sec]" Index="1.0.0">0.025</Item>
+	<Item IDN="111.103" Label="Timeout for check fault clearred|[sec]" Index="1.0.0">0.150</Item>
+	<Item IDN="111.104" Label="Timeout for check DC voltage enabled|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="111.105" Label="Timeout for check PWM on|[sec]" Index="1.0.0">0.150</Item>
+	<Item IDN="111.106" Label="Timeout for check current offset finished|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="111.107" Label="Timeout for check UVW line break|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="111.108" Label="Timeout for check currentloop enabled|[sec]" Index="1.0.0">0.150</Item>
+	<Item IDN="111.109" Label="Timeout for check amplifier on|[sec]" Index="1.0.0">0.150</Item>
+	<Item IDN="111.110" Label="Timeout for check motor commutated|[sec]" Index="1.0.0">10.000</Item>
+	<Item IDN="111.111" Label="Timeout for check servo on|[sec]" Index="1.0.0">0.600</Item>
+	<Item IDN="111.112" Label="Timeout for check brake released|[sec]" Index="1.0.0">0.150</Item>
+	<Item IDN="111.113" Label="Timeout for check motor decelerated|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="111.114" Label="Timeout for check brake engaged|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="111.115" Label="Timeout for check servo off|[sec]" Index="1.0.0">2.000</Item>
+	<Item IDN="111.116" Label="Timeout for check amplifier off|[sec]" Index="1.0.0">0.150</Item>
+	<Item IDN="111.117" Label="Timeout for check DC voltage disabled|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="111.118" Label="Timeout for check reload the configuration|[sec]" Index="1.0.0">0.500</Item>
+	<Item IDN="111.119" Label="Timeout for check 110/220V switch|[sec]" Index="1.0.0">0.500</Item>
+
+	<Item IDN="113.0" Label="Check port3 connection flag" Index="1.0.0">0</Item>
+	<Item IDN="113.1" Label="Check port4 connection flag" Index="1.0.0">0</Item>
+
+	<Item IDN="151.0" Label="QKMLink network port (Macro script)" Index="1.0.0">2088</Item>
+	<Item IDN="151.1" Label="QKMLink network port (Macro control)" Index="1.0.0">2089</Item>
+	<Item IDN="151.2" Label="TCP/IP network port (Macro script)" Index="1.0.0">2090</Item>
+	<Item IDN="151.3" Label="TCP/IP network port (Macro control)" Index="1.0.0">2094</Item>
+	<Item IDN="151.4" Label="IP scan port(UDP)" Index="1.0.0">2093</Item>
+	<Item IDN="151.5" Label="QS-IP UDP port" Index="1.0.0">35021</Item>
+	<Item IDN="151.6" Label="QS-IP TFTP port" Index="1.0.0">69</Item>
+	<Item IDN="151.10" Label="Serial port (Macro)" Index="1.0.0">0</Item>
+	<Item IDN="151.11" Label="Maximum number of clients" Index="1.0.0">3</Item>
+	<Item IDN="151.12" Label="Macro protocol version (TCP/IP Serial)" Index="1.0.0">1.0</Item>
+	<Item IDN="151.13" Label="TCP/IP network channel heart beat|[sec]" Index="1.0.0">5</Item>
+	<Item IDN="151.14" Label="QKMLink network channel heart beat|[sec]" Index="1.0.0">5</Item>
+	<Item IDN="151.20" Label="The name of macro thread" Index="1.0.0">MacroThread</Item>
+	<Item IDN="151.30" Label="Block buffer size" Index="1.0.0">1000</Item>
+	<Item IDN="151.31" Label="Waring value of block buffer size" Index="1.0.0">20</Item>
+	<Item IDN="151.32" Label="Secondary return switch for macro instructions" Index="1.0.0">1</Item>
+	<Item IDN="151.33" Label="Automatic adjustment Stopped to Running" Index="1.0.0">0</Item>
+	<Item IDN="151.34" Label="MacroThread handles all instructions" Index="1.0.0">0</Item>
+	<Item IDN="151.35" Label="Fixed length of macro return value" Index="1.0.0">0</Item>
+	<Item IDN="151.50" Label="Hidden netwrok port" Index="1.0.0">2091</Item>
+	<Item IDN="151.51" Label="Hidden port type" Index="1.0.0">0</Item>
+	<Item IDN="151.52" Label="Hidden report type" Index="1.0.0">1</Item>
+	<Item IDN="151.60" Label="EMI channel enable" Index="1.0.0">1</Item>
+	<Item IDN="151.61" Label="Local UDP port for EMI channel" Index="1.0.0">2095</Item>
+	<Item IDN="151.62" Label="Remote UDP port for EMI channel" Index="1.0.0">3001</Item>
+	<Item IDN="151.63" Label="Report period for EMI channel|[msec]" Index="1.0.0">1000</Item>
+
+	<Item IDN="153.0" Label="Application solution path" Index="1.0.0">/media/flash/PallasSolutions</Item>
+	<Item IDN="153.1" Label="User solution name" Index="1.0.0">DemoSolution</Item>
+	<Item IDN="153.2" Label="Auto start user solution" Index="1.0.0">0</Item>
+	<Item IDN="153.3" Label="The name of main thread" Index="1.0.0">MainThread</Item>
+	<Item IDN="153.4" Label="Backgroud solution name" Index="1.0.0">BGDemoSolution</Item>
+	<Item IDN="153.5" Label="Auto start backgroud solution" Index="1.0.0">0</Item>
+	<Item IDN="153.6" Label="The name of backgroud thread" Index="1.0.0">BGThread</Item>
+	<Item IDN="153.10" Label="The maximum time taken to load the QRL solution|[sec]" Index="1.0.0">3</Item>
+	<Item IDN="153.20" Label="QRL output network port" Index="1.0.0">2092</Item>
+	<Item IDN="153.30" Label="QRL line output" Index="1.0.0">1</Item>
+	<Item IDN="153.31" Label="QRL line output interval" Index="1.0.0">100</Item>
+	<Item IDN="153.32" Label="QRL variable watch" Index="1.0.0">1</Item>
+
+	<Item IDN="161.0" Label="Total number of license" Index="1.0.0">16</Item>
+	<Item IDN="161.10" Label="Waring value for license expiration" Index="1.0.0">5</Item>
+
+	<Item IDN="163.0" Label="License list" Index="1.0.1">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.2">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.3">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.4">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.5">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.6">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.7">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.8">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.9">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.10">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.11">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.12">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.13">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.14">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.15">, , , , , , , </Item>
+	<Item IDN="163.0" Label="License list" Index="1.0.16">, , , , , , , </Item>
+
+	<Item IDN="203.0" Label="Ethernet port information operate switch on node" Index="1.0.0">1, 1</Item>
+	<Item IDN="203.3" Label="Ethernet port mask address on node" Index="1.0.0">255.255.255.0, 255.255.255.0</Item>
+	<Item IDN="203.4" Label="Ethernet port gateway address on node" Index="1.0.0">192.168.10.254, 192.168.10.254</Item>
+	<Item IDN="203.7" Label="Controller physical network port switch" Index="1.0.0">1, 1</Item>
+
+	<Item IDN="215.0" Label="EthernetIP enable" Index="1.0.0">0</Item>
+	<Item IDN="215.1" Label="EthernetIP input data size" Index="1.0.0">40</Item>
+	<Item IDN="215.2" Label="EthernetIP output data size" Index="1.0.0">40</Item>
+	<Item IDN="215.151" Label="EthernetIP station index" Index="1.0.0">5</Item>
+	<Item IDN="215.152" Label="EthernetIP split number" Index="1.0.0">96</Item>
+
+	<Item IDN="223.0" Label="Total number of Modbus TCP slaves" Index="1.0.0">1</Item>
+	<Item IDN="223.1" Label="Modbus TCP slave scan time|[msec]" Index="1.0.0">300000</Item>
+	<Item IDN="223.2" Label="Modbus TCP slave scan timeout|[msec]" Index="1.0.0">2000000</Item>
+	<Item IDN="223.3" Label="Modbus TCP slave IP address" Index="1.0.0">NULL</Item>
+	<Item IDN="223.4" Label="Modbus TCP slave port number" Index="1.0.0">502</Item>
+	<Item IDN="223.5" Label="Modbus TCP slave unit Identifier" Index="1.0.0">0</Item>
+	<Item IDN="223.6" Label="Modbus TCP slave scan enable" Index="1.0.0">0</Item>
+
+	<Item IDN="227.150" Label="Modbus TCP station number division value" Index="1.0.0">96</Item>
+	<Item IDN="227.151" Label="Modbus TCP slave channel number is continuous" Index="1.0.0">1</Item>
+	<Item IDN="227.160" Label="Modbus TCP slave DO number" Index="1.0.0">0</Item>
+	<Item IDN="227.161" Label="Modbus TCP slave DI number" Index="1.0.0">0</Item>
+	<Item IDN="227.162" Label="Modbus TCP slave HDO number" Index="1.0.0">0</Item>
+	<Item IDN="227.163" Label="Modbus TCP slave HDI number" Index="1.0.0">0</Item>
+	<Item IDN="227.170" Label="Modbus TCP slave DO offset" Index="1.0.0">0</Item>
+	<Item IDN="227.171" Label="Modbus TCP slave DI offset" Index="1.0.0">0</Item>
+	<Item IDN="227.172" Label="Modbus TCP slave HDO offset" Index="1.0.0">0</Item>
+	<Item IDN="227.173" Label="Modbus TCP slave HDI offset" Index="1.0.0">0</Item>
+
+	<Item IDN="231.0" Label="Sercos slave application type for identification" Index="1.0.0">LEXIUM_SERVO</Item>
+	<Item IDN="231.1" Label="Interruption phase configuration between master and slave" Index="1.0.0">62500</Item>
+
+	<Item IDN="241.0" Label="Heartbeat scan enable" Index="1.0.0">1</Item>
+	<Item IDN="241.1" Label="Heartbeat scan peroid" Index="1.0.0">1000</Item>
+	<Item IDN="241.2" Label="Status monitor enable" Index="1.0.0">1</Item>
+	<Item IDN="241.3" Label="Status monitor peroid" Index="1.0.0">3000</Item>
+	<Item IDN="241.4" Label="Slave response timeout" Index="1.0.0">500</Item>
+	<Item IDN="241.5" Label="The limit on the number of heartbeats loss from slave" Index="1.0.0">3</Item>
+	<Item IDN="241.6" Label="Report mode when heartbeat loss happen" Index="1.0.0">0</Item>
+	<Item IDN="241.50" Label="RS485 device node" Index="1.0.0">/dev/ttySPS1</Item>
+	<Item IDN="241.51" Label="RS485 baud rate" Index="1.0.0">115200</Item>
+	<Item IDN="241.52" Label="RS485 data bits" Index="1.0.0">8</Item>
+	<Item IDN="241.53" Label="RS485 stop bits" Index="1.0.0">1</Item>
+	<Item IDN="241.54" Label="RS485 parity" Index="1.0.0">2</Item>
+	<Item IDN="241.55" Label="RS485 bus reset" Index="1.0.0">0</Item>
+	<Item IDN="241.56" Label="RS485 bus debug enable" Index="1.0.0">0</Item>
+
+	<Item IDN="261.0" Label="I/O station ID" Index="1.0.0">VEICHI, VEICHI, VEICHI, VEICHI, VEICHI, VEICHI, VEICHI</Item>
+	<Item IDN="261.1" Label="I/O station type" Index="1.0.0">VEICHI1-SW_V13458_00213, VEICHI2-SW_V13458_00213, VEICHI3-SW_V13458_00213, VEICHI4-SW_V13458_00213, VEICHI5-SW_V13458_00213, VEICHI6-SW_V03450_00000, VEICHI7-SW_V13459_0210</Item>
+	<Item IDN="261.2" Label="NULL" Index="1.0.0">VEICHI1-HW_VA1.2, VEICHI2-HW_VA1.2, VEICHI3-HW_VA1.2, VEICHI4-HW_VA1.2, VEICHI5-HW_VA1.2, VEICHI6-HW_VA2.0, VEICHI7-HW_VA1.2</Item>
+
+	<Item IDN="271.2" Label="Node number of encoder used with conveyor" Index="0.0.0">1, 1, 1, 1</Item>
+	<Item IDN="271.3" Label="Encoder channel ID in node" Index="0.0.0">1, 1, 1, 1</Item>
+	<Item IDN="271.4" Label="Default latch ID of conveyor" Index="0.0.0">0, 0, 0, 0</Item>
+	<Item IDN="271.5" Label="Max speed of conveyor|[mm/sec]" Index="0.0.0">1000.00, 1000.00, 1000.00, 1000.00</Item>
+	<Item IDN="271.6" Label="Proportional factor of conveyor encoder" Index="0.0.0">0.000000000, 0.000000000, 0.000000000, 0.000000000</Item>
+	<Item IDN="271.20" Label="Low pass filter coefficient of conveyor velocity" Index="0.0.0">0.0005, 0.0005, 0.0005, 0.0005</Item>
+	<Item IDN="271.21" Label="Filter width for conveyor position" Index="0.0.0">15, 15, 15, 15</Item>
+
+	<Item IDN="273.0" Label="Cache encoder value queue length" Index="0.0.0">16000</Item>
+
+	<Item IDN="275.0" Label="Watchdog enable" Index="0.0.0">1</Item>
+	<Item IDN="275.1" Label="Period of feeding watchdog|[msec]" Index="0.0.0">20</Item>
+
+	<Item IDN="601.0" Label="EtherCAT topology" Index="1.0.0">7, 1, 1</Item>
+
+	<Item IDN="603.0" Label="The object we choiced for TxPDO" Index="1.0.0">0x60410010, 0x603F0010, 0x60640020, 0x60770010, 0x60780010, 0x606C0020, 0x60F40020, 0x60610008, 0x00000008, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</Item>
+	<Item IDN="603.1" Label="The object we choiced for RxPDO" Index="1.0.0">0x60400010, 0x60710010, 0x607A0020, 0x60B20010, 0x60600008, 0x00000008, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</Item>
+	<Item IDN="603.10" Label="TxPDO mapping object" Index="1.0.0">0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00, 0x1A00</Item>
+	<Item IDN="603.11" Label="RxPDO mapping object" Index="1.0.0">0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600, 0x1600</Item>
+	<Item IDN="603.40" Label="EtherCAT DC cycle time|[usec]" Index="1.0.0">1000</Item>
+	<Item IDN="603.41" Label="EtherCAT mapping mode" Index="1.0.0">1</Item>
+	<Item IDN="603.80" Label="EtherCAT Version" Index="1.0.0">V1.1.24</Item>
+	<Item IDN="603.90" Label="EtherCAT slave supply waiting timeout|[msec]" Index="1.0.0">-1</Item>
+</Controller>

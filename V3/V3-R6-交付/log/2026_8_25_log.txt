@@ -1,0 +1,153 @@
+Time:9:42:34:572  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 3
+ Robot Axis = 7
+ Calbration location number = 100
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:9:43:29:15  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 3
+ Robot Axis = 7
+ Calbration location number = 100
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:11:9:23:16  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 3
+ Robot Axis = 7
+ Calbration location number = 100
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:11:9:25:147  [1] 0
+Time:11:9:25:148  [2] 0
+Time:11:9:25:149  [3] 0
+Time:11:9:25:150  [4] 0
+Time:11:9:25:151  [5] 0
+Time:11:9:25:151  [6] 0
+Time:11:9:25:152  [8] 0
+Time:11:9:25:152  [9] 0
+Time:11:9:26:952  [6] -5156 Error - High power ON failed due to exception
+Time:11:9:27:2  [0] -5168 Error - Enable servo timeout(Robot:1,Axis:1)
+Time:11:9:30:886  [1] System.Login 0
+Time:11:9:30:887  [2] Thread.Abort "MacroThread"
+Time:11:9:31:400  [3] Thread.Start "MacroThread"
+Time:11:9:31:401  [4] Robot.Attached 1
+Time:11:9:31:402  [5] System.ClearVariables
+Time:11:9:31:402  [6] Robot.PowerEnable 1,1
+Time:11:9:31:402  [7] Robot.Home 1
+Time:11:9:31:403  [8] LocationJ RopeEncLoc
+Time:11:9:31:403  [9] Profile Rope = 50,0,50,50,2,2
+Time:11:9:31:404  [10] Profile.Set 1,Rope
+Time:11:10:16:58  [11] 0
+Time:11:10:16:120  [12] 0
+Time:11:10:16:122  [13] 0
+Time:11:10:16:123  [14] 0
+Time:11:10:16:124  [14] -5156 Error - High power ON failed due to exception
+Time:11:10:16:125  [0] -5168 Error - Enable servo timeout(Robot:1,Axis:1)
+Time:11:10:16:125  [16] -124 Warning - System in Stop state, use Continue, Retry, or Abort command
+Time:11:10:16:129  [17] -124 Warning - System in Stop state, use Continue, Retry, or Abort command
+Time:11:10:19:943  [11] Thread.Abort "MacroThread"
+Time:11:10:19:944  [12] Thread.Start "MacroThread"
+Time:11:10:20:460  [13] Robot.Attached 1
+Time:11:10:20:461  [14] Robot.PowerEnable 1,1
+Time:11:10:20:461  [15] Robot.Speed 1,20
+Time:11:10:22:503  [16] RopeEncLoc=0.000,0.000,0.000,-90.000,0.000,0.000,0.000
+Time:11:10:22:503  [17] Move.Joint RopeEncLoc
+Time:11:11:10:829  [18] 0
+Time:11:11:17:235  [18] Thread.Abort "MacroThread"
+Time:11:11:25:964  [19] -122 Warning - System in Abort state, use Start command
+Time:11:11:26:28  [20] 0
+Time:11:11:26:29  [21] 0
+Time:11:11:26:30  [22] 0
+Time:11:11:26:31  [22] -5156 Error - High power ON failed due to exception
+Time:11:11:26:32  [0] -5168 Error - Enable servo timeout(Robot:1,Axis:1)
+Time:11:11:26:33  [24] -124 Warning - System in Stop state, use Continue, Retry, or Abort command
+Time:11:11:26:41  [25] -124 Warning - System in Stop state, use Continue, Retry, or Abort command
+Time:11:11:30:43  [19] Thread.Abort "MacroThread"
+Time:11:11:30:44  [20] Thread.Start "MacroThread"
+Time:11:11:30:45  [21] Robot.Attached 1
+Time:11:11:30:45  [22] Robot.PowerEnable 1,1
+Time:11:11:30:46  [23] Robot.Speed 1,20
+Time:11:11:32:87  [24] RopeEncLoc=0.000,0.000,0.000,-90.000,0.000,0.000,0.000
+Time:11:11:32:88  [25] Move.Joint RopeEncLoc
+Time:11:14:15:454  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 3
+ Robot Axis = 7
+ Calbration location number = 100
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:11:14:19:445  [1] 0
+Time:11:14:19:446  [2] 0
+Time:11:14:19:447  [3] 0
+Time:11:14:19:447  [4] 0
+Time:11:14:19:448  [5] 0
+Time:11:14:19:448  [6] 0
+Time:11:14:19:449  [8] 0
+Time:11:14:19:449  [9] 0
+Time:11:14:21:238  [6] -5156 Error - High power ON failed due to exception
+Time:11:14:21:291  [0] -5168 Error - Enable servo timeout(Robot:1,Axis:1)
+Time:11:14:26:157  [11] 0
+Time:11:14:26:233  [12] 0
+Time:11:14:26:235  [13] 0
+Time:11:14:26:236  [14] 0
+Time:11:14:26:237  [1] System.Login 0
+Time:11:14:26:238  [2] Thread.Abort "MacroThread"
+Time:11:14:26:239  [3] Thread.Start "MacroThread"
+Time:11:14:26:240  [4] Robot.Attached 1
+Time:11:14:26:241  [5] System.ClearVariables
+Time:11:14:26:242  [6] Robot.PowerEnable 1,1
+Time:11:14:26:243  [7] Robot.Home 1
+Time:11:14:26:244  [8] LocationJ RopeEncLoc
+Time:11:14:26:245  [9] Profile Rope = 50,0,50,50,2,2
+Time:11:14:26:246  [10] Profile.Set 1,Rope
+Time:11:14:26:247  [14] -5156 Error - High power ON failed due to exception
+Time:11:14:26:248  [0] -5168 Error - Enable servo timeout(Robot:1,Axis:1)
+Time:11:14:26:248  [16] -124 Warning - System in Stop state, use Continue, Retry, or Abort command
+Time:11:14:26:249  [17] -124 Warning - System in Stop state, use Continue, Retry, or Abort command
+Time:11:14:30:256  [11] Thread.Abort "MacroThread"
+Time:11:14:30:257  [12] Thread.Start "MacroThread"
+Time:11:14:30:257  [13] Robot.Attached 1
+Time:11:14:30:258  [14] Robot.PowerEnable 1,1
+Time:11:14:30:259  [15] Robot.Speed 1,20
+Time:11:14:32:295  [16] RopeEncLoc=0.000,0.000,0.000,-90.000,0.000,0.000,0.000
+Time:11:14:32:297  [17] Move.Joint RopeEncLoc
+Time:11:22:21:617  [0] -5168 Error - Enable servo timeout(Robot:1,Axis:1)
+Time:17:43:55:740  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 3
+ Robot Axis = 7
+ Calbration location number = 100
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+

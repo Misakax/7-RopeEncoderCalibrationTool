@@ -1,0 +1,12 @@
+R7.1 binary status
+==================
+
+This delivery does NOT contain a rebuilt R7.1 Windows EXE/DLL.
+The uploaded R7 handoff contains only a reduced source subset and does not include
+all files/dependencies referenced by the Visual Studio/MFC projects (including the
+full MFC app/resource tree and eigen3). The current execution environment also has
+no Visual Studio/MSVC/MFC toolchain.
+
+Do not rename or reuse the old R7 EXE/DLL as R7.1.
+Apply R7_to_R7.1.patch to the complete Windows source tree, then rebuild EXE + DLL
+together in Release|x86 and verify CalibrationV3BuildId() before field use.

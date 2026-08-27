@@ -1,0 +1,18 @@
+build=HE3-V3-CRAIG-MDH-ANALYTIC-TWOSTAGE-LASER-PRIOR-20260826-R7.2 status=1
+MAE(mm): 0.385489306876 -> 1.87592674191e-05
+d5 expected/recovered(mm): 0.8 / 0.79971847617
+rank=1/1 condition=221.838728545
+d5_test=PASS
+q5 status=1 MAE(mm)=3.9286143245 -> 1.60027727251e-05
+q5 expected/recovered(deg): 0.5 / 0.499969237449
+q5 rank=1/1 condition=285.311084548
+q5_test=PASS
+bL status=1 raw/geometric MAE(mm)=0.317929400476 -> 3.45558651138e-10
+bL expected/recovered(mm): 2.75 / 2.75000001743
+d5 false correction(mm): -1.23596380661e-10
+bL_test=PASS
+q6 point-Jacobian column norm=0 structural_zero=PASS
+q7 point-Jacobian column norm=0 structural_zero=PASS
+overall=PASS
+
+Press Enter to close...

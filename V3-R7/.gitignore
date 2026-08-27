@@ -1,0 +1,13 @@
+.vs/
+Debug/
+ipch/
+
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+*.pdb
+*.obj
+*.ilk
+*.tlog
+*.log

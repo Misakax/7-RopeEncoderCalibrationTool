@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--File name: Calibration-->
+<!--File creation date: 2026-06-18-->
+<!--File release date: 2026-06-18-->
+<!--File release version: V2.5.0.0-->
+<Calibration>
+	<Item IDN="1127.13" Label="Encoder value corresponding to joint zero positons|[ecnt]" Index="1.0.0">0, -58, -42, -458, -193, 88, 0</Item>
+
+	<Item IDN="1301.43" Label="Coefficient of Coulomb friction" Index="1.0.0">0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000</Item>
+	<Item IDN="1301.44" Label="Coefficient of viscous friction1" Index="1.0.0">0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000</Item>
+	<Item IDN="1301.45" Label="Coefficient of viscous friction2" Index="1.0.0">0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000</Item>
+	<Item IDN="1301.46" Label="Coefficient of Coulomb friction(low speed)" Index="1.0.0">0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000</Item>
+	<Item IDN="1301.47" Label="Coefficient of viscous friction1(low speed)" Index="1.0.0">0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000</Item>
+	<Item IDN="1301.48" Label="Coefficient of viscous friction2(low speed)" Index="1.0.0">0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000</Item>
+</Calibration>

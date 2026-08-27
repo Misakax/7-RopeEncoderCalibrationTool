@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--File name: Robot1 file-->
+<!--File creation date: 2026-06-18-->
+<!--File release date: 2026-06-18-->
+<!--File release version: V2.5.0.0-->
+<Robot>
+	<Item IDN="1001.0" Label="Robot name" Index="1.0.0">Robot1</Item>
+	<Item IDN="1001.3" Label="Robot platform Version" Index="1.0.0">1</Item>
+
+	<Item IDN="1011.0" Label="Number of extra axes" Index="1.0.0">0</Item>
+	<Item IDN="1011.1" Label="Number of robot body axes" Index="1.0.0">7</Item>
+	<Item IDN="1011.20" Label="Max number conveyors to track" Index="1.0.0">4</Item>
+	<Item IDN="1011.30" Label="Robot auto home" Index="1.0.0">0</Item>
+
+	<Item IDN="1015.0" Label="Number of axes" Index="1.0.0">7</Item>
+	<Item IDN="1015.1" Label="Axis mapping ID" Index="1.0.0">1, 2, 3, 4, 5, 6, 7</Item>
+	<Item IDN="1015.2" Label="Axis mask" Index="1.0.0">0</Item>
+	<Item IDN="1015.3" Label="Split-Axis enable" Index="1.0.0">0</Item>
+	<Item IDN="1015.4" Label="Motor disable mask" Index="1.0.0">0</Item>
+
+	<Item IDN="1053.0" Label="Exception task period|[msec]" Index="1.0.0">2</Item>
+	<Item IDN="1053.1" Label="Exception mask control word" Index="1.0.0">10326</Item>
+	<Item IDN="1053.2" Label="Profile joint speed scale factor" Index="1.0.0">1.100</Item>
+	<Item IDN="1053.3" Label="Exception processing check status interval time|[sec]" Index="1.0.0">0.025</Item>
+	<Item IDN="1053.4" Label="Exception processing timeout for check motor decelerated|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="1053.5" Label="Exception processing timeout for check brake engaged|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="1053.6" Label="Exception processing timeout for check servo off|[sec]" Index="1.0.0">2.000</Item>
+	<Item IDN="1053.7" Label="Exception processing timeout for check amplifier off|[sec]" Index="1.0.0">0.150</Item>
+	<Item IDN="1053.8" Label="Exception processing timeout for check DC voltage disabled|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="1053.9" Label="Check robot fan error  filter time|[sec]" Index="1.0.0">2.000</Item>
+	<Item IDN="1053.20" Label="safety function enable mask" Index="1.0.0">0</Item>
+	<Item IDN="1053.21" Label="Estop speed limit value|[]" Index="1.0.0">-1.00</Item>
+	<Item IDN="1053.22" Label="switch manual mode speed limit|[]" Index="1.0.0">-1.00</Item>
+	<Item IDN="1053.30" Label="Static current filter tf|[sec]" Index="1.0.0">0.000</Item>
+	<Item IDN="1053.31" Label="Static current filter ts|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1053.32" Label="Static current limit|[mA]" Index="1.0.0">2000.00, 2000.00, 2000.00, 2000.00, 2000.00, 2000.00, 2000.00</Item>
+	<Item IDN="1053.40" Label="Position feedback detection period threshold|[msec]" Index="1.0.0">3</Item>
+	<Item IDN="1053.41" Label="Clear encoder multiturn value in initialization phase" Index="1.0.0">0</Item>
+	<Item IDN="1053.100" Label="Joint speed limit of zero force mode|[deg/s]" Index="1.0.0">80.000, 80.000, 80.000, 80.000, 80.000, 80.000, 80.000</Item>
+	<Item IDN="1053.101" Label="Joint speed limit normal|[deg/s]" Index="1.0.0">200.000, 200.000, 200.000, 200.000, 200.000, 200.000, 200.000</Item>
+	<Item IDN="1053.130" Label="TCP speed limit method" Index="1.0.0">0</Item>
+	<Item IDN="1053.131" Label="TCP speed limit value|[mm/s]" Index="1.0.0">200.000</Item>
+	<Item IDN="1053.132" Label="Check TCP speed limit interval|[msec]" Index="1.0.0">100.000</Item>
+
+	<Item IDN="1101.0" Label="Length of joint links|[mm]" Index="1.0.0">1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1101.10" Label="A of DH of joints|[mm]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1101.11" Label="D of DH of joints|[mm]" Index="1.0.0">0.000, 48.6252, 492.244, -120.088, 316.573, 0.000, 93.000</Item>
+	<Item IDN="1101.12" Label="Alpha of DH of joints|[deg]" Index="1.0.0">90.1594, -90.1101, 90.0517, -90.0577, 90.0671, -89.978, 0.000</Item>
+	<Item IDN="1101.13" Label="Theta of DH of joints|[deg]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1101.20" Label="Positive hard joint travel limit|[deg or mm]" Index="1.0.0">180.000, 105.000, 180.000, 180.000, 180.000, 87.000, 180.000</Item>
+	<Item IDN="1101.21" Label="Negative hard joint travel limit|[deg or mm]" Index="1.0.0">-180.000, -105.000, -180.000, -180.000, -180.000, -87.000, -180.000</Item>
+	<Item IDN="1101.22" Label="Positive soft joint travel limit|[deg or mm]" Index="1.0.0">179.000, 100.000, 179.000, 179.000, 179.000, 86.000, 179.000</Item>
+	<Item IDN="1101.23" Label="Negative soft joint travel limit|[deg or mm]" Index="1.0.0">-179.000, -100.000, -179.000, -179.000, -179.000, -86.000, -179.000</Item>
+	<Item IDN="1101.30" Label="Singularity scale|[rad]" Index="1.0.0">0.030</Item>
+	<Item IDN="1101.100" Label="Joint continue run mode" Index="1.0.0">1</Item>
+	<Item IDN="1101.101" Label="Anticipation exceed joint limit enable" Index="1.0.0">1</Item>
+	<Item IDN="1101.102" Label="Distance of anticipation exceed joint limit|[deg or mm]" Index="1.0.0">0.500</Item>
+
+	<Item IDN="1103.0" Label="Move direction of joints" Index="1.0.0">1, 1, 1, -1, 1, -1, 1</Item>
+	<Item IDN="1103.1" Label="Encoder resolution of motors|[ecnt]" Index="1.0.0">524288, 524288, 524288, 524288, 524288, 524288, 524288</Item>
+	<Item IDN="1103.2" Label="Gear ratio of reduction gears" Index="1.0.0">101.0000, 101.0000, 101.0000, 101.0000, 101.0000, 101.0000, 101.0000</Item>
+	<Item IDN="1103.4" Label="Mechanical couple of joints" Index="1.0.0">0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000</Item>
+	<Item IDN="1103.5" Label="Screw pitch of joints|[mm]" Index="1.0.0">1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000</Item>
+	<Item IDN="1103.6" Label="Encoder source is load side" Index="1.0.0">1</Item>
+
+	<Item IDN="1105.1" Label="Base collision monitor flag" Index="1.0.0">0</Item>
+	<Item IDN="1105.2" Label="Base collision positive x|[mm]" Index="1.0.0">400.000</Item>
+	<Item IDN="1105.3" Label="Base collision negative x|[mm]" Index="1.0.0">-400.000</Item>
+	<Item IDN="1105.4" Label="Base collision positive y|[mm]" Index="1.0.0">200.000</Item>
+	<Item IDN="1105.5" Label="Base collision negative y|[mm]" Index="1.0.0">-200.000</Item>
+	<Item IDN="1105.6" Label="Base collision positive z|[mm]" Index="1.0.0">200.000</Item>
+	<Item IDN="1105.7" Label="Base collision negative z|[mm]" Index="1.0.0">-200.000</Item>
+	<Item IDN="1105.8" Label="Base collision circle radius|[mm]" Index="1.0.0">200.000</Item>
+	<Item IDN="1105.9" Label="Base collision circle center point coord x|[mm]" Index="1.0.0">400.000</Item>
+	<Item IDN="1105.10" Label="Base collision circle center point coord y|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.21" Label="Anticipation base collision enable" Index="1.0.0">0</Item>
+	<Item IDN="1105.22" Label="Anticipation base collision distance|[mm]" Index="1.0.0">2.000</Item>
+	<Item IDN="1105.41" Label="Tool collision monitor flag" Index="1.0.0">0</Item>
+	<Item IDN="1105.42" Label="Tool collision positive x|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.43" Label="Tool collision negative x|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.44" Label="Tool collision positive y|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.45" Label="Tool collision negative y|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.46" Label="Tool collision positive z|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.47" Label="Tool collision negative z|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.48" Label="Tool collision  circle radius|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.49" Label="Tool collision circle center point coord x|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.50" Label="Tool collision circle center point coord y|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.81" Label="Check delta robot workspace flag" Index="1.0.0">0</Item>
+	<Item IDN="1105.82" Label="Parameter A in the Delta robot handbook on workspace parameters|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.83" Label="Parameter B in the Delta robot handbook on workspace parameters|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.84" Label="Parameter C in the Delta robot handbook on workspace parameters|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.85" Label="Parameter D in the Delta robot handbook on workspace parameters|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.86" Label="Parameter E in the Delta robot handbook on workspace parameters|[mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1105.87" Label="Expansion parameter of the robot workspace parameters|[mm]" Index="1.0.0">2.000</Item>
+	<Item IDN="1105.88" Label="Enable the function for anticipation that the robot flange exceeds the workspace area" Index="1.0.0">0</Item>
+	<Item IDN="1105.89" Label="The distance for anticipation that the robot flange exceeds the workspace area|[mm]" Index="1.0.0">2.000</Item>
+	<Item IDN="1105.130" Label="Enable the function for anticipation that the robot TCP enter the interface zone area" Index="1.0.0">0</Item>
+	<Item IDN="1105.131" Label="Enable the function for anticipation that the robot TCP enter the interface zone area|[mm]" Index="1.0.0">0.000</Item>
+
+	<Item IDN="1123.10" Label="Base joint velocities|[deg/s or mm/s]" Index="1.0.0">180.000, 180.000, 180.000, 180.000, 180.000, 180.000, 180.000</Item>
+	<Item IDN="1123.11" Label="Base cartesian velocities|[deg/s or mm/s]" Index="1.0.0">1250.000, 180.000</Item>
+	<Item IDN="1123.12" Label="Base joint accelerations|[deg/s^2 or mm/s^2]" Index="1.0.0">540.000, 540.000, 540.000, 540.000, 540.000, 540.000, 540.000</Item>
+	<Item IDN="1123.13" Label="Base joint decelerations|[deg/s^2 or mm/s^2]" Index="1.0.0">540.000, 540.000, 540.000, 540.000, 540.000, 540.000, 540.000</Item>
+	<Item IDN="1123.14" Label="Base cartesian accelerations|[deg/s^2 or mm/s^2]" Index="1.0.0">2500.000, 360.000</Item>
+	<Item IDN="1123.15" Label="Base cartesian decelerations|[deg/s^2 or mm/s^2]" Index="1.0.0">2500.000, 360.000</Item>
+	<Item IDN="1123.20" Label="Maximum percentage of velocity|[]" Index="1.0.0">110.00</Item>
+	<Item IDN="1123.21" Label="Maximum percentage of acceleration|[]" Index="1.0.0">150.00</Item>
+	<Item IDN="1123.22" Label="Maximum percentage of deceleration|[]" Index="1.0.0">150.00</Item>
+	<Item IDN="1123.30" Label="Deceleration percentages of axes in rapid stop mode|[]" Index="1.0.0">50.00, 50.00, 50.00, 50.00, 50.00, 50.00, 50.00</Item>
+	<Item IDN="1123.32" Label="Deceleration of stop Command|[]" Index="1.0.0">70.00, 70.00, 70.00, 70.00, 70.00, 70.00, 70.00</Item>
+	<Item IDN="1123.40" Label="Deceleration of stop Command|[]" Index="1.0.0">70.00, 70.00, 70.00, 70.00, 70.00, 70.00, 70.00</Item>
+	<Item IDN="1123.41" Label="Jerk of stop Command|[]" Index="1.0.0">500.00, 500.00, 500.00, 500.00, 500.00, 500.00, 500.00</Item>
+	<Item IDN="1123.42" Label="Deceleration of stop Command  for blend segment|[]" Index="1.0.0">80.00, 80.00, 80.00, 80.00, 80.00, 80.00, 80.00</Item>
+	<Item IDN="1123.43" Label="Jerk of stop Command for blend segment|[]" Index="1.0.0">1000.00, 1000.00, 1000.00, 1000.00, 1000.00, 1000.00, 1000.00</Item>
+	<Item IDN="1123.44" Label="joint distance of stop Command for blend segment|[deg]" Index="1.0.0">3.000, 3.000, 3.000, 3.000, 3.000, 3.000, 3.000</Item>
+	<Item IDN="1123.45" Label="Minimum stopping timen of stop Command|[sec]" Index="1.0.0">0.100</Item>
+	<Item IDN="1123.46" Label="Minimum stopping time of stop Command for blend segment|[sec]" Index="1.0.0">0.100</Item>
+	<Item IDN="1123.50" Label="Default percentage of veloctiy|[]" Index="1.0.0">50.00</Item>
+	<Item IDN="1123.51" Label="Default percentage of angular velocity|[]" Index="1.0.0">0.00</Item>
+	<Item IDN="1123.52" Label="Default precentage of acceleration|[]" Index="1.0.0">50.00</Item>
+	<Item IDN="1123.53" Label="Default acceration ramp time|[sec]" Index="1.0.0">0.100</Item>
+	<Item IDN="1123.54" Label="Default precentage of deceleration|[]" Index="1.0.0">50.00</Item>
+	<Item IDN="1123.55" Label="Default deceration ramp time|[sec]" Index="1.0.0">0.100</Item>
+	<Item IDN="1123.56" Label="Default Straight flag" Index="1.0.0">0</Item>
+	<Item IDN="1123.57" Label="Default InRange type|[]" Index="1.0.0">0.00</Item>
+	<Item IDN="1123.58" Label="Default Motion type" Index="1.0.0">0</Item>
+	<Item IDN="1123.59" Label="Default motion command execution time|[sec]" Index="1.0.0">0.000</Item>
+	<Item IDN="1123.80" Label="Joint motion synchronize type" Index="1.0.0">1</Item>
+	<Item IDN="1123.81" Label="Cartesian motion synchronize type" Index="1.0.0">1</Item>
+	<Item IDN="1123.82" Label="Cartesian motion posture method" Index="1.0.0">0</Item>
+	<Item IDN="1123.83" Label="Arc motion posture method" Index="1.0.0">0</Item>
+	<Item IDN="1123.85" Label="Continue type" Index="1.0.0">1</Item>
+	<Item IDN="1123.120" Label="Online speed enable" Index="1.0.0">0</Item>
+	<Item IDN="1123.121" Label="Online speed change duration|[msec]" Index="1.0.0">500.000</Item>
+
+	<Item IDN="1125.1" Label="Inrange DOUT" Index="1.0.0">0</Item>
+	<Item IDN="1125.2" Label="Inrange timeout DOUT" Index="1.0.0">0</Item>
+	<Item IDN="1125.3" Label="Inrange tolerance|[ecnt]" Index="1.0.0">100, 100, 100, 100, 100, 100, 100</Item>
+	<Item IDN="1125.4" Label="Inrange duration|[sec]" Index="1.0.0">0.050</Item>
+	<Item IDN="1125.5" Label="InRange timeout duration|[sec]" Index="1.0.0">10.000</Item>
+
+	<Item IDN="1127.0" Label="Current direction of joint" Index="1.0.0">1, 1, 1, -1, 1, -1, 1</Item>
+	<Item IDN="1127.1" Label="Type of joint" Index="1.0.0">0, 0, 0, 0, 0, 0, 0</Item>
+	<Item IDN="1127.10" Label="TS of joint velocity feedback filter|[sec]" Index="1.0.0">0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001</Item>
+	<Item IDN="1127.11" Label="TF of joint velocity feedback filter|[sec]" Index="1.0.0">0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500</Item>
+	<Item IDN="1127.12" Label="Max velocity limit of joint|[deg/s]" Index="1.0.0">200, 200, 200, 200, 200, 200, 200</Item>
+	<Item IDN="1127.14" Label="Zero calibration operation protection" Index="1.0.0">0</Item>
+	<Item IDN="1127.20" Label="Joint maximum position feedback error|[deg or mm]" Index="1.0.0">10.000, 10.000, 10.000, 10.000, 10.000, 10.000, 10.000</Item>
+
+	<Item IDN="1151.6" Label="Time of continuous Jog's segment|[sec]" Index="1.0.0">0.100</Item>
+	<Item IDN="1151.7" Label="Jog incremental distance|[deg or mm]" Index="1.0.0">5.000</Item>
+	<Item IDN="1151.9" Label="Jog speed limit percentage|[]" Index="1.0.0">50.00</Item>
+	<Item IDN="1151.10" Label="Continuous Jog acceleration increment percentage|[]" Index="1.0.0">100.00</Item>
+	<Item IDN="1151.20" Label="Velocity1 percent of incremental Jog|[]" Index="1.0.0">50.00</Item>
+	<Item IDN="1151.21" Label="Velocity2 percent of incremental Jog|[]" Index="1.0.0">0.00</Item>
+	<Item IDN="1151.22" Label="Acceleration percent of incremental Jog|[]" Index="1.0.0">50.00</Item>
+	<Item IDN="1151.23" Label="Acceleration ramp time  of incremental Jog|[sec]" Index="1.0.0">0.100</Item>
+	<Item IDN="1151.24" Label="Deceleration percent  of incremental Jog|[]" Index="1.0.0">50.00</Item>
+	<Item IDN="1151.25" Label="Deceleration ramp time  of incremental Jog|[sec]" Index="1.0.0">0.100</Item>
+	<Item IDN="1151.26" Label="Straight line flag of incremental Jog" Index="1.0.0">0</Item>
+	<Item IDN="1151.27" Label="Inrange error of incremental Jog|[deg or mm]" Index="1.0.0">0.000</Item>
+	<Item IDN="1151.28" Label="Move type of incremental Jog" Index="1.0.0">0</Item>
+
+	<Item IDN="1203.0" Label="EMI control word" Index="1.0.0">43008</Item>
+	<Item IDN="1203.2" Label="EMI usage scenario" Index="1.0.0">0</Item>
+	<Item IDN="1203.3" Label="EMI period of transmission|[sec]" Index="1.0.0">0.016</Item>
+	<Item IDN="1203.4" Label="EMI single buffer size" Index="1.0.0">256</Item>
+	<Item IDN="1203.5" Label="EMI maximum number of timeout" Index="1.0.0">3</Item>
+	<Item IDN="1203.20" Label="Threshold of distance between the EMI start point and the current joint position|[deg or mm]" Index="1.0.0">50.000</Item>
+	<Item IDN="1203.21" Label="Threshold of distance between the EMI start point and the current cartesian position|[mm]" Index="1.0.0">100.000</Item>
+	<Item IDN="1203.22" Label="Position type data planning algorithm type" Index="1.0.0">1</Item>
+	<Item IDN="1203.30" Label="Maximum speed percentage relative to the reference speed in EMI Servo mode." Index="1.0.0">100.00</Item>
+	<Item IDN="1203.31" Label="Maximum acceleration percentage relative to the reference acceleration in EMI Servo mode." Index="1.0.0">100.00</Item>
+	<Item IDN="1203.50" Label="Smooth acceleration and deceleration time of EMI offline position motion|[sec]" Index="1.0.0">0.300</Item>
+	<Item IDN="1203.51" Label="Compensation time of second point of EMI offline position motion|[sec]" Index="1.0.0">0.000</Item>
+	<Item IDN="1203.52" Label="Compensation time of end point of EMI offline position motion|[sec]" Index="1.0.0">0.000</Item>
+	<Item IDN="1203.53" Label="Repeated executions times of the EMI trace" Index="1.0.0">0</Item>
+	<Item IDN="1203.100" Label="Whether auto enter EMI mode In real-tme mode" Index="1.0.0">0</Item>
+	<Item IDN="1203.120" Label="Acceleration limit parameters in EMI PT mode" Index="1.0.0">540.000000, 540.000000, 540.000000, 540.000000, 540.000000, 540.000000, 540.000000</Item>
+	<Item IDN="1203.130" Label="Sampling frequency of the second-order low-pass filter for input data in EMI PT mode|[Hz]" Index="1.0.0">1000.000000</Item>
+	<Item IDN="1203.131" Label="Cutoff frequency of the second-order low-pass filter for input data in EMI PT mode|[Hz]" Index="1.0.0">20.000000</Item>
+	<Item IDN="1203.132" Label="Sampling frequency of the second-order low-pass filter for output data in EMI PT mode|[Hz]" Index="1.0.0">1000.000000</Item>
+	<Item IDN="1203.133" Label="Cutoff frequency of the second-order low-pass filter for output data in EMI PT mode|[Hz]" Index="1.0.0">20.000000</Item>
+	<Item IDN="1203.140" Label="Filter time constant of the first-order low-pass filter for input data in EMI PT mode" Index="1.0.0">0.010000, 0.010000, 0.010000, 0.010000, 0.010000, 0.010000, 0.010000</Item>
+	<Item IDN="1203.141" Label="Filter period of the first-order low-pass filter for input data in EMI PT mode|[msec]" Index="1.0.0">0.000000</Item>
+	<Item IDN="1203.143" Label="Filter time constant of the first-order low-pass filter for output data in EMI PT mode" Index="1.0.0">0.010000, 0.010000, 0.010000, 0.010000, 0.010000, 0.010000, 0.010000</Item>
+	<Item IDN="1203.144" Label="Filter period of the first-order low-pass filter for output data in EMI PT mode|[msec]" Index="1.0.0">0.000000</Item>
+	<Item IDN="1203.150" Label="Number of fixed buffer data samples in EMI PT mode" Index="1.0.0">2</Item>
+
+	<Item IDN="1205.0" Label="Joint distance threshold of PPB starting point and current position|[deg]" Index="1.0.0">90.000</Item>
+	<Item IDN="1205.1" Label="Cartesian distance threshold of PPB starting point and current position|[mm]" Index="1.0.0">500.000</Item>
+	<Item IDN="1205.2" Label="PPB movement smooth acceleration and deceleration time|[sec]" Index="1.0.0">0.300</Item>
+	<Item IDN="1205.3" Label="PPB movement start point offset time|[sec]" Index="1.0.0">0.500</Item>
+	<Item IDN="1205.4" Label="PPB movement end point offset time|[sec]" Index="1.0.0">2.000</Item>
+	<Item IDN="1205.5" Label="PPB movement max speed|[]" Index="1.0.0">100.00</Item>
+	<Item IDN="1205.6" Label="PPB single buffer size" Index="1.0.0">512</Item>
+
+	<Item IDN="1221.0" Label="Iterative precision|[mm]" Index="1.0.0">0.100</Item>
+	<Item IDN="1221.1" Label="Max time of iteration" Index="1.0.0">30</Item>
+	<Item IDN="1221.2" Label="Time offset of calculation|[sec]" Index="1.0.0">0.001</Item>
+
+	<Item IDN="1223.0" Label="Conveyor instance number" Index="1.0.0">1, 2, 3, 4</Item>
+	<Item IDN="1223.1" Label="Conveyor tracking enable" Index="1.0.0">1, 1, 1, 1</Item>
+	<Item IDN="1223.2" Label="Configuration of conveyor tracking" Index="1.0.0">3, 3, 3, 3</Item>
+	<Item IDN="1223.3" Label="Duplicate threshold|[mm]" Index="1.0.0">0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.4" Label="Offset of item position and posture|[deg or mm]" Index="1.0.1">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.4" Label="Offset of item position and posture|[deg or mm]" Index="1.0.2">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.4" Label="Offset of item position and posture|[deg or mm]" Index="1.0.3">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.4" Label="Offset of item position and posture|[deg or mm]" Index="1.0.4">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.5" Label="The conveyor belt tracks the maximum number of workpiece|[cnt]" Index="1.0.0">16, 16, 16, 16</Item>
+	<Item IDN="1223.10" Label="Frame type of conveyor" Index="1.0.0">0, 0, 0, 0</Item>
+	<Item IDN="1223.11" Label="Conveyor coordinate system" Index="1.0.1">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.11" Label="Conveyor coordinate system" Index="1.0.2">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.11" Label="Conveyor coordinate system" Index="1.0.3">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.11" Label="Conveyor coordinate system" Index="1.0.4">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.20" Label="Position of up pick limit of conveyor|[mm]" Index="1.0.0">0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.21" Label="Position of down pick limit of conveyor|[mm]" Index="1.0.0">0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.22" Label="Position of up track limit of conveyor|[mm]" Index="1.0.0">0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.23" Label="Position of down track limit of conveyor|[mm]" Index="1.0.0">0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1223.24" Label="Position of stop limit of conveyor|[mm]" Index="1.0.0">0.000, 0.000, 0.000, 0.000</Item>
+
+	<Item IDN="1301.0" Label="Dynamics mask" Index="1.0.0">29</Item>
+	<Item IDN="1301.1" Label="Link  mass(1-9 axis )|[Kg]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.2" Label="Link1's center of mass|[mm]" Index="1.0.0">-0.002, -6.424, -63.090</Item>
+	<Item IDN="1301.3" Label="Link2's center of mass|[mm]" Index="1.0.0">0.000, 150.460, 5.510</Item>
+	<Item IDN="1301.4" Label="Link3's center of mass|[mm]" Index="1.0.0">-0.010, -9.460, -183.550</Item>
+	<Item IDN="1301.5" Label="Link4's center of mass|[mm]" Index="1.0.0">0.000, -35.450, -45.230</Item>
+	<Item IDN="1301.6" Label="Link5's center of mass|[mm]" Index="1.0.0">0.160, -4.730, 144.490</Item>
+	<Item IDN="1301.7" Label="Link6's center of mass|[mm]" Index="1.0.0">0.050, -36.480, 45.190</Item>
+	<Item IDN="1301.8" Label="Link7's center of mass|[mm]" Index="1.0.0">0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.9" Label="Link8's center of mass|[mm]" Index="1.0.0">0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.10" Label="Link9's center of mass|[mm]" Index="1.0.0">0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.20" Label="Link1's inertial matrix|[kg*mm^2]" Index="1.0.0">5247.513, 4046.414, 4817.141, -0.416, 79.397, -0.287</Item>
+	<Item IDN="1301.21" Label="Link2's inertial matrix|[kg*mm^2]" Index="1.0.0">16107.030, 2752.720, 16424.220, -0.040, -1451.410, -0.020</Item>
+	<Item IDN="1301.22" Label="Link3's inertial matrix|[kg*mm^2]" Index="1.0.0">17820.960, 16779.480, 3246.610, -0.230, 1894.960, 0.310</Item>
+	<Item IDN="1301.23" Label="Link4's inertial matrix|[kg*mm^2]" Index="1.0.0">2379.050, 1487.350, 2243.570, 0.000, 201.400, 0.020</Item>
+	<Item IDN="1301.24" Label="Link5's inertial matrix|[kg*mm^2]" Index="1.0.0">9211.120, 7286.420, 3698.000, -19.840, 97.060, 4.030</Item>
+	<Item IDN="1301.25" Label="Link6's inertial matrix|[kg*mm^2]" Index="1.0.0">2452.210, 1618.410, 2282.870, 3.160, -47.070, -4.430</Item>
+	<Item IDN="1301.26" Label="Link7's inertial matrix|[kg*mm^2]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.27" Label="Link8's inertial matrix|[kg*mm^2]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.28" Label="Link9's inertial matrix|[kg*mm^2]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.40" Label="Rated current(1-9 axis)|[mA]" Index="1.0.0">8900, 10000, 3500, 3500, 3500, 3000, 3500</Item>
+	<Item IDN="1301.41" Label="Torque constant(1-9 axis)|[N.m/A]" Index="1.0.0">0.100, 0.120, 0.130, 0.130, 0.130, 0.051, 0.130</Item>
+	<Item IDN="1301.42" Label="Motor inertial(1-9 axis)|[kg*m^2]" Index="1.0.0">0.153000, 0.580000, 0.096000, 0.096000, 0.096000, 0.096000, 0.096000</Item>
+	<Item IDN="1301.49" Label="The joint speed threshold of using coefficient of friction|[deg/s or mm/s]" Index="1.0.0">-1.000</Item>
+	<Item IDN="1301.50" Label="Global coefficient of  friction adjustment|[]" Index="1.0.0">75</Item>
+	<Item IDN="1301.51" Label="Normal coefficient of  friction adjustment|[]" Index="1.0.0">100, 100, 100, 100, 100, 100, 100</Item>
+	<Item IDN="1301.52" Label="Zero force coefficient of  friction adjustment|[]" Index="1.0.0">80, 80, 80, 80, 80, 80, 80</Item>
+	<Item IDN="1301.53" Label="Time constant of torque filter|[sec]" Index="1.0.0">0.000</Item>
+	<Item IDN="1301.54" Label="Period of torque filter|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1301.56" Label="Time constant of torque filter|[sec]" Index="1.0.0">0.000</Item>
+	<Item IDN="1301.57" Label="Period of torque filter|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1301.59" Label="Time constant of torque error filter|[sec]" Index="1.0.0">0.100</Item>
+	<Item IDN="1301.60" Label="Period of torque error filter|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1301.62" Label="Dynamic type" Index="1.0.0">3</Item>
+	<Item IDN="1301.63" Label="The joint speed threshold of using cmd or feedback|[deg/s or mm/s]" Index="1.0.0">2.000</Item>
+	<Item IDN="1301.64" Label="online friction estamate flag" Index="1.0.0">0</Item>
+	<Item IDN="1301.65" Label="mounting position and direction|[deg or mm]" Index="1.0.0">0.000, 0.000, 0.000, 180.000, 0.000, 0.000</Item>
+	<Item IDN="1301.79" Label="Friction type" Index="1.0.0">0</Item>
+	<Item IDN="1301.80" Label="Link1's base parameters" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.81" Label="Link2's base parameters" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.82" Label="Link3's base parameters" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.83" Label="Link4's base parameters" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.84" Label="Link5's base parameters" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.85" Label="Link6's base parameters" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.86" Label="Link7's base parameters" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.87" Label="Stribeck Friction gamma Parameter" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1301.100" Label="Adjustment coefficient for joint module feedforward." Index="1.0.0">1.000000, 1.000000, 1.000000, 1.000000, 1.000000, 1.000000, 1.000000</Item>
+
+	<Item IDN="1303.0" Label="Force control mask" Index="1.0.0">16386</Item>
+	<Item IDN="1303.1" Label="Force reference frame" Index="1.0.0">0</Item>
+	<Item IDN="1303.2" Label="Source of force feedback" Index="1.0.0">0</Item>
+	<Item IDN="1303.3" Label="Duration of force control" Index="1.0.0">0</Item>
+	<Item IDN="1303.4" Label="Force control setvalue|[N]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.5" Label="TCP speed limit|[deg/s or mm/s]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.6" Label="Characteristic root|[rad/s]" Index="1.0.0">4.000, 4.000, 4.000, 4.000, 4.000, 4.000</Item>
+	<Item IDN="1303.7" Label="Collision coefficient|[N.m]" Index="1.0.0">15000.000, 15000.000, 15000.000, 15000.000, 15000.000, 15000.000</Item>
+	<Item IDN="1303.8" Label="PD controller KP value" Index="1.0.0">0.000100, 0.000100, 0.000100, 0.000100, 0.000100, 0.010000</Item>
+	<Item IDN="1303.9" Label="PD controller KD value" Index="1.0.0">0.000060, 0.000060, 0.000060, 0.000060, 0.000060, 0.010000</Item>
+	<Item IDN="1303.10" Label="The time constant of the self-force error filter in the base coordinate system|[sec]" Index="1.0.0">0.000</Item>
+	<Item IDN="1303.11" Label="Calculation period of self - force error filter in base coordinate system|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1303.13" Label="The time constant of the joint position incremental filter|[sec]" Index="1.0.0">0.000</Item>
+	<Item IDN="1303.14" Label="Calculation period of joint position incremental filter|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1303.16" Label="PD controller KD output filter time constant|[sec]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.17" Label="The calculation period of PD controller KD output filter|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1303.19" Label="Constraints on the error of Cartesian directional forces|[N]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.20" Label="Force-controlled speed limit value|[deg/s]" Index="1.0.0">0.100</Item>
+	<Item IDN="1303.21" Label="The coefficient of feedback xyz" Index="1.0.0">0.000</Item>
+	<Item IDN="1303.22" Label="The coefficient of feedback rxyz" Index="1.0.0">0.000</Item>
+	<Item IDN="1303.30" Label="Impedance controller M value" Index="1.0.0">40.000, 40.000, 40.000, 40.000, 40.000, 40.000</Item>
+	<Item IDN="1303.31" Label="Impedance controller B value" Index="1.0.0">6000.000, 6000.000, 6000.000, 6000.000, 6000.000, 6000.000</Item>
+	<Item IDN="1303.32" Label="Impedance controller K value" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.50" Label="Enable the spiral hole search" Index="1.0.0">0</Item>
+	<Item IDN="1303.51" Label="Enable joint compliance" Index="1.0.0">0</Item>
+	<Item IDN="1303.52" Label="Joint compliance parameters|[]" Index="1.0.0">100, 100, 100, 100, 100, 100, 100</Item>
+	<Item IDN="1303.53" Label="Angular velocity of spiral motion|[deg]" Index="1.0.0">60.000</Item>
+	<Item IDN="1303.54" Label="Rate of change of the spiral motion radius" Index="1.0.0">0.001000</Item>
+	<Item IDN="1303.55" Label="Z-direction distance threshold to start spiral hole-searching|[mm]" Index="1.0.0">1.000</Item>
+	<Item IDN="1303.56" Label="Z-direction distance threshold to end spiral hole-searching|[mm]" Index="1.0.0">1.000</Item>
+	<Item IDN="1303.57" Label="Cartesian pose to start force control|[deg or mm]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.58" Label="Speed scaling factor for spiral hole-searching" Index="1.0.0">0.001, 0.001, 0.001, 0.001, 0.001, 0.001</Item>
+	<Item IDN="1303.59" Label="Thresholds for force and torque scaling in spiral hole-searching|[N or N.m]" Index="1.0.0">100.000, 100.000, 100.000, 100.000, 100.000, 100.000</Item>
+	<Item IDN="1303.60" Label="Force set at the start of spiral hole-searching|[N]" Index="1.0.0">50.000</Item>
+	<Item IDN="1303.61" Label="Force set at the end of spiral hole-searching|[N]" Index="1.0.0">100.000</Item>
+	<Item IDN="1303.62" Label="Operation time of Cartesian compliance|[sec]" Index="1.0.0">1.500</Item>
+	<Item IDN="1303.63" Label="Activation direction of Cartesian compliance" Index="1.0.0">3</Item>
+	<Item IDN="1303.64" Label="Timeout for spiral hole-searching|[sec]" Index="1.0.0">20.000</Item>
+	<Item IDN="1303.65" Label="Speed threshold to start spiral hole-searching|[deg/s or mm/s]" Index="1.0.0">1.000, 1.000, 1.000, 1.000, 1.000, 1.000</Item>
+	<Item IDN="1303.66" Label="External force threshold to start spiral hole-searching|[N or N.m]" Index="1.0.0">20.000, 20.000, 20.000, 20.000, 20.000, 20.000</Item>
+	<Item IDN="1303.67" Label="Rate of change of the attitude's rotation amplitude|[deg/s]" Index="1.0.0">0.001</Item>
+	<Item IDN="1303.68" Label="Period of the attitude's rotational change|[sec]" Index="1.0.0">1.000</Item>
+	<Item IDN="1303.69" Label="Limit of the rate of change of the attitude's rotation amplitude|[deg/s]" Index="1.0.0">1.000</Item>
+	<Item IDN="1303.70" Label="Attitude rotation method" Index="1.0.0">0</Item>
+	<Item IDN="1303.80" Label="Clear readings of the 6-axis force sensor" Index="1.0.0">0</Item>
+	<Item IDN="1303.81" Label="Installation offset parameters of the 6-axis force sensor|[deg or mm]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.82" Label="Static compensation data of the 6-axis force sensor|[N or N.m]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.83" Label="Motion compensation data of the 6-axis force sensor|[N or N.m]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.84" Label="Time constant of the 6-axis force sensor filter|[sec]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1303.85" Label="Computation period of the 6-axis force sensor filter|[sec]" Index="1.0.0">0.001</Item>
+
+	<Item IDN="1305.0" Label="Force control zero mask" Index="1.0.0">2</Item>
+	<Item IDN="1305.1" Label="Zero force speed dampping's threshold|[deg/s or mm/s]" Index="1.0.0">15.000</Item>
+	<Item IDN="1305.2" Label="Zero force position dampping's threshold|[deg or mm]" Index="1.0.0">15.000</Item>
+	<Item IDN="1305.3" Label="Zero force speed dampping's damp" Index="1.0.0">100.000</Item>
+	<Item IDN="1305.4" Label="Zero force position dampping's damp" Index="1.0.0">20.000</Item>
+	<Item IDN="1305.5" Label="Zero force position dampping's stiffness" Index="1.0.0">300.000</Item>
+	<Item IDN="1305.6" Label="Speed limit dead zone|[deg/s or mm/s]" Index="1.0.0">5.000</Item>
+	<Item IDN="1305.7" Label="Positive threshold of 1-12 axis position|[deg or mm]" Index="1.0.0">179.000, 100.000, 179.000, 179.000, 179.000, 86.000, 179.000</Item>
+	<Item IDN="1305.8" Label="Negative threshold for 1-12 axis position|[deg or mm]" Index="1.0.0">-179.000, -100.000, -179.000, -179.000, -179.000, -86.000, -179.000</Item>
+	<Item IDN="1305.9" Label="The time constant of the position error filter|[sec]" Index="1.0.0">1.000</Item>
+	<Item IDN="1305.10" Label="The calculation period of the position error filter|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1305.12" Label="Control source of free drive" Index="1.0.0">0</Item>
+	<Item IDN="1305.13" Label="DI configuration of free drive" Index="1.0.0">0</Item>
+	<Item IDN="1305.14" Label="The time constant of the joint torque error filter|[sec]" Index="1.0.0">1.000</Item>
+	<Item IDN="1305.15" Label="The calculation period of the  joint torque error filter|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1305.17" Label="Time constant of the position incremental filter|[sec]" Index="1.0.0">1.000</Item>
+	<Item IDN="1305.18" Label="Calculation period of the position incremental filter|[sec]" Index="1.0.0">0.001</Item>
+	<Item IDN="1305.20" Label="Time constant of the position error filter|[deg]" Index="1.0.0">30.000, 30.000, 30.000, 30.000, 30.000, 30.000, 30.000, 30.000, 30.000, 30.000, 30.000, 30.000</Item>
+	<Item IDN="1305.21" Label="Coefficient for converting force error to position increment" Index="1.0.0">1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000</Item>
+	<Item IDN="1305.22" Label="Joint position increment limit value|[deg]" Index="1.0.0">20.000, 20.000, 20.000, 20.000, 20.000, 20.000, 20.000, 20.000, 20.000, 20.000, 20.000, 20.000</Item>
+	<Item IDN="1305.30" Label="Use axis 6 torque sensor data" Index="1.0.0">0</Item>
+	<Item IDN="1305.32" Label="Open compensate threshold for freedriver mode|[N.m]" Index="1.0.0">0.000</Item>
+	<Item IDN="1305.33" Label="Axis 6 torque sensor compensate data for static|[N.m]" Index="1.0.0">0.000</Item>
+	<Item IDN="1305.34" Label="Max compensate data for run mode|[N.m]" Index="1.0.0">0.000</Item>
+	<Item IDN="1305.50" Label="Joint fix index in open free zero mode" Index="1.0.0">0, 0, 0, 0, 0, 0, 0</Item>
+	<Item IDN="1305.51" Label="Force zero motor current limit|[mA]" Index="1.0.0">20000.000, 20000.000, 20000.000, 20000.000, 20000.000, 20000.000, 20000.000, 20000.000, 20000.000, 20000.000, 20000.000, 20000.000</Item>
+	<Item IDN="1305.52" Label="Zero force velocity damp|[N*m/s]" Index="1.0.0">50.000, 50.000, 50.000, 50.000, 50.000, 50.000, 50.000, 50.000, 50.000, 50.000, 50.000, 50.000</Item>
+
+	<Item IDN="1311.0" Label="CPS mode 1-12 axis control words" Index="1.0.0">0, 0, 0, 0, 0, 0, 0</Item>
+	<Item IDN="1311.1" Label="Maximum Kp for the position of axis 1-12 in CPS mode" Index="1.0.0">600, 600, 600, 600, 600, 600, 600</Item>
+	<Item IDN="1311.2" Label="Minimum Kp for the position of axis 1-12 in CPS mode" Index="1.0.0">0, 0, 0, 0, 0, 0, 0</Item>
+	<Item IDN="1311.3" Label="Maximum speed Kp of axis 1-12 in CPS mode" Index="1.0.0">8000, 8000, 3800, 1600, 1600, 1600, 1600</Item>
+	<Item IDN="1311.4" Label="Minimum Kp value of the speed of axis 1-12 in CPS mode" Index="1.0.0">0, 0, 0, 0, 0, 0, 0</Item>
+	<Item IDN="1311.10" Label="The damping value used when the special condition is stuck|[]" Index="1.0.0">100.00</Item>
+	<Item IDN="1311.11" Label="Force zero mode default damping of 1-12 axis|[]" Index="1.0.0">0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00</Item>
+	<Item IDN="1311.12" Label="Force control mode default damping of 1-12 axis|[]" Index="1.0.0">90.00, 90.00, 90.00, 90.00, 90.00, 90.00, 90.00</Item>
+	<Item IDN="1311.13" Label="Force control mode default damping p of 1-12 axis|[]" Index="1.0.0">100.00, 100.00, 100.00, 100.00, 100.00, 100.00, 100.00</Item>
+	<Item IDN="1311.14" Label="Force control mode default damping i of 1-12 axis|[]" Index="1.0.0">100.00, 100.00, 100.00, 100.00, 100.00, 100.00, 100.00</Item>
+	<Item IDN="1311.15" Label="Force control mode default damping d of 1-12 axis|[]" Index="1.0.0">100.00, 100.00, 100.00, 100.00, 100.00, 100.00, 100.00</Item>
+
+	<Item IDN="1313.0" Label="Collision detection torque thresholds for axis 1-9|[N.m]" Index="1.0.0">100.000, 100.000, 100.000, 100.000, 100.000, 100.000, 100.000</Item>
+	<Item IDN="1313.1" Label="Zero force mode 1-9 axis collision detection torque threshold|[N.m]" Index="1.0.0">10.000, 10.000, 10.000, 10.000, 10.000, 10.000, 10.000</Item>
+	<Item IDN="1313.2" Label="Speed protection threshold for axis 1-9|[deg/s]" Index="1.0.0">0.400, 0.400, 0.400, 0.400, 0.400, 0.400, 0.400</Item>
+	<Item IDN="1313.3" Label="collision sensitivity|[]" Index="1.0.0">0, 0, 0, 0, 0, 0, 0</Item>
+	<Item IDN="1313.4" Label="command acc threhold to scale current error threhold|[deg/s^2]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1313.5" Label="joints current threhold to scale current error threhold|[mA]" Index="1.0.0">0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000</Item>
+	<Item IDN="1313.6" Label="Collision detection enable flag" Index="1.0.0">0</Item>
+	<Item IDN="1313.7" Label="Collision detection joints current threhold|[mA]" Index="1.0.0">5000.000, 5000.000, 5000.000, 5000.000, 5000.000, 5000.000, 5000.000</Item>
+</Robot>

@@ -1,0 +1,105 @@
+Time:14:28:52:969  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 3
+ Robot Axis = 7
+ Calbration location number = 60
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:16:42:59:818  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 0
+ Robot Axis = 7
+ Calbration location number = 60
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:16:43:8:33  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 0
+ Robot Axis = 7
+ Calbration location number = 60
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:17:20:37:880  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 0
+ Robot Axis = 7
+ Calbration location number = 60
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:17:30:57:834  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 0
+ Robot Axis = 7
+ Calbration location number = 60
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:17:31:18:637  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 0
+ Robot Axis = 7
+ Calbration location number = 60
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:17:36:38:433  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 0
+ Robot Axis = 7
+ Calbration location number = 60
+ Tool offset(length) = 0.049000
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+
+Time:18:10:25:934  [-999999] Print Robot Cfg:
+ Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot) = 0
+ Robot Axis = 7
+ Calbration location number = 60
+ Tool offset(length) = 0.049000
+ Rope length offset = 0.062500
+ mDH a = 0, 0, 0, 0, 0, 0, 0
+ mDH alpha = 1.5708, -1.5708, 1.5708, -1.5708, 1.5708, -1.5708, 0
+ mDH d = 6e-07, 0.0505064, 0.491155, -0.118683, 0.317832, -0.0007692, 0.141703
+ mDH theta = 0, 0, 0, 0, 0, 0, 0
+ mDH beta = 0, 0, 0, 0, 0, 0, 0
+ Move direction = 1, 1, 1, -1, 1, -1, 1
+ Encoder line number = 524288, 524288, 524288, 524288, 524288, 524288, 524288
+

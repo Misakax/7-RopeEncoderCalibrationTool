@@ -1,0 +1,147 @@
+<?xml version="3.1" encoding="utf-8"?>
+
+<Controller>
+	<Item IDN="21.1" Index="1.0.0">Asia/Shanghai</Item>
+	<Item IDN="21.70" Index="1.0.0">65535</Item>
+	<Item IDN="31.0" Index="1.0.0">1</Item>
+	<Item IDN="31.1" Index="1.0.0">0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0</Item>
+	<Item IDN="31.2" Index="1.0.0">1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+1, 1, 1, 1</Item>
+	<Item IDN="31.150" Index="1.0.0">1</Item>
+	<Item IDN="35.0" Index="1.0.0">1</Item>
+	<Item IDN="35.10" Index="1.0.0">983287</Item>
+	<Item IDN="101.1" Index="1.0.0">1</Item>
+	<Item IDN="101.2" Index="1.0.0">4</Item>
+	<Item IDN="101.3" Index="1.0.0">1</Item>
+	<Item IDN="101.4" Index="1.0.0">1000</Item>
+	<Item IDN="101.5" Index="1.0.0">3</Item>
+	<Item IDN="105.0" Index="1.0.1">2</Item>
+	<Item IDN="105.1" Index="1.0.1">/media/card/syslog/</Item>
+	<Item IDN="105.2" Index="1.0.1">1</Item>
+	<Item IDN="105.3" Index="1.0.1">1</Item>
+	<Item IDN="105.4" Index="1.0.1">20480</Item>
+	<Item IDN="105.5" Index="1.0.1">1</Item>
+	<Item IDN="105.6" Index="1.0.1">3</Item>
+	<Item IDN="105.7" Index="1.0.1">10240</Item>
+	<Item IDN="105.8" Index="1.0.1">1024</Item>
+	<Item IDN="105.9" Index="1.0.1">10</Item>
+	<Item IDN="105.10" Index="1.0.1">10</Item>
+	<Item IDN="105.50" Index="1.0.1">1</Item>
+	<Item IDN="105.51" Index="1.0.1">5</Item>
+	<Item IDN="105.54" Index="1.0.1">9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+9</Item>
+	<Item IDN="151.0" Index="1.0.0">2088</Item>
+	<Item IDN="151.1" Index="1.0.0">2089</Item>
+	<Item IDN="151.2" Index="1.0.0">2090</Item>
+	<Item IDN="151.3" Index="1.0.0">2094</Item>
+	<Item IDN="151.4" Index="1.0.0">2093</Item>
+	<Item IDN="151.5" Index="1.0.0">35021</Item>
+	<Item IDN="151.6" Index="1.0.0">69</Item>
+	<Item IDN="151.10" Index="1.0.0">0</Item>
+	<Item IDN="151.11" Index="1.0.0">3</Item>
+	<Item IDN="151.12" Index="1.0.0">1.0</Item>
+	<Item IDN="151.13" Index="1.0.0">5</Item>
+	<Item IDN="151.14" Index="1.0.0">5</Item>
+	<Item IDN="151.20" Index="1.0.0">MacroThread</Item>
+	<Item IDN="151.30" Index="1.0.0">1000</Item>
+	<Item IDN="151.31" Index="1.0.0">20</Item>
+	<Item IDN="151.32" Index="1.0.0">1</Item>
+	<Item IDN="151.33" Index="1.0.0">0</Item>
+	<Item IDN="151.34" Index="1.0.0">0</Item>
+	<Item IDN="151.35" Index="1.0.0">0</Item>
+	<Item IDN="151.50" Index="1.0.0">2091</Item>
+	<Item IDN="151.51" Index="1.0.0">0</Item>
+	<Item IDN="151.52" Index="1.0.0">1</Item>
+	<Item IDN="151.60" Index="1.0.0">1</Item>
+	<Item IDN="151.61" Index="1.0.0">2095</Item>
+	<Item IDN="151.62" Index="1.0.0">3001</Item>
+	<Item IDN="151.63" Index="1.0.0">1000</Item>
+	<Item IDN="153.0" Index="1.0.0">/media/flash/PallasSolutions</Item>
+	<Item IDN="153.1" Index="1.0.0">DemoSolution</Item>
+	<Item IDN="153.2" Index="1.0.0">0</Item>
+	<Item IDN="153.3" Index="1.0.0">MainThread</Item>
+	<Item IDN="153.4" Index="1.0.0">BGDemoSolution</Item>
+	<Item IDN="153.5" Index="1.0.0">0</Item>
+	<Item IDN="153.6" Index="1.0.0">BGThread</Item>
+	<Item IDN="153.10" Index="1.0.0">3</Item>
+	<Item IDN="153.20" Index="1.0.0">2092</Item>
+	<Item IDN="153.30" Index="1.0.0">1</Item>
+	<Item IDN="153.31" Index="1.0.0">100</Item>
+	<Item IDN="153.32" Index="1.0.0">1</Item>
+	<Item IDN="161.0" Index="1.0.0">16</Item>
+	<Item IDN="161.10" Index="1.0.0">5</Item>
+	<Item IDN="163.0" Index="1.0.1">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.2">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.3">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.4">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.5">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.6">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.7">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.8">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.9">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.10">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.11">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.12">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.13">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.14">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.15">, , , , , , , </Item>
+	<Item IDN="163.0" Index="1.0.16">, , , , , , , </Item>
+	<Item IDN="203.0" Index="1.0.1">1</Item>
+	<Item IDN="203.3" Index="1.0.1">255.255.255.0</Item>
+	<Item IDN="203.4" Index="1.0.1">192.168.10.254</Item>
+	<Item IDN="203.7" Index="1.0.1">1</Item>
+	<Item IDN="215.0" Index="1.0.0">0</Item>
+	<Item IDN="215.1" Index="1.0.0">40</Item>
+	<Item IDN="215.2" Index="1.0.0">40</Item>
+	<Item IDN="215.151" Index="1.0.0">5</Item>
+	<Item IDN="215.152" Index="1.0.0">96</Item>
+	<Item IDN="223.0" Index="1.0.0">1</Item>
+	<Item IDN="223.1" Index="1.0.0">300000</Item>
+	<Item IDN="223.2" Index="1.0.0">2000000</Item>
+	<Item IDN="223.3" Index="1.0.0">NULL, NULL, NULL, NULL, NULL, NULL,
+NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+NULL, NULL, NULL, NULL, NULL</Item>
+	<Item IDN="223.4" Index="1.0.0">502, 502, 502, 502, 502, 502, 502,
+502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502,
+502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502,
+502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502, 502</Item>
+	<Item IDN="223.5" Index="1.0.0">0, 65535, 65535, 65535, 65535, 65535,
+65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535,
+65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535,
+65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535,
+65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535</Item>
+	<Item IDN="223.6" Index="1.0.0">0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</Item>
+	<Item IDN="227.150" Index="1.0.1">96</Item>
+	<Item IDN="227.151" Index="1.0.1">1</Item>
+	<Item IDN="227.160" Index="1.0.1">0</Item>
+	<Item IDN="227.161" Index="1.0.1">0</Item>
+	<Item IDN="227.162" Index="1.0.1">0</Item>
+	<Item IDN="227.163" Index="1.0.1">0</Item>
+	<Item IDN="227.170" Index="1.0.1">0</Item>
+	<Item IDN="227.171" Index="1.0.1">0</Item>
+	<Item IDN="227.172" Index="1.0.1">0</Item>
+	<Item IDN="227.173" Index="1.0.1">0</Item>
+	<Item IDN="241.0" Index="1.0.0">1</Item>
+	<Item IDN="241.1" Index="1.0.0">1000</Item>
+	<Item IDN="241.2" Index="1.0.0">1</Item>
+	<Item IDN="241.3" Index="1.0.0">3000</Item>
+	<Item IDN="241.4" Index="1.0.0">500</Item>
+	<Item IDN="241.5" Index="1.0.0">3</Item>
+	<Item IDN="241.6" Index="1.0.0">0</Item>
+	<Item IDN="241.50" Index="1.0.0">/dev/ttySPS1</Item>
+	<Item IDN="241.51" Index="1.0.0">115200</Item>
+	<Item IDN="241.52" Index="1.0.0">8</Item>
+	<Item IDN="241.53" Index="1.0.0">1</Item>
+	<Item IDN="241.54" Index="1.0.0">2</Item>
+	<Item IDN="241.55" Index="1.0.0">0</Item>
+	<Item IDN="241.56" Index="1.0.0">0</Item>
+</Controller>
+
+<Commission>
+	<Item IDN="203.2" Index="1.0.1">192.168.10.120</Item>
+</Commission>

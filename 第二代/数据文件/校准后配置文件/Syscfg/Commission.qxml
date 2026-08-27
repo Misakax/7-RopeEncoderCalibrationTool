@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--File name: Commission -->
+<!--File creation date: 2026-06-18-->
+<!--File release date: 2026-06-18-->
+<!--File release version: V2.5.0.0-->
+<Commission>
+	<Item IDN="203.2" Label="Ethernet port IP address on node" Index="1.0.0">192.168.10.120, 192.168.10.121</Item>
+</Commission>

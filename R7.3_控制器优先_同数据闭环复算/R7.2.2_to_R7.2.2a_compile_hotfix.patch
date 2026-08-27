@@ -1,0 +1,31 @@
+﻿--- R7.2.2/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.cpp
++++ R7.2.2a/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.cpp
+@@ -41,7 +41,7 @@
+ 
+ #pragma region 全局变量
+ //软件版本
+-CString m_Version = _T(" HE3 V3 Analytic R7.2.2 Two-Stage + Laser Prior + Final Writeback Contract 2026.08.26");
++CString m_Version = _T(" HE3 V3 Analytic R7.2.2a Two-Stage + Laser Prior + Final Writeback Contract 2026.08.26");
+ //文件的路径
+ string m_FilePath;
+ //查询编码器值的指令
+@@ -1597,7 +1597,7 @@
+ 	}
+ 
+ 	const std::string raw = ReadIDNValue(idn, m_IndexStr, index);
+-	const double verifyTolerance = integerIdn ? 0.01 : std::max(tolerance, 0.00051);
++	const double verifyTolerance = integerIdn ? 0.01 : ((tolerance > 0.00051) ? tolerance : 0.00051);
+ 	if (!isNum(raw) || std::fabs(atof(raw.c_str()) - expectedValue) > verifyTolerance)
+ 	{
+ 		failure.Format(_T("回读校验失败：%s[%d] 请求=%.10f，实际写入=%s，回读='%S'，容差=%.6f。"),
+--- R7.2.2/CalibrationV3Analytic/CalibrationV3Analytic.cpp
++++ R7.2.2a/CalibrationV3Analytic/CalibrationV3Analytic.cpp
+@@ -708,7 +708,7 @@
+ 
+ extern "C" CALV3_API const char* CALV3_CALL CalibrationV3BuildId()
+ {
+-    return "HE3-V3-CRAIG-MDH-ANALYTIC-TWOSTAGE-LASER-PRIOR-FINAL-WRITEBACK-20260826-R7.2.2";
++    return "HE3-V3-CRAIG-MDH-ANALYTIC-TWOSTAGE-LASER-PRIOR-FINAL-WRITEBACK-20260826-R7.2.2a";
+ }
+ 
+ extern "C" CALV3_API int CALV3_CALL CalibrationV3GetLastTrace(

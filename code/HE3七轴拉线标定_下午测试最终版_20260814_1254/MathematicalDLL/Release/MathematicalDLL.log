@@ -1,0 +1,10 @@
+﻿  stdafx.cpp
+  dllmain.cpp
+  MathematicalDLL.cpp
+MathematicalDLL.def(3): warning LNK4017: EXPORT 语句不支持目标平台；已忽略
+MathematicalDLL.def(3): warning LNK4017: Calibration 语句不支持目标平台；已忽略
+    正在创建库 D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\Release\MathematicalDLL.lib 和对象 D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\Release\MathematicalDLL.exp
+  正在生成代码
+  All 620 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+  MathematicalDLL.vcxproj -> D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\Release\MathematicalDLL.dll

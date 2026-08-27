@@ -1,0 +1,873 @@
+﻿--- R7.2.2a/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.cpp
++++ R7.3/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.cpp
+@@ -41,7 +41,7 @@
+ 
+ #pragma region 全局变量
+ //软件版本
+-CString m_Version = _T(" HE3 V3 Analytic R7.2.2a Two-Stage + Laser Prior + Final Writeback Contract 2026.08.26");
++CString m_Version = _T(" HE3 V3 Analytic R7.3 Controller-First + Same-Data Closed-Loop Replay 2026.08.26");
+ //文件的路径
+ string m_FilePath;
+ //查询编码器值的指令
+@@ -448,7 +448,7 @@
+ 	ScreenToClient(&beforeRect);
+ 	const int buttonLeft = beforeRect.right + 10;
+ 	const int buttonWidth = 105;
+-	m_R6FeedbackBtn.Create(_T("复输入检验"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
++	m_R6FeedbackBtn.Create(_T("控制器闭环复算"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+ 		CRect(buttonLeft, beforeRect.top, buttonLeft + buttonWidth, beforeRect.bottom),
+ 		this, IDC_R6_FEEDBACK);
+ 	CRect afterRect;
+@@ -459,7 +459,7 @@
+ 		this, IDC_R6_RESTORE);
+ 	m_R6FeedbackBtn.EnableWindow(FALSE);
+ 	m_R6RestoreBtn.EnableWindow(FALSE);
+-	AppendR6Monitor(_T("R7.2闭环监控已启动。算法输入固定为公共 Config/RobotType/HE3_GY-cfg.txt；阶段1固定机器人模型求拉线零偏bL，阶段2冻结固定端与bL，并在8台激光统计先验/3σ包络内辨识MDH；bL不写入MDH。"), false);
++	AppendR6Monitor(_T("R7.3闭环监控已启动。开始前可选择控制器实时回读或公共HE3_GY-cfg作为算法输入；控制器有效时默认推荐控制器。控制器闭环复算不运动，使用上一轮同一批82点检验第一轮修复结果是否为稳定固定点。"), false);
+ 
+ 	//设置初始 IP
+ 	m_RbtIPAdr.SetAddress(192, 168, 10, 120);
+@@ -798,6 +798,7 @@
+ 	// R7.2 reads the controller before the keep-alive thread starts only as a
+ 	// diagnostic/writeback snapshot. It never replaces the public calibration seed.
+ 	ReloadControllerModelAsInput(_T("连接成功后的控制器只读快照"), false);
++	m_R6FeedbackBtn.EnableWindow(TRUE);
+ 	m_KeepConnect = true;
+ 	KeepConnectThread = AfxBeginThread(RopeEncoderCalibrationDlg::KeepConnecting, (LPVOID)this);
+ 	
+@@ -810,7 +811,7 @@
+ {
+ 	if (!PrepareR71PublicInputBeforeStart())
+ 	{
+-		AppendR6Monitor(_T("R7.2本次采集已取消：公共HE3_GY-cfg.txt输入未通过准备检查。"));
++		AppendR6Monitor(_T("R7.3本次运行已取消：未确认算法输入来源，或控制器/公共模型均不可用。"));
+ 		return;
+ 	}
+ 	ShowR65ModelContract(_T("本次采集开始"));
+@@ -1025,7 +1026,8 @@
+ 	double* calibResult12,
+ 	double* residualBeforeM,
+ 	double* residualAfterM,
+-	CalibrationV3Report* report)
++	CalibrationV3Report* report,
++	const std::vector<double>* q0Seed = NULL)
+ {
+ 	if (axis < 5 || sampleCount < 4 || dh.cols() != axis ||
+ 		jointByAxis.rows() != axis || jointByAxis.cols() != sampleCount ||
+@@ -1051,6 +1053,7 @@
+ 
+ 	std::vector<double> a(axis), d(axis), alpha(axis), thetaFixed(axis), beta(axis);
+ 	std::vector<double> q0Initial(axis, 0.0);
++	const bool haveQ0Seed = q0Seed != NULL && static_cast<int>(q0Seed->size()) == axis;
+ 	for (int joint = 0; joint < axis; ++joint)
+ 	{
+ 		a[joint] = dh(0, joint);
+@@ -1058,6 +1061,7 @@
+ 		alpha[joint] = dh(2, joint);
+ 		thetaFixed[joint] = dh(3, joint);
+ 		beta[joint] = dh(4, joint);
++		if (haveQ0Seed) q0Initial[joint] = (*q0Seed)[static_cast<size_t>(joint)];
+ 	}
+ 
+ 	// V3 ABI is sample-major: [point0 J1..JN, point1 J1..JN, ...].
+@@ -1386,13 +1390,13 @@
+ void RopeEncoderCalibrationDlg::ShowR65ModelContract(const CString& operation)
+ {
+ 	CString text, line;
+-	line.Format(_T("=== R7.2模型契约 / %s ===\r\n"), operation.GetString());
++	line.Format(_T("=== R7.3模型契约 / %s ===\r\n"), operation.GetString());
+ 	text += line;
+ 	text += _T("算法输入判定：Craig MDH；alpha槽位=[0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6]。\r\n");
+ 	text += _T("控制器存储判定：1101.12为旧式DH/SDH alpha序列=[alpha1..alpha6, alpha7]；读取后右移一槽转换为Craig MDH。\r\n");
+ 	text += _T("激光方案允许参数：D2~D5、Alpha1~Alpha7、Theta/零位q2~q6。\r\n");
+ 	text += _T("拉线实际求解：阶段1只求固定端lambda与拉线零偏bL；阶段2冻结lambda/bL，仅求D2~D5、Alpha1~Alpha6、q2~q6（q6仅在解析列可见时参与）。\r\n");
+-	text += _T("R7.2输入固定：公共 Config/RobotType/HE3_GY-cfg.txt；不使用控制器回读MDH作为算法初值。\r\n");
++	text += _T("R7.3输入策略：控制器实时回读有效时可优先作为算法初值；用户也可明确选择公共 Config/RobotType/HE3_GY-cfg.txt。控制器无效时才回退公共模型。\r\n");
+ 	text += _T("测量模型：L实测 = |P-lambda| + bL；bL只校准拉线测量链。阶段2使用8台激光均值/样本标准差作为先验，并以均值±3σ限制候选；bL不进入4N参数、不写控制器。\r\n");
+ 	text += _T("结构保持：A1~A7、D1、D7、q1/q7、Beta；D6不是拉线标定参数，HE3厂家DH定义固定D6=0；若控制器出现D6=D7约93 mm，仅作为独立结构修复处理。Alpha7当前为结构零列，保留控制器值。\r\n");
+ 	line.Format(_T("末端模型：控制器D7结构长度 + ToolOffset %.3f mm = 算法有效D7；ToolOffset不重复写入控制器。\r\n"),
+@@ -1484,7 +1488,7 @@
+ 		AppendR6Monitor(_T("检测到控制器D6/D7均约93 mm。厂家HE3 DH定义及8台激光校准DH结果均为D6=0、D7=93；图纸中的93 mm仅是末端结构尺寸，DH索引以厂家DH表为准。D6=93不是拉线算法结果，也不会作为拉线算法输入；该状态仅记为待确认的结构异常。"));
+ 		if (updateInput)
+ 		{
+-			AppendR6Monitor(_T("拒绝把D6重复快照转成算法输入；R7.2.2继续固定使用公共HE3_GY-cfg.txt。"));
++			AppendR6Monitor(_T("控制器D6/D7重复93 mm，不允许作为算法输入；请先完成D6结构修复，当前可改选公共HE3_GY-cfg.txt。"));
+ 			return false;
+ 		}
+ 	}
+@@ -1495,17 +1499,26 @@
+ 	m_R65ControllerSnapshotValid = true;
+ 	if (updateInput)
+ 	{
++		// Controller D/Alpha are the current robot model.  Use the public Craig
++		// snapshot only for structural A/theta/beta rows that are not stored in
++		// these IDNs.  Current Robot.WhereAngle already reflects the controller
++		// zero table, so an ordinary new acquisition starts with additional q0=0.
++		if (m_R7OriginalConfigValid &&
++			m_R7OriginalConfigDH.rows() >= 5 && m_R7OriginalConfigDH.cols() == 7)
++			m_ThisRbtDH = m_R7OriginalConfigDH;
+ 		for (int joint = 0; joint < 7; ++joint)
+ 			m_ThisRbtDH(1, joint) = dMm[static_cast<size_t>(joint)] / 1000.0;
+ 		m_ThisRbtDH(1, 6) += m_ThisRbt.ToolOffset;
+ 		m_ThisRbtDH(2, 0) = 0.0;
+ 		for (int slot = 1; slot < 7; ++slot)
+ 			m_ThisRbtDH(2, slot) = alphaLegacyDeg[static_cast<size_t>(slot - 1)] * PI / 180.0;
+-		m_R65InputSource = _T("控制器回读 1101.11/1101.12/1127.13");
++		for (int joint = 0; joint < 7; ++joint)
++			m_ThisRbtDH(3, joint) = 0.0;
++		m_R65InputSource = _T("控制器实时回读 1101.11/1101.12（Zero已由Robot.WhereAngle体现）");
+ 		m_R6HaveOriginalDH = false;
+ 		m_R6HaveResult = false;
+-		m_R6FeedbackBtn.EnableWindow(FALSE);
+ 		m_SaveBtn.EnableWindow(FALSE);
++		m_R6FeedbackBtn.EnableWindow(TRUE);
+ 	}
+ 
+ 	CString snapshot;
+@@ -1525,44 +1538,93 @@
+ {
+ 	if (m_RobotAxis != 7)
+ 	{
+-		AppendR6Monitor(_T("R7.2公共MDH固定输入仅对HE3七轴启用；当前按已加载配置继续。"));
++		AppendR6Monitor(_T("R7.3控制器优先输入策略仅对HE3七轴启用；当前按已加载配置继续。"));
+ 		return true;
+ 	}
+ 
+-	if (!m_R7OriginalConfigValid || m_R7OriginalConfigDH.rows() < 5 ||
+-		m_R7OriginalConfigDH.cols() != m_RobotAxis)
+-	{
+-		AppendR6Monitor(_T("R7.2公共MDH不可用：Config/RobotType/HE3_GY-cfg.txt启动快照无效，禁止运动。"));
+-		MessageBox(_T("公共 HE3_GY-cfg.txt 的启动快照无效，本次不会运动机器人。"),
+-			_T("R7.2：公共MDH不可用"), MB_OK | MB_ICONERROR);
+-		return false;
+-	}
+-
+-	// R7.2 contract: every new acquisition starts from the immutable public
+-	// HE3_GY-cfg.txt snapshot. Controller readback remains diagnostic/writeback
+-	// evidence only and can never silently become the calibration seed.
+-	m_ThisRbtDH = m_R7OriginalConfigDH;
+-	m_R65InputSource = m_R7OriginalConfigSource + _T("（R7.2固定公共输入）");
+-	m_R6HaveOriginalDH = false;
+-	m_R6HaveResult = false;
+-	m_R6FeedbackBtn.EnableWindow(FALSE);
+-	m_SaveBtn.EnableWindow(FALSE);
+-
+-	AppendR6Monitor(_T("R7.2已强制恢复公共HE3_GY-cfg.txt Craig MDH；控制器快照不会作为本次算法输入。"));
+-	ShowR65ModelContract(_T("R7.2固定公共MDH输入"));
+-	ShowCurrentMdh(_T("运动前公共MDH输入"));
+-
+-	CString confirmation;
+-	confirmation.Format(_T("R7.2本次算法输入固定为：%s\r\n\r\n"
+-		"完整MDH已写入右侧日志。\r\n"
+-		"按‘确定’后开始运动；按‘取消’则不运动。"),
+-		m_R65InputSource.GetString());
+-	if (MessageBox(confirmation, _T("R7.2.2：确认公共MDH输入"),
+-		MB_OKCANCEL | MB_ICONWARNING) != IDOK)
+-		return false;
+-
+-	AppendR6Monitor(_T("R7.2.2公共MDH输入已确认，允许开始本次运动采集。"));
+-	return true;
++	const bool publicValid = m_R7OriginalConfigValid &&
++		m_R7OriginalConfigDH.rows() >= 5 &&
++		m_R7OriginalConfigDH.cols() == m_RobotAxis;
++
++	// Always refresh immediately before the run; do not rely on a stale connect-time snapshot.
++	m_R65ControllerSnapshotValid = false;
++	const bool controllerReadOk = ReloadControllerModelAsInput(
++		_T("R7.3开始前控制器实时回读"), false);
++	const bool controllerValid = controllerReadOk &&
++		m_R65ControllerSnapshotValid &&
++		m_R65ControllerDmm.size() == 7 &&
++		std::fabs(m_R65ControllerDmm[5]) <= 5.0 &&
++		m_R65ControllerDmm[6] > 75.0 && m_R65ControllerDmm[6] < 110.0;
++
++	if (controllerValid && publicValid)
++	{
++		CString prompt;
++		prompt.Format(
++			_T("R7.3检测到两种有效算法输入。\r\n\r\n")
++			_T("【是】控制器实时回读（默认推荐）\r\n")
++			_T("D(mm): %s\r\n")
++			_T("Alpha旧式(deg): %s\r\n")
++			_T("Zero(cnt): %s\r\n\r\n")
++			_T("【否】公共 HE3_GY-cfg.txt\r\n")
++			_T("【取消】不运行\r\n\r\n")
++			_T("说明：选择控制器时，D/Alpha来自当前控制器；当前Robot.WhereAngle已体现Zero，因此新采集的额外q0初值为0。"),
++			FormatR65Vector(m_R65ControllerDmm, 5).GetString(),
++			FormatR65Vector(m_R65ControllerLegacyAlphaDeg, 5).GetString(),
++			FormatR65Vector(m_R65ControllerZeroCounts, 0).GetString());
++
++		const int choice = MessageBox(prompt, _T("R7.3：选择算法输入"),
++			MB_YESNOCANCEL | MB_ICONQUESTION | MB_DEFBUTTON1);
++		if (choice == IDCANCEL) return false;
++		if (choice == IDYES)
++		{
++			if (!ReloadControllerModelAsInput(_T("R7.3已选择控制器作为算法输入"), true))
++				return false;
++			ShowR65ModelContract(_T("控制器优先输入已确认"));
++			ShowCurrentMdh(_T("运动前控制器输入"));
++			AppendR6Monitor(_T("R7.3输入选择=控制器实时回读。"));
++			return true;
++		}
++
++		m_ThisRbtDH = m_R7OriginalConfigDH;
++		m_R65InputSource = m_R7OriginalConfigSource + _T("（用户明确选择公共输入）");
++		m_R6HaveOriginalDH = false;
++		m_R6HaveResult = false;
++		m_SaveBtn.EnableWindow(FALSE);
++		m_R6FeedbackBtn.EnableWindow(TRUE);
++		ShowR65ModelContract(_T("公共输入已确认"));
++		ShowCurrentMdh(_T("运动前公共输入"));
++		AppendR6Monitor(_T("R7.3输入选择=公共HE3_GY-cfg.txt。"));
++		return true;
++	}
++
++	if (controllerValid)
++	{
++		if (!ReloadControllerModelAsInput(_T("R7.3仅控制器输入可用"), true))
++			return false;
++		AppendR6Monitor(_T("R7.3公共模型不可用，已自动使用有效控制器实时回读。"));
++		ShowR65ModelContract(_T("仅控制器输入可用"));
++		ShowCurrentMdh(_T("运动前控制器输入"));
++		return true;
++	}
++
++	if (publicValid)
++	{
++		m_ThisRbtDH = m_R7OriginalConfigDH;
++		m_R65InputSource = m_R7OriginalConfigSource + _T("（控制器不可用，自动回退公共输入）");
++		m_R6HaveOriginalDH = false;
++		m_R6HaveResult = false;
++		m_SaveBtn.EnableWindow(FALSE);
++		m_R6FeedbackBtn.EnableWindow(TRUE);
++		AppendR6Monitor(_T("R7.3控制器模型不可作为算法输入，已自动回退公共HE3_GY-cfg.txt。"));
++		ShowR65ModelContract(_T("控制器失败后公共回退"));
++		ShowCurrentMdh(_T("运动前公共输入"));
++		return true;
++	}
++
++	AppendR6Monitor(_T("R7.3无法运行：控制器模型和公共HE3_GY-cfg.txt均不可用。"));
++	MessageBox(_T("控制器实时模型与公共HE3_GY-cfg.txt均不可用，本次不会运动机器人。"),
++		_T("R7.3：无有效算法输入"), MB_OK | MB_ICONERROR);
++	return false;
+ }
+ 
+ bool RopeEncoderCalibrationDlg::WriteControllerValueVerified(const CString& idn, int arrayIndex,
+@@ -2152,129 +2214,453 @@
+ 	m_CalibBtn.EnableWindow(false);
+ }
+ 
++
++struct R73ReplayData
++{
++	MatrixXd joint;
++	VectorXd ropeWithOffsetM;
++	std::vector<double> solvedD;
++	std::vector<double> solvedAlpha;
++	std::vector<double> solvedQ0;
++	double firstMaeMm = -1.0;
++	double firstMaxMm = -1.0;
++	std::string sourcePath;
++};
++
++static std::vector<std::string> SplitR73Csv(const std::string& line)
++{
++	std::vector<std::string> fields;
++	std::stringstream ss(line);
++	std::string field;
++	while (std::getline(ss, field, ',')) fields.push_back(field);
++	return fields;
++}
++
++static bool LoadLatestR73Diagnostic(int axis, int expectedPoints,
++	R73ReplayData& data, CString& failure)
++{
++	const char* resultDirs[] = {
++		"./Result",
++		"./RopeEncoderCalibrationV3/Result",
++		"../../../RopeEncoderCalibrationV3/Result"
++	};
++	std::string bestPath;
++	__time64_t bestTime = 0;
++	for (const char* resultDir : resultDirs)
++	{
++		const std::string pattern = std::string(resultDir) + "/V3Diagnostic_*.csv";
++		_finddata_t fileData = {};
++		intptr_t handle = _findfirst(pattern.c_str(), &fileData);
++		if (handle == -1) continue;
++		do
++		{
++			const std::string name = fileData.name;
++			if ((fileData.attrib & _A_SUBDIR) != 0) continue;
++			if (name.find("_feedback2") != std::string::npos) continue;
++			if (name.find("_controllerReplay") != std::string::npos) continue;
++			if (fileData.time_write >= bestTime)
++			{
++				bestTime = fileData.time_write;
++				bestPath = std::string(resultDir) + "/" + name;
++			}
++		} while (_findnext(handle, &fileData) == 0);
++		_findclose(handle);
++	}
++
++	if (bestPath.empty())
++	{
++		failure = _T("未找到上一轮V3Diagnostic_*.csv。已搜索当前Result、工程RopeEncoderCalibrationV3\\Result和EXE相对工程Result。");
++		return false;
++	}
++
++	data.sourcePath = bestPath;
++	std::ifstream input(data.sourcePath);
++	if (!input)
++	{
++		failure.Format(_T("无法打开第一轮诊断CSV：%S"), data.sourcePath.c_str());
++		return false;
++	}
++
++	data.joint = MatrixXd::Zero(axis, expectedPoints);
++	data.ropeWithOffsetM = VectorXd::Zero(expectedPoints);
++	data.solvedD.assign(static_cast<size_t>(axis), 0.0);
++	data.solvedAlpha.assign(static_cast<size_t>(axis), 0.0);
++	data.solvedQ0.assign(static_cast<size_t>(axis), 0.0);
++
++	bool inIterations = false;
++	bool inPoints = false;
++	bool haveIteration = false;
++	std::vector<int> pointSeen(static_cast<size_t>(expectedPoints), 0);
++	int pointCount = 0;
++	std::string line;
++	while (std::getline(input, line))
++	{
++		if (!line.empty() && line.back() == '\r') line.pop_back();
++		if (line.rfind("geometry_mae_after_bias_mm,", 0) == 0)
++		{
++			const std::vector<std::string> f = SplitR73Csv(line);
++			if (f.size() >= 2) data.firstMaeMm = atof(f[1].c_str());
++			continue;
++		}
++		if (line.rfind("max_after_mm,", 0) == 0)
++		{
++			const std::vector<std::string> f = SplitR73Csv(line);
++			if (f.size() >= 2) data.firstMaxMm = atof(f[1].c_str());
++			continue;
++		}
++		if (line.rfind("iteration,geometry_mae_after_bias_mm", 0) == 0)
++		{
++			inIterations = true;
++			inPoints = false;
++			continue;
++		}
++		if (line.rfind("result_slot,", 0) == 0)
++		{
++			inIterations = false;
++			continue;
++		}
++		if (line.rfind("point,rope_raw_mm,rope_with_fixed_offset_mm", 0) == 0)
++		{
++			inIterations = false;
++			inPoints = true;
++			continue;
++		}
++
++		const std::vector<std::string> f = SplitR73Csv(line);
++		if (inIterations)
++		{
++			const size_t required = static_cast<size_t>(5 + 3 * axis);
++			if (f.size() < required) continue;
++			char* endPtr = NULL;
++			strtol(f[0].c_str(), &endPtr, 10);
++			if (endPtr == f[0].c_str() || *endPtr != '\0') continue;
++			for (int joint = 0; joint < axis; ++joint)
++			{
++				data.solvedD[static_cast<size_t>(joint)] =
++					atof(f[static_cast<size_t>(5 + joint)].c_str()) / 1000.0;
++				data.solvedAlpha[static_cast<size_t>(joint)] =
++					atof(f[static_cast<size_t>(5 + axis + joint)].c_str()) * PI / 180.0;
++				data.solvedQ0[static_cast<size_t>(joint)] =
++					atof(f[static_cast<size_t>(5 + 2 * axis + joint)].c_str()) * PI / 180.0;
++			}
++			haveIteration = true;
++			continue;
++		}
++
++		if (inPoints)
++		{
++			if (f.size() < static_cast<size_t>(3 + axis)) continue;
++			const int point = atoi(f[0].c_str()) - 1;
++			if (point < 0 || point >= expectedPoints) continue;
++			data.ropeWithOffsetM(point) = atof(f[2].c_str()) / 1000.0;
++			for (int joint = 0; joint < axis; ++joint)
++				data.joint(joint, point) = atof(f[static_cast<size_t>(3 + joint)].c_str());
++			if (!pointSeen[static_cast<size_t>(point)])
++			{
++				pointSeen[static_cast<size_t>(point)] = 1;
++				++pointCount;
++			}
++		}
++	}
++
++	if (!haveIteration || pointCount != expectedPoints)
++	{
++		failure.Format(_T("第一轮诊断CSV不完整：最终迭代=%d，点位=%d/%d，文件=%S"),
++			haveIteration ? 1 : 0, pointCount, expectedPoints, data.sourcePath.c_str());
++		return false;
++	}
++	return true;
++}
++
++static std::string R73Timestamp()
++{
++	SYSTEMTIME st = {};
++	GetLocalTime(&st);
++	char stamp[64] = {};
++	sprintf_s(stamp, "%04d_%02d_%02d_%02d_%02d_%02d",
++		st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
++	return std::string(stamp);
++}
++
+ void RopeEncoderCalibrationDlg::OnBnClickedR6Feedback()
+ {
+-	if (!m_R6HaveResult || static_cast<int>(m_R6OutD.size()) != m_RobotAxis)
+-	{
+-		MessageBox(_T("当前没有可复输入的R7计算结果。"), _T("R7复输入检验"), MB_OK | MB_ICONINFORMATION);
++	if (!m_IsConnect || m_RobotAxis != 7)
++	{
++		MessageBox(_T("请先连接HE3七轴机器人。控制器闭环复算必须实时读取当前控制器参数。"),
++			_T("R7.3控制器闭环复算"), MB_OK | MB_ICONINFORMATION);
+ 		return;
+ 	}
+ 
+-	// R6.5 performs the second solve directly. R6.3 recursively invoked the
+-	// complete Calculate button handler, which rewrote files, converted shared
+-	// units and mutated GUI/global state. Windows recorded heap corruption after
+-	// that path. This direct calculation is offline and leaves the first save
+-	// candidate untouched.
+-	ShowCurrentMdh(_T("复输入检验前（第一次输入）"));
+-	AppendR6Monitor(_T("复输入检验开始：不运动、不写机器人，仅把第一次候选MDH作为第二次算法输入。"));
+-	if (m_RbtJoint.rows() != m_RobotAxis || m_RbtJoint.cols() != m_TotalNum)
+-	{
+-		MessageBox(_T("内存中的关节数据尺寸不完整，不能复输入检验。"), _T("R7复输入检验"), MB_OK | MB_ICONERROR);
++	R73ReplayData replay;
++	CString loadFailure;
++	if (!LoadLatestR73Diagnostic(m_RobotAxis, m_TotalNum, replay, loadFailure))
++	{
++		AppendR6Monitor(_T("R7.3闭环复算失败：") + loadFailure);
++		MessageBox(loadFailure, _T("R7.3控制器闭环复算"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 
+-	const std::vector<double> firstA = m_R6OutA;
+-	const std::vector<double> firstD = m_R6OutD;
+-	const std::vector<double> firstAlpha = m_R6OutAlpha;
+-	const std::vector<double> firstQ0 = m_R6OutQ0;
+-	const CalibrationV3Trace firstTrace = m_R6Trace;
+-	const CalibrationV3Report firstReport = m_R6LastReport;
+-	const bool firstPassed = m_R5CalibrationPassed;
+-
+-	MatrixXd feedbackDh = m_ThisRbtDH;
+-	for (int joint = 0; joint < m_RobotAxis; ++joint)
+-	{
+-		feedbackDh(0, joint) = firstA[joint];
+-		feedbackDh(1, joint) = firstD[joint];
+-		feedbackDh(2, joint) = firstAlpha[joint];
+-		// q0 and thetaFixed enter FK as a sum.  Folding q0 into row 4 makes
+-		// the next calculation a genuine model-feedback stability check.
+-		feedbackDh(3, joint) += firstQ0[joint];
+-	}
+-	CString feedbackModel = _T("第二次算法输入MDH（第一次候选结果）：\r\nd(mm): ");
+-	CString valueText;
+-	for (int joint = 0; joint < m_RobotAxis; ++joint)
+-	{
+-		valueText.Format(_T("%.5f%s"), feedbackDh(1, joint) * 1000.0,
+-			joint + 1 == m_RobotAxis ? _T("\r\nalpha(deg): ") : _T(", "));
+-		feedbackModel += valueText;
+-	}
+-	for (int joint = 0; joint < m_RobotAxis; ++joint)
+-	{
+-		valueText.Format(_T("%.5f%s"), feedbackDh(2, joint) * 180.0 / PI,
+-			joint + 1 == m_RobotAxis ? _T("\r\ntheta+q0(deg): ") : _T(", "));
+-		feedbackModel += valueText;
+-	}
+-	for (int joint = 0; joint < m_RobotAxis; ++joint)
+-	{
+-		valueText.Format(_T("%.5f%s"), feedbackDh(3, joint) * 180.0 / PI,
+-			joint + 1 == m_RobotAxis ? _T("\r\n") : _T(", "));
+-		feedbackModel += valueText;
+-	}
+-	AppendR6Monitor(feedbackModel);
+-
+-	VectorXd encoderValue(m_TotalNum);
+-	for (int point = 0; point < m_TotalNum; ++point)
+-	{
+-		CString value = m_List.GetItemText(point, 2);
+-		if (value.IsEmpty())
+-		{
+-			MessageBox(_T("拉线点位数据不完整，不能复输入检验。"), _T("R7复输入检验"), MB_OK | MB_ICONERROR);
+-			return;
+-		}
+-		encoderValue(point) = atof(CT2A(value.GetString())) * 0.001 + 0.043 + 0.0195;
+-	}
+-	std::vector<double> secondBefore(m_TotalNum, 0.0), secondAfter(m_TotalNum, 0.0);
+-	double secondCalibResult[12] = {};
+-	CalibrationV3Report secondReport = {};
++	if (!ReloadControllerModelAsInput(_T("R7.3控制器闭环复算前实时回读"), false))
++	{
++		MessageBox(_T("无法实时读取当前控制器D/Alpha/Zero；未执行复算。"),
++			_T("R7.3控制器闭环复算"), MB_OK | MB_ICONERROR);
++		return;
++	}
++	if (m_R65ControllerDmm.size() != 7 || m_R65ControllerLegacyAlphaDeg.size() != 7 ||
++		m_R65ControllerZeroCounts.size() != 7)
++	{
++		MessageBox(_T("控制器快照尺寸不完整；未执行复算。"),
++			_T("R7.3控制器闭环复算"), MB_OK | MB_ICONERROR);
++		return;
++	}
++	if (std::fabs(m_R65ControllerDmm[5]) > 5.0 ||
++		m_R65ControllerDmm[6] < 75.0 || m_R65ControllerDmm[6] > 110.0)
++	{
++		MessageBox(_T("当前控制器结构不是D6约0、D7约93的已修复状态；拒绝把它当作第一轮修复结果复算。"),
++			_T("R7.3控制器闭环复算"), MB_OK | MB_ICONERROR);
++		return;
++	}
++
++	// Make sure the replay dataset really belongs to the model currently stored
++	// in the controller.  Only controller quantization-level differences are expected.
++	double maxControllerDMatchMm = 0.0;
++	for (int joint = 1; joint <= 4; ++joint)
++		maxControllerDMatchMm = (std::max)(maxControllerDMatchMm,
++			std::fabs(m_R65ControllerDmm[static_cast<size_t>(joint)] -
++				replay.solvedD[static_cast<size_t>(joint)] * 1000.0));
++	double maxControllerAlphaMatchDeg = 0.0;
++	for (int physicalAlpha = 0; physicalAlpha < 6; ++physicalAlpha)
++		maxControllerAlphaMatchDeg = (std::max)(maxControllerAlphaMatchDeg,
++			std::fabs(m_R65ControllerLegacyAlphaDeg[static_cast<size_t>(physicalAlpha)] -
++				replay.solvedAlpha[static_cast<size_t>(physicalAlpha + 1)] * 180.0 / PI));
++
++	if (maxControllerDMatchMm > 0.02 || maxControllerAlphaMatchDeg > 0.02)
++	{
++		CString mismatch;
++		mismatch.Format(
++			_T("当前控制器与最新第一轮诊断结果不匹配，拒绝混用数据。\r\n")
++			_T("D2~D5最大差=%.6f mm，Alpha1~6最大差=%.6f deg。\r\n")
++			_T("请确认Result目录中的最新V3Diagnostic属于当前机器人。"),
++			maxControllerDMatchMm, maxControllerAlphaMatchDeg);
++		AppendR6Monitor(mismatch);
++		MessageBox(mismatch, _T("R7.3控制器闭环复算"), MB_OK | MB_ICONERROR);
++		return;
++	}
++
++	MatrixXd controllerSeed =
++		(m_R7OriginalConfigValid && m_R7OriginalConfigDH.rows() >= 5 &&
++		 m_R7OriginalConfigDH.cols() == m_RobotAxis)
++		? m_R7OriginalConfigDH : m_ThisRbtDH;
++
++	for (int joint = 0; joint < 7; ++joint)
++		controllerSeed(1, joint) = m_R65ControllerDmm[static_cast<size_t>(joint)] / 1000.0;
++	controllerSeed(1, 6) += m_ThisRbt.ToolOffset;
++	controllerSeed(2, 0) = 0.0;
++	for (int slot = 1; slot < 7; ++slot)
++		controllerSeed(2, slot) =
++			m_R65ControllerLegacyAlphaDeg[static_cast<size_t>(slot - 1)] * PI / 180.0;
++	for (int joint = 0; joint < 7; ++joint)
++		controllerSeed(3, joint) = 0.0;
++
++	// The stored 82 joint values were measured BEFORE the zero correction was
++	// written.  Therefore the first solved q0 must remain a real q0 seed here.
++	// Do NOT fold it into theta: the DLL laser prior is defined on absolute q0.
++	const std::vector<double> q0Seed = replay.solvedQ0;
++
++	CString begin;
++	begin.Format(
++		_T("=== R7.3同数据控制器闭环复算 ===\r\n")
++		_T("不运动、不重新采点、不写机器人。\r\n")
++		_T("82点来源=%S\r\n")
++		_T("机器人基线=当前控制器实时回读D/Alpha；第一轮q0作为q0Initial重新输入。\r\n")
++		_T("当前D(mm)=%s\r\n")
++		_T("当前Alpha旧式(deg)=%s\r\n")
++		_T("当前Zero(cnt)=%s\r\n")
++		_T("第一轮q0(deg)=%.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f\r\n"),
++		replay.sourcePath.c_str(),
++		FormatR65Vector(m_R65ControllerDmm, 5).GetString(),
++		FormatR65Vector(m_R65ControllerLegacyAlphaDeg, 5).GetString(),
++		FormatR65Vector(m_R65ControllerZeroCounts, 0).GetString(),
++		q0Seed[0] * 180.0 / PI, q0Seed[1] * 180.0 / PI,
++		q0Seed[2] * 180.0 / PI, q0Seed[3] * 180.0 / PI,
++		q0Seed[4] * 180.0 / PI, q0Seed[5] * 180.0 / PI,
++		q0Seed[6] * 180.0 / PI);
++	AppendR6Monitor(begin);
++
++	const std::vector<double> savedA = m_R6OutA;
++	const std::vector<double> savedD = m_R6OutD;
++	const std::vector<double> savedAlpha = m_R6OutAlpha;
++	const std::vector<double> savedQ0 = m_R6OutQ0;
++	const CalibrationV3Trace savedTrace = m_R6Trace;
++	const CalibrationV3Report savedReport = m_R6LastReport;
++	const bool savedHaveResult = m_R6HaveResult;
++	const bool savedPassed = m_R5CalibrationPassed;
++
++	std::vector<double> residualBefore(static_cast<size_t>(m_TotalNum), 0.0);
++	std::vector<double> residualAfter(static_cast<size_t>(m_TotalNum), 0.0);
++	double replayCalibResult[12] = {};
++	CalibrationV3Report replayReport = {};
+ 	m_R63FeedbackValidationRunning = true;
+-	const int secondStatus = RunCalibrationV3ForGui(m_RobotAxis, m_TotalNum,
+-		feedbackDh, m_RbtJoint, encoderValue, m_ThisRbt.ToolOffset,
+-		secondCalibResult, secondBefore.data(), secondAfter.data(), &secondReport);
+-	const CalibrationV3Trace secondTrace = m_R6Trace;
++	const int replayStatus = RunCalibrationV3ForGui(
++		m_RobotAxis, m_TotalNum, controllerSeed, replay.joint, replay.ropeWithOffsetM,
++		m_ThisRbt.ToolOffset, replayCalibResult,
++		residualBefore.data(), residualAfter.data(), &replayReport, &q0Seed);
++	const CalibrationV3Trace replayTrace = m_R6Trace;
++	const std::vector<double> replayOutD = m_R6OutD;
++	const std::vector<double> replayOutAlpha = m_R6OutAlpha;
++	const std::vector<double> replayOutQ0 = m_R6OutQ0;
+ 	m_R63FeedbackValidationRunning = false;
+ 
+-	// Restore the first result as the only save/write candidate.
+-	m_R6OutA = firstA;
+-	m_R6OutD = firstD;
+-	m_R6OutAlpha = firstAlpha;
+-	m_R6OutQ0 = firstQ0;
+-	m_R6Trace = firstTrace;
+-	m_R6LastReport = firstReport;
+-	m_R5CalibrationPassed = firstPassed;
+-	m_SaveBtn.EnableWindow(firstPassed ? TRUE : FALSE);
++	// Replay is diagnostic only. Never replace the save candidate or safety state.
++	m_R6OutA = savedA;
++	m_R6OutD = savedD;
++	m_R6OutAlpha = savedAlpha;
++	m_R6OutQ0 = savedQ0;
++	m_R6Trace = savedTrace;
++	m_R6LastReport = savedReport;
++	m_R6HaveResult = savedHaveResult;
++	m_R5CalibrationPassed = savedPassed;
++	m_SaveBtn.EnableWindow(savedHaveResult && savedPassed ? TRUE : FALSE);
+ 	m_R6FeedbackBtn.EnableWindow(TRUE);
+ 
+-	_mkdir("./Result");
+-	const std::string stamp = m_FinishTime.empty() ? "manual" : m_FinishTime;
+-	std::ofstream feedback("./Result/V3Diagnostic_" + stamp + "_feedback2.csv", std::ios::out | std::ios::trunc);
+-	if (feedback)
+-	{
+-		feedback << std::setprecision(15)
+-			<< "build," << CalibrationV3BuildId() << '\n'
+-			<< "status," << secondStatus << '\n'
+-			<< "rope_bias_mm," << secondReport.ropeBiasM * 1000.0 << '\n'
+-			<< "mae_before_bias_mm," << secondReport.maeBeforeM * 1000.0 << '\n'
+-			<< "geometry_mae_after_bias_mm," << secondReport.maeAfterM * 1000.0 << '\n'
+-			<< "max_after_mm," << secondReport.maxAbsAfterM * 1000.0 << '\n'
+-			<< "iteration,geometry_mae_after_bias_mm,max_mm,step_scale,rope_bias_mm\n";
+-		for (int i = 0; i < secondTrace.count; ++i)
+-			feedback << secondTrace.record[i].iteration << ',' << secondTrace.record[i].maeM * 1000.0
+-				<< ',' << secondTrace.record[i].maxAbsM * 1000.0 << ',' << secondTrace.record[i].stepScale
+-				<< ',' << secondTrace.record[i].ropeBiasM * 1000.0 << '\n';
++	if (replayStatus != CALV3_OK && replayStatus != CALV3_STOP_NO_IMPROVEMENT)
++	{
++		CString failure;
++		failure.Format(_T("控制器闭环复算失败：status=%d。没有修改机器人。"), replayStatus);
++		AppendR6Monitor(failure);
++		MessageBox(failure, _T("R7.3控制器闭环复算"), MB_OK | MB_ICONERROR);
++		return;
++	}
++
++	const double seedMaeMm =
++		replayTrace.count > 0 ? replayTrace.record[0].maeM * 1000.0 : replayReport.maeBeforeM * 1000.0;
++	const double seedMaxMm =
++		replayTrace.count > 0 ? replayTrace.record[0].maxAbsM * 1000.0 : replayReport.maxAbsBeforeM * 1000.0;
++	const double finalMaeMm = replayReport.maeAfterM * 1000.0;
++	const double finalMaxMm = replayReport.maxAbsAfterM * 1000.0;
++
++	double maxDeltaDMm = 0.0;
++	for (int joint = 1; joint <= 4; ++joint)
++		maxDeltaDMm = (std::max)(maxDeltaDMm,
++			std::fabs(replayOutD[static_cast<size_t>(joint)] - controllerSeed(1, joint)) * 1000.0);
++	double maxDeltaAlphaDeg = 0.0;
++	for (int slot = 1; slot <= 6; ++slot)
++		maxDeltaAlphaDeg = (std::max)(maxDeltaAlphaDeg,
++			std::fabs(replayOutAlpha[static_cast<size_t>(slot)] - controllerSeed(2, slot)) * 180.0 / PI);
++	double maxDeltaQDeg = 0.0;
++	for (int slot = 1; slot <= 5; ++slot)
++		maxDeltaQDeg = (std::max)(maxDeltaQDeg,
++			std::fabs(replayOutQ0[static_cast<size_t>(slot)] - q0Seed[static_cast<size_t>(slot)]) * 180.0 / PI);
++
++	const bool stabilityPass =
++		seedMaeMm <= 1.0 &&
++		finalMaeMm <= 1.0 &&
++		maxDeltaDMm <= 0.20 &&
++		maxDeltaAlphaDeg <= 0.10 &&
++		maxDeltaQDeg <= 0.10;
++
++	const size_t sourceSlash = replay.sourcePath.find_last_of("/\\");
++	const std::string replayResultDir =
++		sourceSlash == std::string::npos ? "./Result" : replay.sourcePath.substr(0, sourceSlash);
++	_mkdir(replayResultDir.c_str());
++	const std::string stamp = R73Timestamp();
++	const std::string csvPath = replayResultDir + "/R73ControllerReplay_" + stamp + ".csv";
++	const std::string logPath = replayResultDir + "/R73ControllerReplay_" + stamp + ".log";
++
++	std::ofstream csv(csvPath, std::ios::out | std::ios::trunc);
++	if (csv)
++	{
++		csv << std::setprecision(15);
++		csv << "build," << CalibrationV3BuildId() << "\n";
++		csv << "mode,same_data_controller_closed_loop_replay\n";
++		csv << "independent_accuracy_validation,0\n";
++		csv << "source_diagnostic," << replay.sourcePath << "\n";
++		csv << "status," << replayStatus << "\n";
++		csv << "first_run_recorded_mae_mm," << replay.firstMaeMm << "\n";
++		csv << "first_run_recorded_max_mm," << replay.firstMaxMm << "\n";
++		csv << "controller_seed_geometry_mae_mm," << seedMaeMm << "\n";
++		csv << "controller_seed_max_mm," << seedMaxMm << "\n";
++		csv << "replay_final_geometry_mae_mm," << finalMaeMm << "\n";
++		csv << "replay_final_max_mm," << finalMaxMm << "\n";
++		csv << "replay_improvement_mm," << (seedMaeMm - finalMaeMm) << "\n";
++		csv << "max_second_delta_d_mm," << maxDeltaDMm << "\n";
++		csv << "max_second_delta_alpha_deg," << maxDeltaAlphaDeg << "\n";
++		csv << "max_second_delta_q_deg," << maxDeltaQDeg << "\n";
++		csv << "stability_gate_seed_mae_mm,1.0\n";
++		csv << "stability_gate_final_mae_mm,1.0\n";
++		csv << "stability_gate_second_delta_d_mm,0.20\n";
++		csv << "stability_gate_second_delta_alpha_deg,0.10\n";
++		csv << "stability_gate_second_delta_q_deg,0.10\n";
++		csv << "stability_pass," << (stabilityPass ? 1 : 0) << "\n";
++		csv << "controller_d_mm";
++		for (double v : m_R65ControllerDmm) csv << ',' << v;
++		csv << "\ncontroller_alpha_legacy_deg";
++		for (double v : m_R65ControllerLegacyAlphaDeg) csv << ',' << v;
++		csv << "\ncontroller_zero_count";
++		for (double v : m_R65ControllerZeroCounts) csv << ',' << v;
++		csv << "\nreplay_q0_seed_deg";
++		for (double v : q0Seed) csv << ',' << v * 180.0 / PI;
++		csv << "\niteration,mae_mm,max_mm,step_scale,rope_bias_mm";
++		for (int joint = 0; joint < m_RobotAxis; ++joint) csv << ",d" << joint + 1 << "_mm";
++		for (int joint = 0; joint < m_RobotAxis; ++joint) csv << ",alpha" << joint + 1 << "_deg";
++		for (int joint = 0; joint < m_RobotAxis; ++joint) csv << ",q0_" << joint + 1 << "_deg";
++		csv << "\n";
++		for (int i = 0; i < replayTrace.count; ++i)
++		{
++			const CalibrationV3IterationRecord& rec = replayTrace.record[i];
++			csv << rec.iteration << ',' << rec.maeM * 1000.0 << ','
++				<< rec.maxAbsM * 1000.0 << ',' << rec.stepScale << ','
++				<< rec.ropeBiasM * 1000.0;
++			for (int joint = 0; joint < m_RobotAxis; ++joint) csv << ',' << rec.d[joint] * 1000.0;
++			for (int joint = 0; joint < m_RobotAxis; ++joint) csv << ',' << rec.alpha[joint] * 180.0 / PI;
++			for (int joint = 0; joint < m_RobotAxis; ++joint) csv << ',' << rec.q0[joint] * 180.0 / PI;
++			csv << "\n";
++		}
++	}
++	else
++	{
++		AppendR6Monitor(_T("R7.3警告：控制器闭环复算CSV创建失败：") + CString(csvPath.c_str()));
+ 	}
+ 
+ 	CString summary;
+-	summary.Format(_T("同一批数据复输入检验完成（status=%d，不运动、不写机器人、不替换第一次结果）。\r\n\r\n"
+-		"第一次：bL=%+.3f mm，去零偏前MAE %.3f mm，几何MAE %.3f mm，最大残差 %.3f mm\r\n"
+-		"第二次：bL=%+.3f mm，去零偏前MAE %.3f mm，几何MAE %.3f mm，最大残差 %.3f mm\r\n\r\n"
+-		"第二次仅检查收敛趋势，不是独立精度验证；详细结果见 *_feedback2.csv。"),
+-		secondStatus, firstReport.ropeBiasM * 1000.0, firstReport.maeBeforeM * 1000.0, firstReport.maeAfterM * 1000.0,
+-		firstReport.maxAbsAfterM * 1000.0,
+-		secondReport.ropeBiasM * 1000.0, secondReport.maeBeforeM * 1000.0, secondReport.maeAfterM * 1000.0,
+-		secondReport.maxAbsAfterM * 1000.0);
++	summary.Format(
++		_T("R7.3同数据控制器闭环复算完成（不运动、不写机器人）。\r\n\r\n")
++		_T("第一轮记录：MAE=%.3f mm，MAX=%.3f mm\r\n")
++		_T("第一轮修复结果重新作为输入后的初值：MAE=%.3f mm，MAX=%.3f mm\r\n")
++		_T("再次优化后：MAE=%.3f mm，MAX=%.3f mm\r\n")
++		_T("第二次最大附加修正：D=%.6f mm，Alpha=%.6f deg，q=%.6f deg\r\n")
++		_T("稳定性门限：初值/最终MAE<=1mm，附加D<=0.20mm，Alpha/q<=0.10deg -> %s\r\n")
++		_T("注意：这是同一批82点的算法固定点/稳定性检验，不是独立TCP绝对精度认证。\r\n")
++		_T("CSV=%S\r\nLOG=%S"),
++		replay.firstMaeMm, replay.firstMaxMm,
++		seedMaeMm, seedMaxMm, finalMaeMm, finalMaxMm,
++		maxDeltaDMm, maxDeltaAlphaDeg, maxDeltaQDeg,
++		stabilityPass ? _T("PASS") : _T("FAIL"),
++		csvPath.c_str(), logPath.c_str());
++
+ 	AppendR6Monitor(summary);
+-	MessageBox(summary, _T("R7复输入检验"), MB_OK | MB_ICONINFORMATION);
++
++	std::ofstream replayLog(logPath, std::ios::out | std::ios::trunc);
++	if (replayLog)
++	{
++		CT2A summaryA(summary.GetString());
++		replayLog << static_cast<const char*>(summaryA) << "\n";
++		replayLog << "source=" << replay.sourcePath << "\n";
++		replayLog << "build=" << CalibrationV3BuildId() << "\n";
++	}
++	else
++	{
++		AppendR6Monitor(_T("R7.3警告：控制器闭环复算独立LOG创建失败：") + CString(logPath.c_str()));
++	}
++
++	char csvAbs[MAX_PATH] = {};
++	char logAbs[MAX_PATH] = {};
++	if (_fullpath(csvAbs, csvPath.c_str(), MAX_PATH) != NULL)
++		AppendR6Monitor(_T("R7.3闭环复算CSV绝对路径：") + CString(csvAbs));
++	if (_fullpath(logAbs, logPath.c_str(), MAX_PATH) != NULL)
++		AppendR6Monitor(_T("R7.3闭环复算LOG绝对路径：") + CString(logAbs));
++
++	MessageBox(summary, _T("R7.3控制器闭环复算"), MB_OK | MB_ICONINFORMATION);
+ }
+ 
+ void RopeEncoderCalibrationDlg::OnBnClickedR6Restore()
+@@ -2298,7 +2684,7 @@
+ 	ShowR65ModelContract(_T("保存候选前"));
+ 	ShowCurrentMdh(_T("保存操作前的算法原始输入"));
+ 	CString saveInfo;
+-	saveInfo.Format(_T("准备R7.2.2写回：拉线标定仅允许写D2~D5、Alpha1~Alpha6、q2~q6；D6不是标定参数，D7永不写。去零偏后几何MAE %.3f mm，MAX %.3f mm，bL=%+.3f mm（仅测量链，不写MDH），安全门限=%s。"),
++	saveInfo.Format(_T("准备R7.3写回：拉线标定仅允许写D2~D5、Alpha1~Alpha6、q2~q6；D6不是标定参数，D7永不写。去零偏后几何MAE %.3f mm，MAX %.3f mm，bL=%+.3f mm（仅测量链，不写MDH），安全门限=%s。"),
+ 		m_R6LastReport.maeAfterM * 1000.0, m_R6LastReport.maxAbsAfterM * 1000.0,
+ 		m_R6LastReport.ropeBiasM * 1000.0, m_R5CalibrationPassed ? _T("通过") : _T("未通过"));
+ 	AppendR6Monitor(saveInfo);
+@@ -2356,7 +2742,7 @@
+ 
+ 	CString candidateLog;
+ 	candidateLog.Format(
+-		_T("=== R7.2.2拉线标定候选（D6/D7不属于候选） ===\r\n")
++		_T("=== R7.3拉线标定候选（D6/D7不属于候选） ===\r\n")
+ 		_T("D2~D5(mm): %.5f, %.5f, %.5f, %.5f\r\n")
+ 		_T("Alpha1~Alpha6(deg): %.5f, %.5f, %.5f, %.5f, %.5f, %.5f\r\n")
+ 		_T("Zero q2~q6(cnt): %.0f, %.0f, %.0f, %.0f, %.0f\r\n")
+@@ -2563,11 +2949,11 @@
+ 		return;
+ 	}
+ 
+-	AppendR6Monitor(_T("R7.2.2最终闭环通过：拉线标定字段已持久化；D6按独立结构规则处理；D7保持写回前值且全过程未发送D7写命令。"));
++	AppendR6Monitor(_T("R7.3最终闭环通过：拉线标定字段已持久化；D6按独立结构规则处理；D7保持写回前值且全过程未发送D7写命令。"));
+ 
+ 	_mkdir("./Result");
+ 	const std::string stamp = m_FinishTime.empty() ? "manual" : m_FinishTime;
+-	const std::string path = "./Result/R722Writeback_" + stamp + ".csv";
++	const std::string path = "./Result/R73Writeback_" + stamp + ".csv";
+ 	std::ofstream out(path, std::ios::out | std::ios::trunc);
+ 	if (out)
+ 	{
+@@ -2608,11 +2994,11 @@
+ 		}
+ 	}
+ 
+-	AppendR6Monitor(_T("R7.2.2闭环完成：保存后的控制器回读仅作为闭环证据；下一次点‘开始’会再次强制恢复公共HE3_GY-cfg.txt作为算法输入。写回记录：") + CString(path.c_str()));
++	AppendR6Monitor(_T("R7.3闭环完成：保存后的控制器参数已成为下一次可选算法输入；开始前可选择控制器实时回读或公共HE3_GY-cfg。写回记录：") + CString(path.c_str()));
+ 	m_SaveBtn.EnableWindow(FALSE);
+ 	MessageBox(
+-		_T("保存、逐项回读和最终闭环检查全部成功。D6若被修复，是独立HE3结构修复，不是拉线标定结果；D7未写。bL未写入MDH。下一轮仍从公共HE3_GY-cfg.txt重新采集。"),
+-		_T("R7.2.2闭环完成"), MB_OK | MB_ICONINFORMATION);
++		_T("保存、逐项回读和最终闭环检查全部成功。D6若被修复，是独立HE3结构修复，不是拉线标定结果；D7未写。bL未写入MDH。下一次开始前可选择控制器实时回读或公共HE3_GY-cfg；也可直接点‘控制器闭环复算’使用上一轮同一批82点做稳定性检验。"),
++		_T("R7.3闭环完成"), MB_OK | MB_ICONINFORMATION);
+ }
+ 
+ //选择标定模式
+--- R7.2.2a/CalibrationV3Analytic/CalibrationV3Analytic.cpp
++++ R7.3/CalibrationV3Analytic/CalibrationV3Analytic.cpp
+@@ -708,7 +708,7 @@
+ 
+ extern "C" CALV3_API const char* CALV3_CALL CalibrationV3BuildId()
+ {
+-    return "HE3-V3-CRAIG-MDH-ANALYTIC-TWOSTAGE-LASER-PRIOR-FINAL-WRITEBACK-20260826-R7.2.2a";
++    return "HE3-V3-CRAIG-MDH-ANALYTIC-TWOSTAGE-LASER-PRIOR-CONTROLLER-REPLAY-20260826-R7.3";
+ }
+ 
+ extern "C" CALV3_API int CALV3_CALL CalibrationV3GetLastTrace(

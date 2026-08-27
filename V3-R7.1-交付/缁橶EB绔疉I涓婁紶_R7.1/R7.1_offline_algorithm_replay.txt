@@ -1,0 +1,47 @@
+R7.1 offline algorithm replay against shipped 82-point R7 diagnostic
+=====================================================================
+
+Purpose
+-------
+Validate the R7.1 math change without pretending a Windows DLL was rebuilt.
+The Python mirror follows the shipped C++ equations for Craig FK, exact point
+Jacobian, V1 adjacent-sphere anchor initialization, Huber weighting, weak priors,
+pseudoinverse, backtracking, and hard correction limits.
+
+Mirror validation against shipped R7 (no bL)
+----------------------------------------------
+Shipped CSV:
+  MAE after   = 2.4647714986898 mm
+  MAX after   = 5.81518074157861 mm
+  condition   = 2154.37531715873
+
+Python mirror:
+  MAE after   = 2.46478343021839 mm
+  MAX after   = 5.81519199675784 mm
+  condition   = 2154.37535122114
+
+The near-exact match is evidence that the replay implements the same math chain.
+The tiny difference comes from rounded public values available in the handoff.
+
+R7.1 predicted replay (same old 82 samples, + independent bL column)
+--------------------------------------------------------------------
+  raw MAE before bL      ~= 2.936906 mm
+  accepted iterations    = 3
+  bL                     ~= +3.196253 mm
+  geometry MAE after bL  ~= 0.568766 mm
+  geometry MAX after bL  ~= 3.323237 mm
+  augmented rank         = 19/19
+  robot rank shown in UI = 15/15
+  augmented condition    ~= 2636.268
+
+Condition gate note
+-------------------
+R7 used <=2500 with 15 robot + 3 anchor columns. Adding bL creates a 19th
+physical nuisance column and raises the same data to about 2636. R7.1 therefore
+uses <=3000 while preserving the full augmented-rank requirement.
+
+Important safety note
+---------------------
+This replay predicts MAE < 1 mm, but the geometry optimizer can still push one
+or more MDH parameters toward/outside the eight-robot laser population envelope.
+The laser-envelope gate remains independent and can still reject writeback.

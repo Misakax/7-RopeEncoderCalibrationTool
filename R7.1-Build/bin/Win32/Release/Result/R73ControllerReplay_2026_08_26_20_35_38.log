@@ -1,0 +1,12 @@
+R7.3同数据控制器闭环复算完成（不运动、不写机器人）。
+
+第一轮记录：MAE=0.587 mm，MAX=3.137 mm
+第一轮修复结果重新作为输入后的初值：MAE=0.670 mm，MAX=3.672 mm
+再次优化后：MAE=0.600 mm，MAX=3.194 mm
+第二次最大附加修正：D=0.054945 mm，Alpha=0.025675 deg，q=0.052748 deg
+稳定性门限：初值/最终MAE<=1mm，附加D<=0.20mm，Alpha/q<=0.10deg -> PASS
+注意：这是同一批82点的算法固定点/稳定性检验，不是独立TCP绝对精度认证。
+CSV=./Result/R73ControllerReplay_2026_08_26_20_35_38.csv
+LOG=./Result/R73ControllerReplay_2026_08_26_20_35_38.log
+source=./Result/V3Diagnostic_2026_8_26_20_5.csv
+build=HE3-V3-CRAIG-MDH-ANALYTIC-TWOSTAGE-LASER-PRIOR-CONTROLLER-REPLAY-20260826-R7.3

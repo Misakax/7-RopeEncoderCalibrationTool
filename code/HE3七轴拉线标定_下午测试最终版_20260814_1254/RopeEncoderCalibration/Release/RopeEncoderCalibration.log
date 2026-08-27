@@ -1,0 +1,32 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(538,5): warning MSB8028: 中间目录(Release\)包含从另一个项目(RopeEncoderCalibration.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+cl : 命令行  warning D9035: “Gm”选项已否决，并将在将来的版本中移除
+  stdafx.cpp
+cl : 命令行  warning D9035: “Gm”选项已否决，并将在将来的版本中移除
+  websocket_endpoint.cpp
+  RoughCalibrationDlg.cpp
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\RoughCalibrationDlg.cpp(43,13): warning C4091: “extern ”: 没有声明变量时忽略“RobotType”的左侧
+  RopeEncoderCalibrationDlg.cpp
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\RopeEncoderCalibrationDlg.cpp(387,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\RopeEncoderCalibrationDlg.cpp(394,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\RopeEncoderCalibrationDlg.cpp(1318,23): warning C4018: “<”: 有符号/无符号不匹配
+  RopeEncoderCalibration.cpp
+  QKMLinkComm.cpp
+  FileOperation.cpp
+  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\FileOperation.cpp(152,13): warning C4091: “extern ”: 没有声明变量时忽略“MsgIdx”的左侧
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\FileOperation.cpp(345,29): error C4839: 将类 "ATL::CA2WEX<128>" 作为可变参数函数的参数的非标准用法
+      D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\FileOperation.cpp(345,29):
+      不会调用构造函数和析构函数；该类的位副本将作为参数进行传递
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\include\atlconv.h(344,7):
+      参见“ATL::CA2WEX<128>”的声明
+  
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\FileOperation.cpp(345,29): error C2248: “ATL::CA2WEX<128>::CA2WEX”: 无法访问 private 成员(在“ATL::CA2WEX<128>”类中声明)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\include\atlconv.h(408,2):
+      参见“ATL::CA2WEX<128>::CA2WEX”的声明
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\include\atlconv.h(344,7):
+      参见“ATL::CA2WEX<128>”的声明
+  
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\FileOperation.cpp(390,23): warning C4018: “<”: 有符号/无符号不匹配
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\FileOperation.cpp(713,25): warning C4018: “<”: 有符号/无符号不匹配
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\FileOperation.cpp(725,25): warning C4018: “<”: 有符号/无符号不匹配
+D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_4_0_X\RopeEncoderCalibrationTool\RopeEncoderCalibration\FileOperation.cpp(733,25): warning C4018: “<”: 有符号/无符号不匹配

@@ -1,0 +1,12 @@
+metric,value_mm
+sample_count,82
+residual_before_min,1.24110959306745
+residual_before_mean_bL_seed,2.936891437647181
+residual_before_max,6.71850964950782
+mae_before_bias,2.936891437647181
+mae_before_after_constant_bias_removal,0.6586696008130438
+max_before_after_constant_bias_removal,3.781618211860639
+r7_residual_after_mean,2.4647714986897977
+r7_mae_after,2.4647714986897977
+r7_mae_after_constant_bias_removal,0.5669149425985365
+r7_max_after_constant_bias_removal,3.350409242888812

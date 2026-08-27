@@ -1,0 +1,12 @@
+build=HE3-V3-CRAIG-MDH-ANALYTIC-20260826-R7.1-INDEPENDENT-ROPE-BIAS
+d5_test=PASS
+q5_test=PASS
+q6_structural_zero=PASS
+q7_structural_zero=PASS
+rope_bias_expected_mm=2.500000
+rope_bias_recovered_mm=2.50000001191
+mae_before_zero_bias_mm=2.50000001167
+mae_after_geometry_mm=0.000000000236
+fictitious_d5_mm=-0.000000000085
+rope_bias_test=PASS
+overall=PASS

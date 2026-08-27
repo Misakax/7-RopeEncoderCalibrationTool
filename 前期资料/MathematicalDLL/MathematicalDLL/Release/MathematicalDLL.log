@@ -1,0 +1,25 @@
+﻿生成启动时间为 2026/1/27 9:46:40。
+     1>项目“D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_3_2_X\RopeEncoderCalibrationTool\MathematicalDLL\MathematicalDLL.vcxproj”在节点 3 上(Rebuild 个目标)。
+     1>ClCompile:
+         G:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I..\eigen3 /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D MATHEMATICALDLL_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yc"stdafx.h" /Fp"Release\MathematicalDLL.pch" /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /wd4996 /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         G:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I..\eigen3 /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D MATHEMATICALDLL_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /wd4996 /analyze- /errorReport:prompt dllmain.cpp
+         dllmain.cpp
+         G:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I..\eigen3 /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D MATHEMATICALDLL_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Release\MathematicalDLL.pch" /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /wd4996 /analyze- /errorReport:prompt MathematicalDLL.cpp
+         MathematicalDLL.cpp
+       Link:
+         G:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_3_2_X\RopeEncoderCalibrationTool\Release\MathematicalDLL.dll" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"MathematicalDLL.def" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_3_2_X\RopeEncoderCalibrationTool\Release\MathematicalDLL.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_3_2_X\RopeEncoderCalibrationTool\Release\MathematicalDLL.lib" /MACHINE:X86 /SAFESEH /DLL Release\dllmain.obj
+         Release\MathematicalDLL.obj
+         Release\stdafx.obj
+     1>MathematicalDLL.def(3): warning LNK4017: EXPORT 语句不支持目标平台；已忽略
+     1>MathematicalDLL.def(3): warning LNK4017: Calibration 语句不支持目标平台；已忽略
+           正在创建库 D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_3_2_X\RopeEncoderCalibrationTool\Release\MathematicalDLL.lib 和对象 D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_3_2_X\RopeEncoderCalibrationTool\Release\MathematicalDLL.exp
+         正在生成代码
+         All 620 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+         已完成代码的生成
+         MathematicalDLL.vcxproj -> D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_3_2_X\RopeEncoderCalibrationTool\Release\MathematicalDLL.dll
+     1>已完成生成项目“D:\SVNCode\RopeEncoderCalibrationTool\RopeEncoderCalibrationTool_3_2_X\RopeEncoderCalibrationTool\MathematicalDLL\MathematicalDLL.vcxproj”(Rebuild 个目标)的操作。
+
+已成功生成。
+
+已用时间 00:00:29.10

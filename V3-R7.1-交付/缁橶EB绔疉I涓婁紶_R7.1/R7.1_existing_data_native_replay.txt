@@ -1,0 +1,55 @@
+R7.1 exact native C++ replay of shipped 82-point data
+======================================================
+
+Method
+------
+Compiled the modified `CalibrationV3Analytic.cpp` as a native shared library
+with g++ + Eigen, then called the exported `CalibrationV3Analytic` API on the
+82 samples from `Result/V3Diagnostic_2026_8_26_15_41.csv` using the public
+HE3_GY-cfg.txt model and nominal 62.5 mm rope fixed offset.
+
+Build ID
+--------
+HE3-V3-CRAIG-MDH-ANALYTIC-LASER-POLICY-20260826-R7.1-PUBLIC-MDH-ROPE-BIAS
+
+Result
+------
+status                = 1 (STOP_NO_IMPROVEMENT)
+iterations            = 3
+active robot params    = 15
+reported robot rank    = 15/15
+augmented rank         = 19/19 (15 robot + 3 anchor + bL)
+condition              = 2636.26840948109
+raw MAE before bL      = 2.936905537488 mm
+geometry MAE after bL  = 0.568765711123 mm
+raw MAX before bL      = 6.718522830922 mm
+geometry MAX after bL  = 3.323237069243 mm
+bL                     = +3.196252890834 mm
+
+Predicted GUI values (3 decimals)
+---------------------------------
+拉线零偏 bL(mm)          +3.196
+去零偏前 MAE(mm)          2.937
+去零偏后几何 MAE(mm)      0.569
+
+Output D (mm)
+-------------
+D1 =   0.000000
+D2 =  48.675214
+D3 = 493.879471
+D4 = -117.000211
+D5 = 318.212298
+D6 =   0.000000
+D7 = 142.000000  (algorithm effective D7 incl. 49 mm ToolOffset)
+
+Laser-envelope safety check
+---------------------------
+D2 allowed 47.25..49.50     -> PASS
+D3 allowed 491.49..493.77   -> FAIL (493.879471)
+D4 allowed -122.44..-119.14 -> FAIL (-117.000211)
+D5 allowed 315.65..318.49   -> PASS
+
+Therefore this old dataset is expected to display sub-1-mm geometry MAE in
+R7.1, but the existing laser-envelope gate should still block MDH writeback.
+This is intentional: separating the rope measurement bias must not weaken the
+independent robot-geometry safety gate.

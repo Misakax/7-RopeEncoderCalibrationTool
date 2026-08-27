@@ -1,0 +1,471 @@
+﻿--- R7.2.1/CalibrationV3Analytic/CalibrationV3Analytic.cpp
++++ R7.2.2/CalibrationV3Analytic/CalibrationV3Analytic.cpp
+@@ -708,7 +708,7 @@
+ 
+ extern "C" CALV3_API const char* CALV3_CALL CalibrationV3BuildId()
+ {
+-    return "HE3-V3-CRAIG-MDH-ANALYTIC-TWOSTAGE-LASER-PRIOR-SAFE-WRITEBACK-20260826-R7.2.1";
++    return "HE3-V3-CRAIG-MDH-ANALYTIC-TWOSTAGE-LASER-PRIOR-FINAL-WRITEBACK-20260826-R7.2.2";
+ }
+ 
+ extern "C" CALV3_API int CALV3_CALL CalibrationV3GetLastTrace(
+--- R7.2.1/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.cpp
++++ R7.2.2/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.cpp
+@@ -41,7 +41,7 @@
+ 
+ #pragma region 全局变量
+ //软件版本
+-CString m_Version = _T(" HE3 V3 Analytic R7.2.1 Two-Stage + Laser Prior + Safe Writeback 2026.08.26");
++CString m_Version = _T(" HE3 V3 Analytic R7.2.2 Two-Stage + Laser Prior + Final Writeback Contract 2026.08.26");
+ //文件的路径
+ string m_FilePath;
+ //查询编码器值的指令
+@@ -1394,7 +1394,7 @@
+ 	text += _T("拉线实际求解：阶段1只求固定端lambda与拉线零偏bL；阶段2冻结lambda/bL，仅求D2~D5、Alpha1~Alpha6、q2~q6（q6仅在解析列可见时参与）。\r\n");
+ 	text += _T("R7.2输入固定：公共 Config/RobotType/HE3_GY-cfg.txt；不使用控制器回读MDH作为算法初值。\r\n");
+ 	text += _T("测量模型：L实测 = |P-lambda| + bL；bL只校准拉线测量链。阶段2使用8台激光均值/样本标准差作为先验，并以均值±3σ限制候选；bL不进入4N参数、不写控制器。\r\n");
+-	text += _T("结构保持：A1~A7、D1/D6/D7、q1/q7、Beta；Alpha7虽属激光候选，但当前轴向拉线点对其为结构零列，保留控制器值。\r\n");
++	text += _T("结构保持：A1~A7、D1、D7、q1/q7、Beta；D6不是拉线标定参数，HE3厂家DH定义固定D6=0；若控制器出现D6=D7约93 mm，仅作为独立结构修复处理。Alpha7当前为结构零列，保留控制器值。\r\n");
+ 	line.Format(_T("末端模型：控制器D7结构长度 + ToolOffset %.3f mm = 算法有效D7；ToolOffset不重复写入控制器。\r\n"),
+ 		m_ThisRbt.ToolOffset * 1000.0);
+ 	text += line;
+@@ -1470,7 +1470,7 @@
+ 	if (!plausibleD || !plausibleAlpha || !plausibleZero)
+ 	{
+ 		CString rejected;
+-		rejected.Format(_T("控制器快照未通过HE3模型合理性检查（D=%d Alpha=%d Zero=%d），不作为算法输入。R7.2要求D1/D6接近0 mm、D7为末端结构长度；可防止旧六轴写回把93 mm误写到D6。"),
++		rejected.Format(_T("控制器快照未通过HE3模型合理性检查（D=%d Alpha=%d Zero=%d），不作为算法输入。HE3厂家DH定义要求D1约0、D6=0、D7为末端结构长度；若检测到D6=D7约93 mm，只允许作为待修复的旧控制器快照。"),
+ 			plausibleD ? 1 : 0, plausibleAlpha ? 1 : 0, plausibleZero ? 1 : 0);
+ 		AppendR6Monitor(rejected);
+ 		AppendR6Monitor(_T("回读D(mm): ") + FormatR65Vector(dMm, 5));
+@@ -1481,10 +1481,10 @@
+ 
+ 	if (legacyDuplicateD6)
+ 	{
+-		AppendR6Monitor(_T("检测到控制器D6/D7均约93 mm。厂家未校准DH表及8台激光校准DH表均为D6=0、D7=93；机械图纸中的93 mm是末端结构尺寸，DH索引以厂家DH表为准。该快照仅用于写回前备份；R7.2.1算法仍固定公共MDH。"));
++		AppendR6Monitor(_T("检测到控制器D6/D7均约93 mm。厂家HE3 DH定义及8台激光校准DH结果均为D6=0、D7=93；图纸中的93 mm仅是末端结构尺寸，DH索引以厂家DH表为准。D6=93不是拉线算法结果，也不会作为拉线算法输入；该状态仅记为待确认的结构异常。"));
+ 		if (updateInput)
+ 		{
+-			AppendR6Monitor(_T("拒绝把D6重复快照转成算法输入；请继续使用R7.2公共MDH。"));
++			AppendR6Monitor(_T("拒绝把D6重复快照转成算法输入；R7.2.2继续固定使用公共HE3_GY-cfg.txt。"));
+ 			return false;
+ 		}
+ 	}
+@@ -1557,11 +1557,11 @@
+ 		"完整MDH已写入右侧日志。\r\n"
+ 		"按‘确定’后开始运动；按‘取消’则不运动。"),
+ 		m_R65InputSource.GetString());
+-	if (MessageBox(confirmation, _T("R7.2：确认公共MDH输入"),
++	if (MessageBox(confirmation, _T("R7.2.2：确认公共MDH输入"),
+ 		MB_OKCANCEL | MB_ICONWARNING) != IDOK)
+ 		return false;
+ 
+-	AppendR6Monitor(_T("R7.2公共MDH输入已确认，允许开始本次运动采集。"));
++	AppendR6Monitor(_T("R7.2.2公共MDH输入已确认，允许开始本次运动采集。"));
+ 	return true;
+ }
+ 
+@@ -1629,10 +1629,12 @@
+ 		failure = _T("候选数组不是7轴完整长度。");
+ 		return false;
+ 	}
+-	if (std::fabs(dMm[0]) > 5.0 || std::fabs(dMm[5]) > 5.0 ||
+-		dMm[6] < 75.0 || dMm[6] > 110.0)
+-	{
+-		failure = _T("D1/D6/D7不符合HE3七轴结构：D1/D6应接近0 mm，D7应为75~110 mm的本体末端长度（不含ToolOffset）。");
++	// D6 is intentionally NOT validated as a calibration candidate here.
++	// It is not solved by the rope calibration.  A legacy D6=D7~93 controller
++	// state is handled separately as an HE3 structural repair transaction.
++	if (std::fabs(dMm[0]) > 5.0 || dMm[6] < 75.0 || dMm[6] > 110.0)
++	{
++		failure = _T("D1/D7不符合HE3七轴结构：D1应接近0 mm，D7应为75~110 mm的本体末端长度（不含ToolOffset）。D6不属于拉线标定候选。");
+ 		return false;
+ 	}
+ 	// Expanded envelopes around the eight laser-calibrated HE3 machines.  They
+@@ -2296,45 +2298,44 @@
+ 	ShowR65ModelContract(_T("保存候选前"));
+ 	ShowCurrentMdh(_T("保存操作前的算法原始输入"));
+ 	CString saveInfo;
+-	saveInfo.Format(_T("准备R7.2.1完整写回：去零偏后几何MAE %.3f mm，MAX %.3f mm，bL=%+.3f mm（仅测量链，不写MDH），安全门限=%s。"),
++	saveInfo.Format(_T("准备R7.2.2写回：拉线标定仅允许写D2~D5、Alpha1~Alpha6、q2~q6；D6不是标定参数，D7永不写。去零偏后几何MAE %.3f mm，MAX %.3f mm，bL=%+.3f mm（仅测量链，不写MDH），安全门限=%s。"),
+ 		m_R6LastReport.maeAfterM * 1000.0, m_R6LastReport.maxAbsAfterM * 1000.0,
+ 		m_R6LastReport.ropeBiasM * 1000.0, m_R5CalibrationPassed ? _T("通过") : _T("未通过"));
+ 	AppendR6Monitor(saveInfo);
++
+ 	if (!m_R5CalibrationPassed || !m_R6HaveResult || m_RobotAxis != 7)
+ 	{
+ 		AppendR6Monitor(_T("写回被阻止：结果未通过安全门限、没有有效候选或不是HE3七轴。"));
+-		MessageBox(_T("当前结果不满足R7.2写回条件，未修改机器人。"),
+-			_T("R7.2.1写回保护"), MB_OK | MB_ICONERROR);
++		MessageBox(_T("当前结果不满足R7.2.2写回条件，未修改机器人。"),
++			_T("R7.2.2写回保护"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
++
+ 	if (!ReloadControllerModelAsInput(_T("写回前备份快照"), false))
+ 	{
+ 		MessageBox(_T("无法完整读取控制器D/Alpha/零位，未执行写回。"),
+-			_T("R7.2.1写回保护"), MB_OK | MB_ICONERROR);
++			_T("R7.2.2写回保护"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 
+ 	const std::vector<double> beforeD = m_R65ControllerDmm;
+ 	const std::vector<double> beforeAlpha = m_R65ControllerLegacyAlphaDeg;
+ 	const std::vector<double> beforeZero = m_R65ControllerZeroCounts;
+-	std::vector<double> candidateD = beforeD;
+-	std::vector<double> candidateAlpha = beforeAlpha;
+-	std::vector<double> candidateZero = beforeZero;
+-	const bool repairLegacyD6 = beforeD.size() == 7 && beforeD[5] > 75.0 && beforeD[5] < 110.0 &&
+-		beforeD[6] > 75.0 && beforeD[6] < 110.0 && std::fabs(beforeD[5] - beforeD[6]) <= 2.0;
+-	if (repairLegacyD6)
+-		candidateD[5] = 0.0; // restore vendor HE3 DH convention: D6=0, D7=93 mm
+-
+-	// Laser scheme: D2..D5, physical Alpha1..Alpha6 and q2..q6.  A, D1/D6/D7,
+-	// q1/q7 and Alpha7 stay exactly at the controller snapshot. D6 also stays
+-	// untouched unless the exact known legacy D6=D7~93 duplicate is detected;
+-	// in that case candidate D6 is explicitly repaired to 0 mm after confirmation. Craig alpha
+-	// slot 2 maps back to controller legacy Alpha1, etc.
++
++	// Calibration candidate contains ONLY parameters identifiable/allowed by the rope scheme.
++	// D6 and D7 stay equal to the controller snapshot in this candidate array because neither
++	// one is a rope-calibration output.
++	std::vector<double> calibrationD = beforeD;
++	std::vector<double> calibrationAlpha = beforeAlpha;
++	std::vector<double> calibrationZero = beforeZero;
++
+ 	for (int joint = 1; joint <= 4; ++joint)
+-		candidateD[static_cast<size_t>(joint)] = m_R6OutD[static_cast<size_t>(joint)] * 1000.0;
++		calibrationD[static_cast<size_t>(joint)] = m_R6OutD[static_cast<size_t>(joint)] * 1000.0;
++
+ 	for (int physicalAlpha = 0; physicalAlpha < 6; ++physicalAlpha)
+-		candidateAlpha[static_cast<size_t>(physicalAlpha)] =
++		calibrationAlpha[static_cast<size_t>(physicalAlpha)] =
+ 			m_R6OutAlpha[static_cast<size_t>(physicalAlpha + 1)] * 180.0 / PI;
++
+ 	for (int joint = 1; joint <= 5; ++joint)
+ 	{
+ 		if (joint == 5 && !m_R61Q6CandidateActive) continue;
+@@ -2343,27 +2344,53 @@
+ 			m_ThisRbt.EncoderLineNum[joint] / 360.0;
+ 		const double rounded = correctionCounts >= 0.0 ?
+ 			std::floor(correctionCounts + 0.5) : std::ceil(correctionCounts - 0.5);
+-		candidateZero[static_cast<size_t>(joint)] = beforeZero[static_cast<size_t>(joint)] + rounded;
+-	}
++		calibrationZero[static_cast<size_t>(joint)] =
++			beforeZero[static_cast<size_t>(joint)] + rounded;
++	}
++
++	const bool repairLegacyD6 =
++		beforeD.size() == 7 &&
++		beforeD[5] > 75.0 && beforeD[5] < 110.0 &&
++		beforeD[6] > 75.0 && beforeD[6] < 110.0 &&
++		std::fabs(beforeD[5] - beforeD[6]) <= 2.0;
+ 
+ 	CString candidateLog;
+-	candidateLog.Format(_T("R7.2候选（写入前；bL不在候选中）\r\nD(mm): %s\r\n旧式Alpha(deg): %s\r\nZero(cnt): %s\r\n"),
+-		FormatR65Vector(candidateD, 5).GetString(), FormatR65Vector(candidateAlpha, 5).GetString(),
+-		FormatR65Vector(candidateZero, 0).GetString());
++	candidateLog.Format(
++		_T("=== R7.2.2拉线标定候选（D6/D7不属于候选） ===\r\n")
++		_T("D2~D5(mm): %.5f, %.5f, %.5f, %.5f\r\n")
++		_T("Alpha1~Alpha6(deg): %.5f, %.5f, %.5f, %.5f, %.5f, %.5f\r\n")
++		_T("Zero q2~q6(cnt): %.0f, %.0f, %.0f, %.0f, %.0f\r\n")
++		_T("控制器结构状态：D6=%.5f mm，D7=%.5f mm；D7本次绝不写。D6结构修复待确认=%s\r\n"),
++		calibrationD[1], calibrationD[2], calibrationD[3], calibrationD[4],
++		calibrationAlpha[0], calibrationAlpha[1], calibrationAlpha[2],
++		calibrationAlpha[3], calibrationAlpha[4], calibrationAlpha[5],
++		calibrationZero[1], calibrationZero[2], calibrationZero[3],
++		calibrationZero[4], calibrationZero[5],
++		beforeD[5], beforeD[6], repairLegacyD6 ? _T("是") : _T("否"));
+ 	AppendR6Monitor(candidateLog);
++
+ 	CString candidateFailure;
+-	if (!ValidateR65Candidate(candidateD, candidateAlpha, candidateZero, candidateFailure))
+-	{
+-		AppendR6Monitor(_T("候选合理性检查失败：") + candidateFailure);
+-		MessageBox(candidateFailure, _T("R7.2.1写回保护"), MB_OK | MB_ICONERROR);
++	if (!ValidateR65Candidate(calibrationD, calibrationAlpha, calibrationZero, candidateFailure))
++	{
++		AppendR6Monitor(_T("拉线标定候选合理性检查失败：") + candidateFailure);
++		MessageBox(candidateFailure, _T("R7.2.2写回保护"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
++
+ 	if (repairLegacyD6)
+ 	{
+-		if (MessageBox(_T("检测到控制器当前D6与D7都约为93 mm。\r\n\r\n厂家未校准DH表以及8台激光校准DH表均明确为：D6=0 mm，D7=93 mm。机械图纸顶部的93 mm表示末端结构尺寸，但图纸本身不标DH索引；按厂家DH表该93 mm属于D7。\r\n\r\n本次保存除D2~D5/Alpha/零位外，还将把控制器D6从93修复为0 mm；D7保持93 mm。是否继续？"),
+-			_T("R7.2.1：确认修复D6重复值"), MB_YESNO | MB_ICONWARNING) != IDYES)
+-		{
+-			AppendR6Monitor(_T("用户取消D6结构修复，本次未写回任何参数。"));
++		if (MessageBox(
++			_T("检测到控制器当前 D6 与 D7 都约为 93 mm。\r\n\r\n")
++			_T("重要：D6=0 不是本次拉线标定计算出来的补偿值。\r\n")
++			_T("厂家 HE3 DH 定义以及8台激光校准DH结果均为 D6=0 mm、D7=93 mm；机械图纸的93 mm是末端结构尺寸，按厂家DH表归属于D7。\r\n\r\n")
++			_T("若继续，本次事务分为两部分：\r\n")
++			_T("1) 拉线标定写回：仅 D2~D5、Alpha1~Alpha6、q2~q6；\r\n")
++			_T("2) 独立HE3结构修复：D6 由 93 mm 修复为 0 mm；D7 保持当前93 mm且不会发送D7写命令。\r\n\r\n")
++			_T("是否执行这两个动作并在全部回读通过后统一持久化？"),
++			_T("R7.2.2：单独确认HE3 D6结构修复"),
++			MB_YESNO | MB_ICONWARNING) != IDYES)
++		{
++			AppendR6Monitor(_T("用户取消独立D6结构修复；为保持单次事务一致性，本次未写回任何拉线标定参数。"));
+ 			return;
+ 		}
+ 	}
+@@ -2371,64 +2398,176 @@
+ 	if (PowerOff() != 0)
+ 	{
+ 		AppendR6Monitor(_T("机器人下电命令未确认成功，禁止写参数。"));
+-		MessageBox(_T("机器人下电未确认，未执行写回。"), _T("R7.2.1写回保护"), MB_OK | MB_ICONERROR);
++		MessageBox(_T("机器人下电未确认，未执行写回。"),
++			_T("R7.2.2写回保护"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 
+ 	CString failure;
+ 	bool writeOk = true;
++
++	AppendR6Monitor(_T("=== 拉线标定参数写回开始：仅D2~D5、Alpha1~Alpha6、q2~q6；此阶段不写D6/D7 ==="));
+ 	for (int joint = 1; joint <= 4 && writeOk; ++joint)
+-		writeOk = WriteControllerValueVerified(m_IDND, joint + 1,
+-			candidateD[static_cast<size_t>(joint)], 0.0005, failure);
++		writeOk = WriteControllerValueVerified(
++			m_IDND, joint + 1,
++			calibrationD[static_cast<size_t>(joint)], 0.0005, failure);
++
++	for (int physicalAlpha = 0; physicalAlpha < 6 && writeOk; ++physicalAlpha)
++		writeOk = WriteControllerValueVerified(
++			m_IDNAlpha, physicalAlpha + 1,
++			calibrationAlpha[static_cast<size_t>(physicalAlpha)], 0.00001, failure);
++
++	for (int joint = 1; joint <= 5 && writeOk; ++joint)
++	{
++		if (joint == 5 && !m_R61Q6CandidateActive) continue;
++		writeOk = WriteControllerValueVerified(
++			m_IDNZeroEncoderValue, joint + 1,
++			calibrationZero[static_cast<size_t>(joint)], 0.01, failure);
++	}
++
++	if (writeOk)
++		AppendR6Monitor(_T("拉线标定参数逐项写入/回读通过；到此为止D6/D7均未写。"));
++
+ 	if (repairLegacyD6 && writeOk)
+-		writeOk = WriteControllerValueVerified(m_IDND, 6, candidateD[5], 0.0005, failure);
+-	for (int physicalAlpha = 0; physicalAlpha < 6 && writeOk; ++physicalAlpha)
+-		writeOk = WriteControllerValueVerified(m_IDNAlpha, physicalAlpha + 1,
+-			candidateAlpha[static_cast<size_t>(physicalAlpha)], 0.00001, failure);
+-	for (int joint = 1; joint <= 5 && writeOk; ++joint)
+-	{
+-		if (joint == 5 && !m_R61Q6CandidateActive) continue;
+-		writeOk = WriteControllerValueVerified(m_IDNZeroEncoderValue, joint + 1,
+-			candidateZero[static_cast<size_t>(joint)], 0.01, failure);
++	{
++		AppendR6Monitor(_T("=== 独立HE3结构修复开始（不是拉线标定结果）：仅写D6=0；D7保持原值且不发送D7写命令 ==="));
++		writeOk = WriteControllerValueVerified(m_IDND, 6, 0.0, 0.0005, failure);
++		if (writeOk)
++			AppendR6Monitor(_T("HE3结构修复逐项回读通过：D6=0；D7未写。"));
+ 	}
+ 
+ 	if (!writeOk)
+ 	{
+-		AppendR6Monitor(_T("写回事务失败：") + failure + _T(" 正在恢复写入前快照；不会执行21.23 save。"));
++		AppendR6Monitor(_T("写回事务失败：") + failure +
++			_T(" 正在恢复写入前快照；不会执行21.23 save。"));
+ 		CString ignored;
++
+ 		for (int joint = 1; joint <= 4; ++joint)
+-			WriteControllerValueVerified(m_IDND, joint + 1, beforeD[static_cast<size_t>(joint)], 0.0005, ignored);
++			WriteControllerValueVerified(
++				m_IDND, joint + 1,
++				beforeD[static_cast<size_t>(joint)], 0.0005, ignored);
++
++		for (int physicalAlpha = 0; physicalAlpha < 6; ++physicalAlpha)
++			WriteControllerValueVerified(
++				m_IDNAlpha, physicalAlpha + 1,
++				beforeAlpha[static_cast<size_t>(physicalAlpha)], 0.00001, ignored);
++
++		for (int joint = 1; joint <= 5; ++joint)
++			WriteControllerValueVerified(
++				m_IDNZeroEncoderValue, joint + 1,
++				beforeZero[static_cast<size_t>(joint)], 0.01, ignored);
++
+ 		if (repairLegacyD6)
+ 			WriteControllerValueVerified(m_IDND, 6, beforeD[5], 0.0005, ignored);
+-		for (int physicalAlpha = 0; physicalAlpha < 6; ++physicalAlpha)
+-			WriteControllerValueVerified(m_IDNAlpha, physicalAlpha + 1,
+-				beforeAlpha[static_cast<size_t>(physicalAlpha)], 0.00001, ignored);
+-		for (int joint = 1; joint <= 5; ++joint)
+-			WriteControllerValueVerified(m_IDNZeroEncoderValue, joint + 1,
+-				beforeZero[static_cast<size_t>(joint)], 0.01, ignored);
+-		MessageBox(_T("写回或回读校验失败，已尝试恢复写入前快照，未持久化。请查看右侧日志。"),
+-			_T("R7.2.1写回失败"), MB_OK | MB_ICONERROR);
++
++		AppendR6Monitor(_T("回滚过程中从未写D7；D7保持写回前控制器值。"));
++		MessageBox(
++			_T("写回或回读校验失败，已尝试恢复写入前快照，未持久化。请查看右侧日志。"),
++			_T("R7.2.2写回失败"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 
+ 	if (WriteIDNValue(m_IDNSave, m_IndexStr, m_IDNSaveOption) != 0)
+ 	{
+ 		AppendR6Monitor(_T("所有逐项回读通过，但控制器21.23 save失败。参数可能只在运行内存中；停止后续操作并人工检查。"));
+-		MessageBox(_T("参数逐项写入成功，但持久化保存失败。请勿继续测试，先检查控制器。"),
+-			_T("R7.2.1保存失败"), MB_OK | MB_ICONERROR);
++		MessageBox(
++			_T("参数逐项写入成功，但持久化保存失败。请勿继续测试，先检查控制器。"),
++			_T("R7.2.2保存失败"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
++
+ 	AppendR6Monitor(_T("21.23 save返回成功；现在重新读取D/Alpha/零位作为闭环证据；公共MDH算法输入保持不变。"));
+ 	if (!ReloadControllerModelAsInput(_T("持久化保存后回读"), false))
+ 	{
+-		MessageBox(_T("保存命令成功，但保存后完整回读失败。不要开始下一轮，请查看右侧日志。"),
+-			_T("R7.2.1回读失败"), MB_OK | MB_ICONERROR);
++		MessageBox(
++			_T("保存命令成功，但保存后完整回读失败。不要开始下一轮，请查看右侧日志。"),
++			_T("R7.2.2回读失败"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
++
++	// Final closed-loop contract verification.  D7 must be unchanged because R7.2.2
++	// never sends an IDN write for D7.  D6 is 0 only when the separate structural
++	// repair was explicitly confirmed.
++	bool finalVerifyOk = true;
++	CString finalVerifyFailure;
++	const double floatTol = 0.00051;
++
++	for (int joint = 1; joint <= 4 && finalVerifyOk; ++joint)
++	{
++		const double expected = std::round(calibrationD[static_cast<size_t>(joint)] * 1000.0) / 1000.0;
++		if (std::fabs(m_R65ControllerDmm[static_cast<size_t>(joint)] - expected) > floatTol)
++		{
++			finalVerifyOk = false;
++			finalVerifyFailure.Format(_T("保存后D%d闭环不一致：期望%.3f，回读%.6f。"),
++				joint + 1, expected, m_R65ControllerDmm[static_cast<size_t>(joint)]);
++		}
++	}
++
++	if (finalVerifyOk)
++	{
++		const double expectedD6 = repairLegacyD6 ? 0.0 : beforeD[5];
++		const double expectedD6Quantized = std::round(expectedD6 * 1000.0) / 1000.0;
++		if (std::fabs(m_R65ControllerDmm[5] - expectedD6Quantized) > floatTol)
++		{
++			finalVerifyOk = false;
++			finalVerifyFailure.Format(_T("保存后D6结构状态不一致：期望%.3f，回读%.6f。"),
++				expectedD6Quantized, m_R65ControllerDmm[5]);
++		}
++	}
++
++	if (finalVerifyOk)
++	{
++		const double expectedD7 = std::round(beforeD[6] * 1000.0) / 1000.0;
++		if (std::fabs(m_R65ControllerDmm[6] - expectedD7) > floatTol)
++		{
++			finalVerifyOk = false;
++			finalVerifyFailure.Format(_T("保存后D7发生变化：写回前%.3f，保存后回读%.6f。R7.2.2从未发送D7写命令，必须停止检查控制器。"),
++				expectedD7, m_R65ControllerDmm[6]);
++		}
++	}
++
++	for (int physicalAlpha = 0; physicalAlpha < 6 && finalVerifyOk; ++physicalAlpha)
++	{
++		const double expected =
++			std::round(calibrationAlpha[static_cast<size_t>(physicalAlpha)] * 1000.0) / 1000.0;
++		if (std::fabs(m_R65ControllerLegacyAlphaDeg[static_cast<size_t>(physicalAlpha)] - expected) > floatTol)
++		{
++			finalVerifyOk = false;
++			finalVerifyFailure.Format(_T("保存后Alpha%d闭环不一致：期望%.3f，回读%.6f。"),
++				physicalAlpha + 1, expected,
++				m_R65ControllerLegacyAlphaDeg[static_cast<size_t>(physicalAlpha)]);
++		}
++	}
++
++	for (int joint = 1; joint <= 5 && finalVerifyOk; ++joint)
++	{
++		if (joint == 5 && !m_R61Q6CandidateActive) continue;
++		const double expected = calibrationZero[static_cast<size_t>(joint)] >= 0.0 ?
++			std::floor(calibrationZero[static_cast<size_t>(joint)] + 0.5) :
++			std::ceil(calibrationZero[static_cast<size_t>(joint)] - 0.5);
++		if (std::fabs(m_R65ControllerZeroCounts[static_cast<size_t>(joint)] - expected) > 0.01)
++		{
++			finalVerifyOk = false;
++			finalVerifyFailure.Format(_T("保存后q%d零位闭环不一致：期望%.0f，回读%.3f。"),
++				joint + 1, expected,
++				m_R65ControllerZeroCounts[static_cast<size_t>(joint)]);
++		}
++	}
++
++	if (!finalVerifyOk)
++	{
++		AppendR6Monitor(_T("R7.2.2保存后最终闭环检查失败：") + finalVerifyFailure);
++		MessageBox(
++			_T("控制器已返回保存成功，但最终闭环检查发现不一致。请停止运动并检查日志/控制器参数。"),
++			_T("R7.2.2最终闭环失败"), MB_OK | MB_ICONERROR);
++		return;
++	}
++
++	AppendR6Monitor(_T("R7.2.2最终闭环通过：拉线标定字段已持久化；D6按独立结构规则处理；D7保持写回前值且全过程未发送D7写命令。"));
+ 
+ 	_mkdir("./Result");
+ 	const std::string stamp = m_FinishTime.empty() ? "manual" : m_FinishTime;
+-	const std::string path = "./Result/R721Writeback_" + stamp + ".csv";
++	const std::string path = "./Result/R722Writeback_" + stamp + ".csv";
+ 	std::ofstream out(path, std::ios::out | std::ios::trunc);
+ 	if (out)
+ 	{
+@@ -2438,16 +2577,42 @@
+ 		out << "writeback_baseline_source,controller_readback\n";
+ 		out << "rope_bias_mm," << (m_R6LastReport.ropeBiasM * 1000.0) << "\n";
+ 		out << "rope_bias_written_to_mdh,0\n";
+-		out << "legacy_d6_duplicate_repaired," << (repairLegacyD6 ? 1 : 0) << "\n";
+-		out << "parameter,index,before,candidate,readback\n";
+-		for (int i = 0; i < 7; ++i) out << "D," << (i + 1) << ',' << beforeD[i] << ',' << candidateD[i] << ',' << m_R65ControllerDmm[i] << "\n";
+-		for (int i = 0; i < 7; ++i) out << "AlphaLegacy," << (i + 1) << ',' << beforeAlpha[i] << ',' << candidateAlpha[i] << ',' << m_R65ControllerLegacyAlphaDeg[i] << "\n";
+-		for (int i = 0; i < 7; ++i) out << "ZeroCount," << (i + 1) << ',' << beforeZero[i] << ',' << candidateZero[i] << ',' << m_R65ControllerZeroCounts[i] << "\n";
+-	}
+-	AppendR6Monitor(_T("R7.2闭环完成：保存后的控制器回读仅作为闭环证据；下一次点‘开始’会再次强制恢复公共HE3_GY-cfg.txt作为算法输入。写回记录：") + CString(path.c_str()));
++		out << "d6_is_rope_calibration_parameter,0\n";
++		out << "d6_structural_repair_required," << (repairLegacyD6 ? 1 : 0) << "\n";
++		out << "d6_structural_repair_applied," << (repairLegacyD6 ? 1 : 0) << "\n";
++		out << "d7_written,0\n";
++		out << "parameter,index,role,before,calibration_candidate,readback\n";
++		for (int i = 0; i < 7; ++i)
++		{
++			const char* role = "held_not_written";
++			if (i >= 1 && i <= 4) role = "rope_calibration";
++			else if (i == 5) role = repairLegacyD6 ? "structure_repair_not_calibration" : "held_not_written";
++			else if (i == 6) role = "held_not_written";
++			out << "D," << (i + 1) << ',' << role << ','
++				<< beforeD[i] << ',' << calibrationD[i] << ',' << m_R65ControllerDmm[i] << "\n";
++		}
++		for (int i = 0; i < 7; ++i)
++		{
++			const char* role = (i < 6) ? "rope_calibration" : "held_not_written";
++			out << "AlphaLegacy," << (i + 1) << ',' << role << ','
++				<< beforeAlpha[i] << ',' << calibrationAlpha[i] << ','
++				<< m_R65ControllerLegacyAlphaDeg[i] << "\n";
++		}
++		for (int i = 0; i < 7; ++i)
++		{
++			const bool activeZero = (i >= 1 && i <= 4) || (i == 5 && m_R61Q6CandidateActive);
++			const char* role = activeZero ? "rope_calibration" : "held_not_written";
++			out << "ZeroCount," << (i + 1) << ',' << role << ','
++				<< beforeZero[i] << ',' << calibrationZero[i] << ','
++				<< m_R65ControllerZeroCounts[i] << "\n";
++		}
++	}
++
++	AppendR6Monitor(_T("R7.2.2闭环完成：保存后的控制器回读仅作为闭环证据；下一次点‘开始’会再次强制恢复公共HE3_GY-cfg.txt作为算法输入。写回记录：") + CString(path.c_str()));
+ 	m_SaveBtn.EnableWindow(FALSE);
+-	MessageBox(_T("保存和逐项回读成功；bL未写入MDH。下一轮开始时仍会使用公共HE3_GY-cfg.txt，并且必须重新采集，不能用旧拉线数据宣称复验精度。"),
+-		_T("R7.2.1闭环完成"), MB_OK | MB_ICONINFORMATION);
++	MessageBox(
++		_T("保存、逐项回读和最终闭环检查全部成功。D6若被修复，是独立HE3结构修复，不是拉线标定结果；D7未写。bL未写入MDH。下一轮仍从公共HE3_GY-cfg.txt重新采集。"),
++		_T("R7.2.2闭环完成"), MB_OK | MB_ICONINFORMATION);
+ }
+ 
+ //选择标定模式

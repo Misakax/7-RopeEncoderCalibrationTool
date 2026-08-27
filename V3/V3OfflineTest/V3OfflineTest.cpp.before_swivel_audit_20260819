@@ -1,0 +1,181 @@
+#include "CalibrationV3Analytic.h"
+
+#include <Eigen/Dense>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
+
+namespace
+{
+constexpr double kPi = 3.1415926535897932384626433832795;
+
+double DegToRad(double deg) { return deg * kPi / 180.0; }
+
+bool LoadMatrix(const std::string& path, int cols, std::vector<double>& data)
+{
+    std::ifstream f(path);
+    if (!f) return false;
+    double x;
+    while (f >> x) data.push_back(x);
+    return !data.empty() && static_cast<int>(data.size()) % cols == 0;
+}
+
+bool LoadVector(const std::string& path, std::vector<double>& data)
+{
+    std::ifstream f(path);
+    if (!f) return false;
+    double x;
+    while (f >> x) data.push_back(x);
+    return !data.empty();
+}
+
+void PrintDelta(const std::vector<double>& delta, int N)
+{
+    auto mm = [](double m) { return m * 1000.0; };
+    auto deg = [](double r) { return r * 180.0 / kPi; };
+
+    std::cout << "delta a(mm): ";
+    for (int i=0;i<N;++i) std::cout << mm(delta[i]) << (i+1==N?'\n':' ');
+    std::cout << "delta d(mm): ";
+    for (int i=0;i<N;++i) std::cout << mm(delta[N+i]) << (i+1==N?'\n':' ');
+    std::cout << "delta alpha(deg): ";
+    for (int i=0;i<N;++i) std::cout << deg(delta[2*N+i]) << (i+1==N?'\n':' ');
+    std::cout << "delta q0(deg): ";
+    for (int i=0;i<N;++i) std::cout << deg(delta[3*N+i]) << (i+1==N?'\n':' ');
+}
+}
+
+int main(int argc, char** argv)
+{
+    if (argc < 3)
+    {
+        std::cerr << "Usage: V3OfflineTest HE3_GY_Joint.txt HE3_GY_Data.txt [ropeOffset_m] [maskProfile]\n";
+        std::cerr << "maskProfile: v1-port (default), he3-d, he3-q, he3-dq, or broad-diagnostic\n";
+        std::cerr << "Note: the 2026-08-17 pair is V2 failure-reference data, not a V1/V3 acceptance set.\n";
+        return 2;
+    }
+
+    constexpr int N = 7;
+    std::vector<double> qDeg;
+    std::vector<double> ropeMm;
+    if (!LoadMatrix(argv[1], N, qDeg) || !LoadVector(argv[2], ropeMm))
+    {
+        std::cerr << "Failed to read input files.\n";
+        return 3;
+    }
+    const int M = static_cast<int>(qDeg.size()) / N;
+    if (static_cast<int>(ropeMm.size()) != M)
+    {
+        std::cerr << "Joint/rope sample count mismatch.\n";
+        return 4;
+    }
+
+    std::vector<double> qRad(qDeg.size());
+    for (size_t i=0;i<qDeg.size();++i) qRad[i] = DegToRad(qDeg[i]);
+    std::vector<double> ropeRawM(ropeMm.size());
+    for (size_t i=0;i<ropeMm.size();++i) ropeRawM[i] = ropeMm[i] / 1000.0;
+
+    const double ropeOffset = (argc >= 4) ? std::stod(argv[3]) : 0.0625;
+    const std::string maskProfile = (argc >= 5) ? argv[4] : "v1-port";
+
+    // Exact V1 input convention: ToolOffset=49 mm has already been folded into d7.
+    const double a[N] = {0,0,0,0,0,0,0};
+    const double d[N] = {0.0000006, 0.0505064, 0.4911552, -0.1186827,
+                         0.3178316, -0.0007692, 0.1417026};
+    const double alpha[N] = {kPi/2, -kPi/2, kPi/2, -kPi/2, kPi/2, -kPi/2, 0};
+    const double thetaFixed[N] = {0,0,0,0,0,0,0};
+    const double beta[N] = {0,0,0,0,0,0,0};
+    const double q0[N] = {0,0,0,0,0,0,0};
+    const double fixture[3] = {0,0,0};
+
+    // v1-port keeps V1's Cobot link-length intent and shifts the terminal length
+    // from six-axis d6 to seven-axis d7.  d1/q1 are excluded because estimating
+    // an unknown anchor removes global base translation/rotation observability;
+    // q6/q7 are excluded because this axial/free-rotating fixture gives them no
+    // independent rope-length information.
+    // The broader mask is diagnostic only and is expected to expose null modes.
+    int active[4*N] = {0};
+    if (maskProfile == "broad-diagnostic")
+    {
+        for (int joint=0; joint<N; ++joint) active[N + joint] = 1;
+        for (int joint=0; joint<N-1; ++joint) active[3*N + joint] = 1;
+    }
+    else if (maskProfile == "v1-port")
+    {
+        active[N + 3] = 1; // d4
+        active[N + 4] = 1; // d5
+        active[N + 6] = 1; // terminal d7, seven-axis counterpart of V1 d6
+        for (int joint=1; joint<5; ++joint) active[3*N + joint] = 1;
+    }
+    else if (maskProfile == "he3-d")
+    {
+        // Geometrically independent HE3 link-length candidates.  d1 is a base
+        // translation gauge, and d6/d7 are collinear, so d1 and d6 stay fixed.
+        active[N + 1] = 1; // d2
+        active[N + 2] = 1; // d3
+        active[N + 3] = 1; // d4
+        active[N + 4] = 1; // d5
+        active[N + 6] = 1; // d7 (contains V1 ToolOffset)
+    }
+    else if (maskProfile == "he3-q")
+    {
+        // q1 is a global base rotation gauge. q6/q7 have no independent rope
+        // information with the axial freely rotating attachment.
+        for (int joint=1; joint<5; ++joint) active[3*N + joint] = 1;
+    }
+    else if (maskProfile == "he3-dq")
+    {
+        active[N + 1] = 1;
+        active[N + 2] = 1;
+        active[N + 3] = 1;
+        active[N + 4] = 1;
+        active[N + 6] = 1;
+        for (int joint=1; joint<5; ++joint) active[3*N + joint] = 1;
+    }
+    else
+    {
+        std::cerr << "Unknown maskProfile: " << maskProfile << "\n";
+        return 5;
+    }
+
+    std::vector<double> outA(N), outD(N), outAlpha(N), outQ0(N), delta(4*N);
+    std::vector<double> r0(M), r1(M);
+    CalibrationV3Report report{};
+
+    const int status = CalibrationV3Analytic(
+        N, M,
+        a, d, alpha, thetaFixed, beta, q0,
+        qRad.data(), ropeRawM.data(), ropeOffset, fixture, active,
+        30, 1e-9,      // direct V1-style iterations; stop if MAE improvement <= 1 nm
+        maskProfile == "broad-diagnostic" ? 0 : 1,
+        1e8,
+        outA.data(), outD.data(), outAlpha.data(), outQ0.data(), delta.data(),
+        r0.data(), r1.data(), &report);
+
+    std::cout << std::setprecision(12);
+    std::cout << "status=" << status << " iterations=" << report.iterations << "\n";
+    std::cout << "active=" << report.activeCount
+              << " rank=" << report.jacobianRank
+              << " condition=" << report.jacobianCondition << "\n";
+    std::cout << "anchor before = " << report.anchorBefore[0] << ", "
+              << report.anchorBefore[1] << ", " << report.anchorBefore[2] << "\n";
+    std::cout << "anchor after  = " << report.anchorAfter[0] << ", "
+              << report.anchorAfter[1] << ", " << report.anchorAfter[2] << "\n";
+    std::cout << "MAE before(mm)=" << report.maeBeforeM*1000.0
+              << " after(mm)=" << report.maeAfterM*1000.0 << "\n";
+    std::cout << "MAX before(mm)=" << report.maxAbsBeforeM*1000.0
+              << " after(mm)=" << report.maxAbsAfterM*1000.0 << "\n";
+    std::cout << "V1 folded d7(m)=" << d[6]
+              << " rope fixed offset(m)=" << ropeOffset
+              << " mask=" << maskProfile << "\n";
+    PrintDelta(delta, N);
+
+    std::cout << "\nfirst 10 residuals before -> after (mm):\n";
+    for (int i=0;i<std::min(M,10);++i)
+        std::cout << i << ": " << r0[i]*1000.0 << " -> " << r1[i]*1000.0 << "\n";
+
+    return 0;
+}

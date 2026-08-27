@@ -1,0 +1,150 @@
+Build = MathematicalDLL CalibrationV2 Aug 14 2026 17:40:48
+Status = -6
+Message = One or more corrections reached configured safety bounds; result is rejected for write-back.
+Axis = 7
+Samples = 60
+Measurement model = HE3 J7 centre + self-centring radius
+Kinematic measurement point local Z(m) = -0.0927026
+Fixture radius from config(m) = 0.049
+Rope length offset(m) = 0.1115
+Rope encoder counts/mm = 284.94
+Anchor(m) = -1.05571, -0.888641, 0.359222
+Active parameters = 7
+Rank = 10
+Condition = 325.641
+MAE before/after(mm) = 4.56686, 4.22706
+Validation MAE before/after(mm) = 4.89791, 4.59346
+Rope MAE acceptance limit(mm) = 1
+a1: state=0, requested=0, delta=0
+a2: state=0, requested=0, delta=0
+a3: state=0, requested=0, delta=0
+a4: state=0, requested=0, delta=0
+a5: state=0, requested=0, delta=0
+a6: state=0, requested=0, delta=0
+a7: state=0, requested=0, delta=0
+d1: state=0, requested=0, delta=0
+d2: state=1, requested=1, delta=-0.00340656
+d3: state=1, requested=1, delta=-0.00055988
+d4: state=1, requested=1, delta=1.49582e-05
+d5: state=1, requested=1, delta=-0.005
+d6: state=0, requested=0, delta=0
+d7: state=0, requested=0, delta=0
+alpha1: state=0, requested=0, delta=0
+alpha2: state=0, requested=0, delta=0
+alpha3: state=0, requested=0, delta=0
+alpha4: state=0, requested=0, delta=0
+alpha5: state=0, requested=0, delta=0
+alpha6: state=0, requested=0, delta=0
+alpha7: state=0, requested=0, delta=0
+q01: state=0, requested=0, delta=0
+q02: state=1, requested=1, delta=0.00585712
+q03: state=1, requested=1, delta=0.00701219
+q04: state=1, requested=1, delta=-0.00950236
+q05: state=3, requested=1, delta=0
+q06: state=0, requested=0, delta=0
+q07: state=0, requested=0, delta=0
+mdh.a1: before=0, after=0
+mdh.a2: before=0, after=0
+mdh.a3: before=0, after=0
+mdh.a4: before=0, after=0
+mdh.a5: before=0, after=0
+mdh.a6: before=0, after=0
+mdh.a7: before=0, after=0
+mdh.d1: before=6e-07, after=6e-07
+mdh.d2: before=0.0505064, after=0.0470998
+mdh.d3: before=0.491155, after=0.490595
+mdh.d4: before=-0.118683, after=-0.118668
+mdh.d5: before=0.317832, after=0.312832
+mdh.d6: before=-0.0007692, after=-0.0007692
+mdh.d7: before=0.0927026, after=0.0927026
+mdh.alpha1: before=1.5708, after=1.5708
+mdh.alpha2: before=-1.5708, after=-1.5708
+mdh.alpha3: before=1.5708, after=1.5708
+mdh.alpha4: before=-1.5708, after=-1.5708
+mdh.alpha5: before=1.5708, after=1.5708
+mdh.alpha6: before=-1.5708, after=-1.5708
+mdh.alpha7: before=0, after=0
+mdh.theta1: before=0, after=0
+mdh.theta2: before=0, after=0
+mdh.theta3: before=0, after=0
+mdh.theta4: before=0, after=0
+mdh.theta5: before=0, after=0
+mdh.theta6: before=0, after=0
+mdh.theta7: before=0, after=0
+mdh.beta1: before=0, after=0
+mdh.beta2: before=0, after=0
+mdh.beta3: before=0, after=0
+mdh.beta4: before=0, after=0
+mdh.beta5: before=0, after=0
+mdh.beta6: before=0, after=0
+mdh.beta7: before=0, after=0
+zeroOffset.q1(rad)=0, (deg)=0
+zeroOffset.q2(rad)=0.00585712, (deg)=0.335588
+zeroOffset.q3(rad)=0.00701219, (deg)=0.401769
+zeroOffset.q4(rad)=-0.00950236, (deg)=-0.544445
+zeroOffset.q5(rad)=0, (deg)=0
+zeroOffset.q6(rad)=0, (deg)=0
+zeroOffset.q7(rad)=0, (deg)=0
+sample[0]: measuredRaw(m)=0.846445, measuredEffective(m)=0.957945, residual(m)=0.00717969 -> 0.00667764, q(rad)=1.74533e-05,0,-1.74533e-05,-1.5708,0,0,0
+sample[1]: measuredRaw(m)=0.793922, measuredEffective(m)=0.905422, residual(m)=-0.000808944 -> -0.00112717, q(rad)=-0.211167,-0.0486074,0.0884358,-1.48077,-0.309063,-0.0693943,-0.0878599
+sample[2]: measuredRaw(m)=0.939222, measuredEffective(m)=1.05072, residual(m)=0.0122685 -> 0.0120355, q(rad)=-0.0839503,0.159628,0.134757,-1.7576,-0.684064,-0.0510509,0.282464
+sample[3]: measuredRaw(m)=1.03566, measuredEffective(m)=1.14716, residual(m)=0.00655802 -> 0.00651392, q(rad)=-0.00417134,0.403014,0.101526,-1.91374,-0.84994,-0.130481,0.485795
+sample[4]: measuredRaw(m)=0.960121, measuredEffective(m)=1.07162, residual(m)=-0.00248568 -> -0.00207264, q(rad)=-0.191288,0.317894,0.121911,-1.73039,-0.474049,-0.185668,0.773565
+sample[5]: measuredRaw(m)=0.938998, measuredEffective(m)=1.0505, residual(m)=-0.00263011 -> -0.00214492, q(rad)=-0.290842,0.253265,0.21759,-1.70006,-0.396731,-0.0412247,1.20491
+sample[6]: measuredRaw(m)=0.966544, measuredEffective(m)=1.07804, residual(m)=0.00325504 -> 0.00332223, q(rad)=-0.200713,0.265866,0.18853,-1.80992,-0.25672,0.0278031,0.782082
+sample[7]: measuredRaw(m)=0.887025, measuredEffective(m)=0.998525, residual(m)=0.00421668 -> 0.00406977, q(rad)=-0.123744,0.101596,0.121929,-1.62961,-0.42607,0.114773,1.20527
+sample[8]: measuredRaw(m)=0.918337, measuredEffective(m)=1.02984, residual(m)=0.00306906 -> 0.00236212, q(rad)=0.00804597,0.1727,-0.0494452,-1.8516,-0.258326,0.131301,0.837863
+sample[9]: measuredRaw(m)=0.882768, measuredEffective(m)=0.994268, residual(m)=0.0129552 -> 0.0125347, q(rad)=0.117042,-0.00418879,-0.00907571,-1.63265,-0.0704589,0.145962,0.498518
+sample[10]: measuredRaw(m)=0.726241, measuredEffective(m)=0.837741, residual(m)=0.00112449 -> 0.00162616, q(rad)=0.229912,-0.266966,-0.28681,-1.01171,-0.0704764,-0.196786,0.923262
+sample[11]: measuredRaw(m)=0.673128, measuredEffective(m)=0.784628, residual(m)=-0.00403853 -> -0.00535028, q(rad)=0.103358,-0.505412,-0.28681,-1.04514,-0.445199,-0.00507891,1.42272
+sample[12]: measuredRaw(m)=0.722952, measuredEffective(m)=0.834452, residual(m)=-0.00707538 -> -0.00805651, q(rad)=0.103358,-0.251973,-0.223751,-1.30561,-0.0478918,0.0924675,1.06441
+sample[13]: measuredRaw(m)=0.838198, measuredEffective(m)=0.949698, residual(m)=-0.00109001 -> -0.00176917, q(rad)=0.170676,0.0703717,-0.223751,-1.59396,-0.462128,0.172089,1.45286
+sample[14]: measuredRaw(m)=0.865031, measuredEffective(m)=0.976531, residual(m)=0.000855198 -> -8.19032e-05, q(rad)=0.453838,0.158057,-0.461325,-1.72072,-0.171583,0.0621686,0.395718
+sample[15]: measuredRaw(m)=0.847926, measuredEffective(m)=0.959426, residual(m)=-0.00175183 -> -0.00281927, q(rad)=0.628074,0.158057,-0.654394,-1.74208,-0.22986,0.134286,-0.108961
+sample[16]: measuredRaw(m)=0.82205, measuredEffective(m)=0.93355, residual(m)=-0.00521727 -> -0.00353796, q(rad)=-0.284262,0.158057,-0.15331,-1.40415,0.853309,-0.40633,-0.108978
+sample[17]: measuredRaw(m)=0.703239, measuredEffective(m)=0.814739, residual(m)=0.00519635 -> 0.00753461, q(rad)=-0.445687,-0.11788,-0.15331,-1.0865,1.31826,-0.771593,-1.05901
+sample[18]: measuredRaw(m)=0.656994, measuredEffective(m)=0.768494, residual(m)=0.0201112 -> 0.0201741, q(rad)=-0.515518,-0.382489,0.214728,-1.08652,1.31826,-0.582957,-1.25411
+sample[19]: measuredRaw(m)=0.76128, measuredEffective(m)=0.87278, residual(m)=-0.00240942 -> -0.00245357, q(rad)=-0.350445,-0.107495,0.189298,-1.40415,1.53441,-0.0904081,-1.45306
+sample[20]: measuredRaw(m)=0.738682, measuredEffective(m)=0.850182, residual(m)=-0.000467522 -> -0.000270768, q(rad)=-0.558191,-0.182614,0.301191,-1.44159,1.47569,-0.11692,-1.5157
+sample[21]: measuredRaw(m)=0.722296, measuredEffective(m)=0.833796, residual(m)=0.00208603 -> 0.00302991, q(rad)=-0.743266,-0.240419,0.371092,-1.42613,1.36541,-0.228621,-1.6057
+sample[22]: measuredRaw(m)=0.693725, measuredEffective(m)=0.805225, residual(m)=-0.000947808 -> 0.000432326, q(rad)=-0.859418,-0.349101,0.49323,-1.34008,1.42387,-0.275605,-1.63237
+sample[23]: measuredRaw(m)=0.691953, measuredEffective(m)=0.803453, residual(m)=0.00574444 -> 0.00687771, q(rad)=-0.892701,-0.452023,0.680556,-1.31619,1.36282,-0.251729,-1.75657
+sample[24]: measuredRaw(m)=0.661171, measuredEffective(m)=0.772671, residual(m)=-0.00280805 -> -0.00135188, q(rad)=-0.943158,-0.570164,0.690819,-1.21208,1.35354,-0.215286,-1.80556
+sample[25]: measuredRaw(m)=0.67277, measuredEffective(m)=0.78427, residual(m)=-0.00906894 -> -0.00701957, q(rad)=-0.980648,-0.404742,0.690819,-1.23712,1.31879,-0.27105,-1.84197
+sample[26]: measuredRaw(m)=0.692335, measuredEffective(m)=0.803835, residual(m)=-0.00995508 -> -0.00748061, q(rad)=-1.01341,-0.312588,0.690819,-1.26561,1.25854,-0.257331,-1.88588
+sample[27]: measuredRaw(m)=0.739717, measuredEffective(m)=0.851217, residual(m)=-0.00471953 -> -0.00213775, q(rad)=-1.04725,-0.189264,0.690836,-1.38981,1.34965,-0.311367,-1.95793
+sample[28]: measuredRaw(m)=0.764017, measuredEffective(m)=0.875517, residual(m)=-0.0040464 -> -0.00097051, q(rad)=-1.10787,-0.107774,0.662492,-1.44738,1.30722,-0.366292,-2.01495
+sample[29]: measuredRaw(m)=0.780389, measuredEffective(m)=0.891889, residual(m)=-0.00391059 -> -0.000381353, q(rad)=-1.17035,-0.0515396,0.666803,-1.47707,1.22814,-0.383309,-2.07022
+sample[30]: measuredRaw(m)=0.803955, measuredEffective(m)=0.915455, residual(m)=-0.00672249 -> -0.00379094, q(rad)=-1.19281,-0.0656069,0.95932,-1.47709,1.22814,-0.0900939,-2.00743
+sample[31]: measuredRaw(m)=0.798491, measuredEffective(m)=0.909991, residual(m)=-0.00536705 -> -0.00232428, q(rad)=-1.24187,-0.0865858,0.965673,-1.50217,1.22814,-0.124355,-1.95342
+sample[32]: measuredRaw(m)=0.861918, measuredEffective(m)=0.973418, residual(m)=-0.000250846 -> 0.00234032, q(rad)=-1.15136,0.0419228,0.965673,-1.5675,1.32287,-0.0918218,-1.883
+sample[33]: measuredRaw(m)=0.880761, measuredEffective(m)=0.992261, residual(m)=0.0024872 -> 0.00494692, q(rad)=-1.11542,0.0553793,0.983947,-1.57926,1.46147,-0.0709651,-1.79689
+sample[34]: measuredRaw(m)=0.908093, measuredEffective(m)=1.01959, residual(m)=-0.000342867 -> 0.00189696, q(rad)=-1.0015,0.0716109,0.988746,-1.57926,1.47828,0.0940558,-1.74376
+sample[35]: measuredRaw(m)=0.874117, measuredEffective(m)=0.985617, residual(m)=-0.00195781 -> -7.50766e-05, q(rad)=-0.957872,-0.0275937,0.975814,-1.57678,1.41578,0.175214,-1.68311
+sample[36]: measuredRaw(m)=0.88228, measuredEffective(m)=0.99378, residual(m)=-0.00115399 -> 0.000487443, q(rad)=-0.840952,-0.049323,0.950122,-1.56221,1.37303,0.243107,-1.6205
+sample[37]: measuredRaw(m)=0.866463, measuredEffective(m)=0.977963, residual(m)=-0.00204728 -> -0.000583561, q(rad)=-0.818001,-0.0911236,0.934554,-1.56219,1.35703,0.287962,-1.5595
+sample[38]: measuredRaw(m)=0.845722, measuredEffective(m)=0.957222, residual(m)=-0.00281792 -> -0.0014852, q(rad)=-0.788243,-0.149103,0.934537,-1.5303,1.27294,0.314002,-1.43925
+sample[39]: measuredRaw(m)=0.823728, measuredEffective(m)=0.935228, residual(m)=-0.00467621 -> -0.00353962, q(rad)=-0.726581,-0.18511,0.886121,-1.47931,1.26302,0.33615,-1.3504
+sample[40]: measuredRaw(m)=0.815168, measuredEffective(m)=0.926668, residual(m)=-0.00119544 -> -0.000329486, q(rad)=-0.635038,-0.239162,0.84549,-1.46011,1.18197,0.336185,-1.28639
+sample[41]: measuredRaw(m)=0.807447, measuredEffective(m)=0.918947, residual(m)=-0.000431693 -> 0.000313811, q(rad)=-0.593883,-0.270247,0.824773,-1.44449,1.06713,0.329763,-1.21587
+sample[42]: measuredRaw(m)=0.806085, measuredEffective(m)=0.917585, residual(m)=-0.00353181 -> -0.00285535, q(rad)=-0.549028,-0.288573,0.807023,-1.44967,1.00346,0.402211,-1.13443
+sample[43]: measuredRaw(m)=0.791514, measuredEffective(m)=0.903014, residual(m)=-0.00500541 -> -0.00448025, q(rad)=-0.52332,-0.32053,0.772745,-1.43742,0.994838,0.425354,-1.07423
+sample[44]: measuredRaw(m)=0.79694, measuredEffective(m)=0.90844, residual(m)=-0.00403745 -> -0.00356424, q(rad)=-0.457747,-0.344388,0.738815,-1.44529,0.967523,0.458655,-1.02896
+sample[45]: measuredRaw(m)=0.794648, measuredEffective(m)=0.906148, residual(m)=-0.0051515 -> -0.00468615, q(rad)=-0.416209,-0.36809,0.722479,-1.43082,0.922703,0.48562,-0.952915
+sample[46]: measuredRaw(m)=0.784948, measuredEffective(m)=0.896448, residual(m)=-0.00478603 -> -0.0043126, q(rad)=-0.350392,-0.450539,0.702146,-1.39195,0.87448,0.532727,-0.842819
+sample[47]: measuredRaw(m)=0.774546, measuredEffective(m)=0.886046, residual(m)=-0.00824067 -> -0.00775655, q(rad)=-0.289777,-0.509147,0.668042,-1.34427,0.83425,0.590968,-0.75941
+sample[48]: measuredRaw(m)=0.76853, measuredEffective(m)=0.88003, residual(m)=-0.0141753 -> -0.0138413, q(rad)=-0.174498,-0.59973,0.495604,-1.31196,0.766758,0.650955,-0.626276
+sample[49]: measuredRaw(m)=0.879269, measuredEffective(m)=0.990769, residual(m)=-0.00349471 -> -0.00194963, q(rad)=0.0698481,-0.658705,0.365472,-1.38349,0.674133,0.738972,-0.266128
+sample[50]: measuredRaw(m)=0.783884, measuredEffective(m)=0.895384, residual(m)=0.00464647 -> 0.00520483, q(rad)=-0.719303,-0.316865,0.766426,-1.54022,1.09301,0.255987,-1.37221
+sample[51]: measuredRaw(m)=0.77962, measuredEffective(m)=0.89112, residual(m)=0.00749502 -> 0.00793459, q(rad)=-0.68108,-0.351911,0.748519,-1.52629,0.979304,0.231588,-1.29189
+sample[52]: measuredRaw(m)=0.781115, measuredEffective(m)=0.892615, residual(m)=0.0035148 -> 0.00390067, q(rad)=-0.641164,-0.369696,0.732358,-1.54469,0.913942,0.323008,-1.22643
+sample[53]: measuredRaw(m)=0.76514, measuredEffective(m)=0.87664, residual(m)=0.00294379 -> 0.00318275, q(rad)=-0.617445,-0.406958,0.682651,-1.52029,0.914221,0.334998,-1.16033
+sample[54]: measuredRaw(m)=0.773703, measuredEffective(m)=0.885203, residual(m)=0.00616521 -> 0.00636412, q(rad)=-0.548941,-0.446141,0.660136,-1.52271,0.886976,0.368491,-1.1035
+sample[55]: measuredRaw(m)=0.772482, measuredEffective(m)=0.883982, residual(m)=0.00429431 -> 0.00441707, q(rad)=-0.496092,-0.455287,0.62694,-1.50615,0.83041,0.385718,-1.03821
+sample[56]: measuredRaw(m)=0.777708, measuredEffective(m)=0.889208, residual(m)=0.00651052 -> 0.00673377, q(rad)=-0.446106,-0.524646,0.621966,-1.49364,0.79868,0.441324,-0.930452
+sample[57]: measuredRaw(m)=0.775697, measuredEffective(m)=0.887197, residual(m)=0.00543819 -> 0.00572302, q(rad)=-0.371563,-0.605996,0.592644,-1.43653,0.739723,0.490403,-0.841964
+sample[58]: measuredRaw(m)=0.779231, measuredEffective(m)=0.890731, residual(m)=8.47422e-05 -> 0.000234535, q(rad)=-0.27098,-0.684396,0.406749,-1.40721,0.674081,0.561979,-0.705968
+sample[59]: measuredRaw(m)=0.884323, measuredEffective(m)=0.995823, residual(m)=0.00699364 -> 0.00815214, q(rad)=-0.0186052,-0.741468,0.272568,-1.47119,0.58301,0.670451,-0.355401
+WriteBackFeatureEnabled = 0
+WriteBackPerformed = 0
+WriteBackBlockReason = HE3 seven-axis controller IDN/unit/sign mapping is not verified

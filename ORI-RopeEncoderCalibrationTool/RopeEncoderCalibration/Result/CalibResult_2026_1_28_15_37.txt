@@ -1,0 +1,40 @@
+StartTime = 2026_1_28_15.36
+FinishTime = 2026_1_28_15_37
+
+
+Before Calib A2(mm) = -400.000
+Before Calib A3(mm) = -300.000
+Before Calib D0(mm) = 84.000
+Before Calib D3(mm) = -163.500
+Before Calib D4(mm) = 130.000
+Before Calib D5(mm) = 75.000
+Before Calib Joint0(cnts) = 456753
+Before Calib Joint1(cnts) = 438230
+Before Calib Joint2(cnts) = 869296
+Before Calib Joint3(cnts) = 130797
+Before Calib Joint4(cnts) = 408596
+Before Calib Joint5(cnts) = 11706
+
+
+After Calib A2(mm) = -553.965
+After Calib A3(mm) = -44.987
+After Calib D0(mm) = 84.000
+After Calib D3(mm) = 512.534
+After Calib D4(mm) = -574.634
+After Calib D5(mm) = 513.268
+Calib Joint0 Offset(cnts) = -35587.593804
+Calib Joint1 Offset(cnts) = 36646.113548
+Calib Joint2 Offset(cnts) = 6169.251585
+Calib Joint3 Offset(cnts) = -922.566512
+Calib Joint4 Offset(cnts) = 3699.340046
+Calib Joint5 Offset(cnts) = -0.000000
+After Calib Joint0(cnts) = 421165
+After Calib Joint1(cnts) = 474876
+After Calib Joint2(cnts) = 863126
+After Calib Joint3(cnts) = 131719
+After Calib Joint4(cnts) = 412295
+After Calib Joint5(cnts) = 11706
+
+
+Error before calibration(mm) = 585.321
+Error after calibration(mm) = 557.172

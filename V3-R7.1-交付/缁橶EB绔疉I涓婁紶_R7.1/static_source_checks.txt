@@ -1,0 +1,26 @@
+R7.1 static source checks
+========================
+
+PASS  R7.1 build id
+PASS  report exposes ropeBiasM
+PASS  trace exposes ropeBiasM
+PASS  augmented Jacobian has K+4
+PASS  bL Jacobian column is +1
+PASS  bL solved separately from 4N delta
+PASS  residual subtracts bL
+PASS  start always prepares public MDH
+PASS  controller snapshots never update calibration input
+PASS  public config source stated
+PASS  bL writeback explicitly disabled
+PASS  condition gate adjusted for augmented column
+PASS  UI has pre-bias MAE label
+PASS  UI has geometry MAE label
+PASS  UI has bL label/control
+PASS  controller write line excludes bL: writeOk = WriteControllerValueVerified(m_IDND, joi
+PASS  controller write line excludes bL: writeOk = WriteControllerValueVerified(m_IDNAlpha,
+PASS  controller write line excludes bL: writeOk = WriteControllerValueVerified(m_IDNZeroEn
+PASS  controller write line excludes bL: WriteControllerValueVerified(m_IDND, joint + 1, be
+PASS  controller write line excludes bL: WriteControllerValueVerified(m_IDNAlpha, physicalA
+PASS  controller write line excludes bL: WriteControllerValueVerified(m_IDNZeroEncoderValue
+
+overall=PASS

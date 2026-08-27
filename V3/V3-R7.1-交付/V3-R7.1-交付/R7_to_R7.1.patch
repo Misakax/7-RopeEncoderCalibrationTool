@@ -1,0 +1,907 @@
+--- R7/source/CalibrationV3Analytic/CalibrationV3Analytic.h
++++ R7.1/source/CalibrationV3Analytic/CalibrationV3Analytic.h
+@@ -53,6 +53,10 @@
+     double maxAbsBeforeM;
+     double maxAbsAfterM;
+ 
++    // R7.1 pull-wire measurement-chain bias in meters. The measurement model is
++    // L_measured = |P - lambda| + ropeBiasM. This scalar is never written into MDH.
++    double ropeBiasM;
++
+     double anchorBefore[3];
+     double anchorAfter[3];
+ };
+@@ -67,6 +71,7 @@
+     double stepScale;
+     double maeM;
+     double maxAbsM;
++    double ropeBiasM;
+     double anchor[3];
+     double a[CALV3_TRACE_MAX_AXIS];
+     double d[CALV3_TRACE_MAX_AXIS];
+@@ -98,8 +103,10 @@
+ // 4) fixtureLocalXYZ is a rigid point offset expressed in frame 7 after T7.
+ // 5) activeMask4N is 0/1. The solver uses V1's analytic-Jacobian and
+ //    pseudoinverse direction. The fixed rope anchor is initialized by V1's
+-//    adjacent-sphere equations, then solved jointly as three analytic nuisance
+-//    variables. No finite-difference Jacobian is used by the DLL.
++//    adjacent-sphere equations, then solved jointly with the independent scalar
++//    ropeBiasM as analytic nuisance variables. ropeBiasM calibrates only the
++//    pull-wire measurement chain and is never mapped to robot MDH.
++//    No finite-difference Jacobian is used by the DLL.
+ // 6) maxCondition <= 0 disables the condition-number rejection.
+ // 7) requireFullColumnRank != 0 rejects rank(J_active) < activeCount.
+ // 8) V3 does not impose an artificial parameter-correction clamp.  V1 did not
+--- R7/source/CalibrationV3Analytic/CalibrationV3Analytic.cpp
++++ R7.1/source/CalibrationV3Analytic/CalibrationV3Analytic.cpp
+@@ -37,7 +37,8 @@
+ {
+     Matrix3Xd points;     // 3 x M
+     Vector3d anchor;
+-    VectorXd residual;    // measured - predicted
++    VectorXd residual;    // measured - (predicted geometry + ropeBiasM)
++    double ropeBiasM = 0.0;
+     double mae = std::numeric_limits<double>::infinity();
+     double maxAbs = std::numeric_limits<double>::infinity();
+     int anchorRank = 0;
+@@ -63,6 +64,7 @@
+     rec.stepScale = stepScale;
+     rec.maeM = state.mae;
+     rec.maxAbsM = state.maxAbs;
++    rec.ropeBiasM = state.ropeBiasM;
+     for (int xyz = 0; xyz < 3; ++xyz) rec.anchor[xyz] = state.anchor(xyz);
+     const int axis = static_cast<int>(model.a.size());
+     for (int joint = 0; joint < axis; ++joint)
+@@ -365,6 +367,7 @@
+ {
+     const int N = static_cast<int>(model.a.size());
+     state.points.resize(3, sampleCount);
++    state.ropeBiasM = 0.0;
+ 
+     for (int s = 0; s < sampleCount; ++s)
+     {
+@@ -408,12 +411,14 @@
+                           const VectorXd& measured,
+                           const double fixtureLocalXYZ[3],
+                           const Vector3d& anchor,
++                          double ropeBiasM,
+                           State& state)
+ {
+     const int N = static_cast<int>(model.a.size());
+     state.points.resize(3, sampleCount);
+     state.anchor = anchor;
+     state.anchorRank = 3;
++    state.ropeBiasM = ropeBiasM;
+     state.residual.resize(sampleCount);
+ 
+     double sumAbs = 0.0;
+@@ -430,7 +435,7 @@
+         const double predicted = (point - anchor).norm();
+         if (!IsFinite(predicted) || predicted <= kTinyLength)
+             return CALV3_ERR_INVALID_LENGTH;
+-        const double residual = measured(s) - predicted;
++        const double residual = measured(s) - predicted - ropeBiasM;
+         if (!IsFinite(residual))
+             return CALV3_ERR_NONFINITE;
+         state.residual(s) = residual;
+@@ -493,11 +498,11 @@
+     const int N = static_cast<int>(model.a.size());
+     const int K = static_cast<int>(activeIndex.size());
+     (void)measured;
+-    // The last three columns are the unknown fixed-anchor correction.  Solving
+-    // robot parameters and anchor together is the exact analytic linearization
+-    // of L=|P-lambda|.  It keeps V1's adjacent-sphere solution as the initial
+-    // anchor but avoids treating that noisy linear estimate as an exact constant.
+-    Jactive.resize(sampleCount, K + 3);
++    // The last four columns are nuisance variables: three fixed-anchor
++    // corrections followed by the independent pull-wire bias bL. The exact
++    // measurement model is L_measured = |P-lambda| + bL, so dbL has a constant
++    // +1 column. bL is deliberately outside the 4N robot parameter vector.
++    Jactive.resize(sampleCount, K + 4);
+ 
+     std::vector<MatrixXd> positionJacobians(static_cast<size_t>(sampleCount));
+     std::vector<Vector3d> ropeDirections(static_cast<size_t>(sampleCount));
+@@ -525,6 +530,7 @@
+                 positionJacobians[static_cast<size_t>(s)].col(parameterColumn));
+         }
+         Jactive.block<1, 3>(s, K) = -direction.transpose();
++        Jactive(s, K + 3) = 1.0;
+     }
+ 
+     if (!AllFinite(Jactive))
+@@ -552,7 +558,7 @@
+ 
+ extern "C" CALV3_API const char* CALV3_CALL CalibrationV3BuildId()
+ {
+-    return "HE3-V3-CRAIG-MDH-ANALYTIC-LASER-POLICY-20260826-R7-MDH-SOURCE-SELECT";
++    return "HE3-V3-CRAIG-MDH-ANALYTIC-LASER-POLICY-20260826-R7.1-PUBLIC-MDH-ROPE-BIAS";
+ }
+ 
+ extern "C" CALV3_API int CALV3_CALL CalibrationV3GetLastTrace(
+@@ -749,8 +755,21 @@
+     for (int s = 0; s < sampleCount; ++s)
+         residualBeforeM[s] = before.residual(s);
+ 
++    // R7.1: separate the common pull-wire absolute-length zero offset from robot
++    // geometry. The raw before-calibration metrics above intentionally use bL=0.
++    // Initialize bL by the least-squares constant offset, then jointly refine
++    // robot parameters, anchor and bL.
++    const double initialRopeBiasM = before.residual.mean();
+     Model current = initial;
+-    State currentState = before;
++    State currentState;
++    status = EvaluateStateAtAnchor(current, sampleCount, jointRad, measured,
++                                   fixtureLocalXYZ, before.anchor,
++                                   initialRopeBiasM, currentState);
++    if (status != CALV3_OK)
++    {
++        report->status = status;
++        return status;
++    }
+     VectorXd accumulatedDelta = VectorXd::Zero(4 * axis);
+     AppendTrace(0, 0.0, current, currentState, VectorXd::Zero(4 * axis));
+ 
+@@ -771,14 +790,19 @@
+             return status;
+         }
+ 
+-        finalRank = std::max(0, jInfo.rank - 3);
++        finalRank = std::max(0, jInfo.rank - 4);
+         finalCondition = jInfo.condition;
+ 
+-        const int requiredJointRank = static_cast<int>(activeIndex.size()) + 3;
++        const int requiredJointRank = static_cast<int>(activeIndex.size()) + 4;
+         if (requireFullColumnRank != 0 && jInfo.rank < requiredJointRank)
+         {
+-            report->jacobianRank = std::max(0, jInfo.rank - 3);
++            report->jacobianRank = std::max(0, jInfo.rank - 4);
+             report->jacobianCondition = jInfo.condition;
++            report->anchorRank = currentState.anchorRank;
++            report->maeAfterM = currentState.mae;
++            report->maxAbsAfterM = currentState.maxAbs;
++            report->ropeBiasM = currentState.ropeBiasM;
++            for (int i = 0; i < 3; ++i) report->anchorAfter[i] = currentState.anchor(i);
+             report->status = CALV3_ERR_JACOBIAN_RANK;
+             CopyModelToOutput(current, outA, outD, outAlpha, outQ0);
+             for (int i = 0; i < 4 * axis; ++i) outDelta4N[i] = accumulatedDelta(i);
+@@ -788,8 +812,13 @@
+ 
+         if (maxCondition > 0.0 && (!IsFinite(jInfo.condition) || jInfo.condition > maxCondition))
+         {
+-            report->jacobianRank = std::max(0, jInfo.rank - 3);
++            report->jacobianRank = std::max(0, jInfo.rank - 4);
+             report->jacobianCondition = jInfo.condition;
++            report->anchorRank = currentState.anchorRank;
++            report->maeAfterM = currentState.mae;
++            report->maxAbsAfterM = currentState.maxAbs;
++            report->ropeBiasM = currentState.ropeBiasM;
++            for (int i = 0; i < 3; ++i) report->anchorAfter[i] = currentState.anchor(i);
+             report->status = CALV3_ERR_JACOBIAN_RANK;
+             CopyModelToOutput(current, outA, outD, outAlpha, outQ0);
+             for (int i = 0; i < 4 * axis; ++i) outDelta4N[i] = accumulatedDelta(i);
+@@ -805,7 +834,7 @@
+         const int K = static_cast<int>(activeIndex.size());
+         const double measurementSigmaM = 0.0015;
+         const double huberM = 0.005;
+-        MatrixXd Jsolve = MatrixXd::Zero(sampleCount + K, K + 3);
++        MatrixXd Jsolve = MatrixXd::Zero(sampleCount + K, K + 4);
+         VectorXd rsolve = VectorXd::Zero(sampleCount + K);
+         for (int s = 0; s < sampleCount; ++s)
+         {
+@@ -836,7 +865,8 @@
+         VectorXd deltaFull = VectorXd::Zero(4 * axis);
+         for (int k = 0; k < static_cast<int>(activeIndex.size()); ++k)
+             deltaFull(activeIndex[static_cast<size_t>(k)]) = deltaJoint(k);
+-        const Vector3d deltaAnchor = deltaJoint.tail<3>();
++        const Vector3d deltaAnchor = deltaJoint.segment(K, 3);
++        const double deltaRopeBiasM = deltaJoint(K + 3);
+ 
+         // Keep V1's analytic pseudoinverse direction.  A short scalar
+         // backtracking search only prevents a full linearized step from
+@@ -858,6 +888,7 @@
+             status = EvaluateStateAtAnchor(candidate, sampleCount, jointRad, measured,
+                                            fixtureLocalXYZ,
+                                            currentState.anchor + scale * deltaAnchor,
++                                           currentState.ropeBiasM + scale * deltaRopeBiasM,
+                                            candidateState);
+             if (status != CALV3_OK)
+                 continue;
+@@ -894,7 +925,7 @@
+         if (BuildRopeJacobian(current, sampleCount, jointRad, measured, fixtureLocalXYZ,
+                               currentState, activeIndex, Jactive, jInfo) == CALV3_OK)
+         {
+-            finalRank = std::max(0, jInfo.rank - 3);
++            finalRank = std::max(0, jInfo.rank - 4);
+             finalCondition = jInfo.condition;
+         }
+     }
+@@ -911,6 +942,7 @@
+     report->anchorRank = currentState.anchorRank;
+     report->maeAfterM = currentState.mae;
+     report->maxAbsAfterM = currentState.maxAbs;
++    report->ropeBiasM = currentState.ropeBiasM;
+     for (int i = 0; i < 3; ++i)
+         report->anchorAfter[i] = currentState.anchor(i);
+ 
+--- R7/source/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.h
++++ R7.1/source/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.h
+@@ -75,7 +75,7 @@
+ 		const std::vector<double>& legacyAlphaDeg,
+ 		const std::vector<double>& zeroCounts, CString& failure) const;
+ 	void ShowLastCalibrationSummary();
+-	bool SelectR7InputModelBeforeStart();
++	bool PrepareR71PublicInputBeforeStart();
+ 
+ 	void OnEnChangeEdit1();
+ 
+@@ -130,6 +130,7 @@
+ 	CEdit m_EncoderHomeStr;
+ 	CEdit m_ErrorBefore;
+ 	CEdit m_ErrorAfter;
++	CEdit m_RopeBias;
+ 	CButton m_R6FeedbackBtn;
+ 	CButton m_R6RestoreBtn;
+ 	CEdit m_R6Monitor;
+--- R7/source/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.cpp
++++ R7.1/source/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.cpp
+@@ -41,7 +41,7 @@
+ 
+ #pragma region 全局变量
+ //软件版本
+-CString m_Version = _T(" HE3 V3 Analytic R7 MDH Source Select 2026.08.26");
++CString m_Version = _T(" HE3 V3 Analytic R7.1 Public MDH + Rope Bias 2026.08.26");
+ //文件的路径
+ string m_FilePath;
+ //查询编码器值的指令
+@@ -248,12 +248,12 @@
+ std::vector<double> m_R65ControllerLegacyAlphaDeg;
+ std::vector<double> m_R65ControllerZeroCounts;
+ bool m_R65ControllerSnapshotValid = false;
+-CString m_R65InputSource = _T("本地HE3_GY配置（Craig MDH）");
+-// R7 preserves the file-loaded model independently from controller readback.
+-// It is the explicit "original MDH" choice shown immediately before motion.
++CString m_R65InputSource = _T("公共HE3_GY-cfg.txt（Craig MDH）");
++// R7.1 preserves the file-loaded public model independently from controller readback.
++// Every acquisition restores this immutable public MDH immediately before motion.
+ MatrixXd m_R7OriginalConfigDH;
+ bool m_R7OriginalConfigValid = false;
+-CString m_R7OriginalConfigSource = _T("原始MDH（本地配置）");
++CString m_R7OriginalConfigSource = _T("公共MDH（Config/RobotType/HE3_GY-cfg.txt）");
+ //粗标界面的对象
+ RoughCalibrationDlg RoughCalibDlg = new RoughCalibrationDlg();
+ //websocket 通讯对象
+@@ -380,6 +380,7 @@
+ 	DDX_Control(pDX, IDC_BUTTON11, m_DisconnectBtn);
+ 	DDX_Control(pDX, IDC_EDIT10, m_ErrorBefore);
+ 	DDX_Control(pDX, IDC_EDIT11, m_ErrorAfter);
++	DDX_Control(pDX, IDC_EDIT12, m_RopeBias);
+ }
+ 
+ BEGIN_MESSAGE_MAP(RopeEncoderCalibrationDlg, CDialogEx)
+@@ -424,7 +425,7 @@
+ 	windowTitle += m_Version;
+ 	AfxGetMainWnd()->SetWindowText(windowTitle);
+ 
+-	// R6.5 keeps the complete V1 operation area and adds a read-only monitor on
++	// R7.1 keeps the complete V1 operation area and adds a read-only monitor on
+ 	// the right. The monitor never sends a robot command.
+ 	CRect originalClient;
+ 	GetClientRect(&originalClient);
+@@ -458,7 +459,7 @@
+ 		this, IDC_R6_RESTORE);
+ 	m_R6FeedbackBtn.EnableWindow(FALSE);
+ 	m_R6RestoreBtn.EnableWindow(FALSE);
+-	AppendR6Monitor(_T("R7闭环监控已启动。连接只读取控制器快照；点击‘开始’后必须选择控制器真实MDH或原始MDH，确认后才允许运动。"), false);
++	AppendR6Monitor(_T("R7.1闭环监控已启动。算法输入固定为公共 Config/RobotType/HE3_GY-cfg.txt；控制器回读仅用于写回前后核对。拉线零偏 bL 独立求解，不写入MDH。"), false);
+ 
+ 	//设置初始 IP
+ 	m_RbtIPAdr.SetAddress(192, 168, 10, 120);
+@@ -794,8 +795,8 @@
+ 	QKMLinkEventReset();
+ 	SendInit();
+ 	QKMLinkEventReset();
+-	// R7 reads the controller before the keep-alive thread starts, but does not
+-	// silently replace the file-loaded model. The operator chooses at Start.
++	// R7.1 reads the controller before the keep-alive thread starts only as a
++	// diagnostic/writeback snapshot. It never replaces the public calibration seed.
+ 	ReloadControllerModelAsInput(_T("连接成功后的控制器只读快照"), false);
+ 	m_KeepConnect = true;
+ 	KeepConnectThread = AfxBeginThread(RopeEncoderCalibrationDlg::KeepConnecting, (LPVOID)this);
+@@ -807,9 +808,9 @@
+ //开始按钮,开始进行标定动作
+ void RopeEncoderCalibrationDlg::OnBnClickedButton2()
+ {
+-	if (!SelectR7InputModelBeforeStart())
+-	{
+-		AppendR6Monitor(_T("R7本次采集已取消：尚未确认MDH输入来源。"));
++	if (!PrepareR71PublicInputBeforeStart())
++	{
++		AppendR6Monitor(_T("R7.1本次采集已取消：公共HE3_GY-cfg.txt输入未通过准备检查。"));
+ 		return;
+ 	}
+ 	ShowR65ModelContract(_T("本次采集开始"));
+@@ -1070,8 +1071,10 @@
+ 		}
+ 	}
+ 
+-	// The V1 GUI has already added 62.5 mm for display/calculation. Remove it
+-	// before calling V3, then pass the same fixed offset explicitly exactly once.
++	// The V1 GUI has already added the nominal 62.5 mm for display/calculation.
++	// Remove it before calling V3, then pass the same nominal fixed offset exactly
++	// once. R7.1 solves any remaining common absolute-length error as bL; it does
++	// not rewrite the 62.5 mm constant or hide the bias inside robot MDH.
+ 	std::vector<double> ropeRawM(calibrationSampleCount);
+ 	for (int calibrationSample = 0; calibrationSample < calibrationSampleCount; ++calibrationSample)
+ 	{
+@@ -1250,7 +1253,7 @@
+ static CString FormatR6Trace(const CalibrationV3Trace& trace)
+ {
+ 	CString text, line;
+-	line.Format(_T("R7 Craig MDH解析雅可比 + 激光开放策略 + MDH来源选择 + 写回闭环\r\n轴数=%d 记录=%d\r\n"),
++	line.Format(_T("R7.1 Craig MDH解析雅可比 + 公共MDH固定输入 + 独立拉线零偏bL + 写回闭环\r\n轴数=%d 记录=%d\r\n"),
+ 		trace.axis, trace.count);
+ 	text += line;
+ 	text += _T("控制器Craig MDH：Alpha(deg)=0,90,-90,90,-90,90,-90\r\n");
+@@ -1271,8 +1274,8 @@
+ 	for (int recordIndex = 0; recordIndex < trace.count; ++recordIndex)
+ 	{
+ 		const CalibrationV3IterationRecord& rec = trace.record[recordIndex];
+-		line.Format(_T("\r\n[轮次 %d] scale=%.5g MAE=%.6f mm MAX=%.6f mm\r\n"),
+-			rec.iteration, rec.stepScale, rec.maeM * 1000.0, rec.maxAbsM * 1000.0);
++		line.Format(_T("\r\n[轮次 %d] scale=%.5g 几何MAE=%.6f mm MAX=%.6f mm bL=%+.6f mm\r\n"),
++			rec.iteration, rec.stepScale, rec.maeM * 1000.0, rec.maxAbsM * 1000.0, rec.ropeBiasM * 1000.0);
+ 		text += line;
+ 		text += _T("d(mm): ");
+ 		for (int joint = 0; joint < trace.axis; ++joint)
+@@ -1383,12 +1386,14 @@
+ void RopeEncoderCalibrationDlg::ShowR65ModelContract(const CString& operation)
+ {
+ 	CString text, line;
+-	line.Format(_T("=== R7模型契约 / %s ===\r\n"), operation.GetString());
++	line.Format(_T("=== R7.1模型契约 / %s ===\r\n"), operation.GetString());
+ 	text += line;
+ 	text += _T("算法输入判定：Craig MDH；alpha槽位=[0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6]。\r\n");
+ 	text += _T("控制器存储判定：1101.12为旧式DH/SDH alpha序列=[alpha1..alpha6, alpha7]；读取后右移一槽转换为Craig MDH。\r\n");
+ 	text += _T("激光方案允许参数：D2~D5、Alpha1~Alpha7、Theta/零位q2~q6。\r\n");
+-	text += _T("拉线实际求解：D2~D5、Alpha1~Alpha6、q2~q6（q6仅在解析列可见时参与）。\r\n");
++	text += _T("拉线实际求解：D2~D5、Alpha1~Alpha6、q2~q6（q6仅在解析列可见时参与）；另独立求解拉线零偏bL。\r\n");
++	text += _T("R7.1输入固定：公共 Config/RobotType/HE3_GY-cfg.txt；不使用控制器回读MDH作为算法初值。\r\n");
++	text += _T("测量模型：L实测 = |P-lambda| + bL；bL只校准拉线测量链，不进入4N机器人参数，也不写入控制器MDH。\r\n");
+ 	text += _T("结构保持：A1~A7、D1/D6/D7、q1/q7、Beta；Alpha7虽属激光候选，但当前轴向拉线点对其为结构零列，保留控制器值。\r\n");
+ 	line.Format(_T("末端模型：控制器D7结构长度 + ToolOffset %.3f mm = 算法有效D7；ToolOffset不重复写入控制器。\r\n"),
+ 		m_ThisRbt.ToolOffset * 1000.0);
+@@ -1500,69 +1505,47 @@
+ 	return true;
+ }
+ 
+-bool RopeEncoderCalibrationDlg::SelectR7InputModelBeforeStart()
++bool RopeEncoderCalibrationDlg::PrepareR71PublicInputBeforeStart()
+ {
+ 	if (m_RobotAxis != 7)
+ 	{
+-		AppendR6Monitor(_T("R7 MDH来源选择仅对HE3七轴启用；当前按已加载配置继续。"));
++		AppendR6Monitor(_T("R7.1公共MDH固定输入仅对HE3七轴启用；当前按已加载配置继续。"));
+ 		return true;
+ 	}
+ 
+-	const int selection = MessageBox(
+-		_T("请选择本次标定使用的MDH输入：\r\n\r\n"
+-			"【是】 = 控制器真实MDH\r\n"
+-			"将重新读取1101.11 / 1101.12 / 1127.13，通过七轴结构检查后使用。\r\n\r\n"
+-			"【否】 = 原始MDH\r\n"
+-			"使用启动时从Config/RobotType/HE3_GY-cfg.txt加载的Craig MDH。\r\n\r\n"
+-			"【取消】 = 不运动机器人。"),
+-		_T("R7：选择MDH来源"), MB_YESNOCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2);
+-
+-	if (selection == IDCANCEL)
++	if (!m_R7OriginalConfigValid || m_R7OriginalConfigDH.rows() < 5 ||
++		m_R7OriginalConfigDH.cols() != m_RobotAxis)
++	{
++		AppendR6Monitor(_T("R7.1公共MDH不可用：Config/RobotType/HE3_GY-cfg.txt启动快照无效，禁止运动。"));
++		MessageBox(_T("公共 HE3_GY-cfg.txt 的启动快照无效，本次不会运动机器人。"),
++			_T("R7.1：公共MDH不可用"), MB_OK | MB_ICONERROR);
+ 		return false;
+-
+-	if (selection == IDYES)
+-	{
+-		AppendR6Monitor(_T("用户选择：控制器真实MDH。正在采集运动前最新快照并执行结构检查。"));
+-		if (!ReloadControllerModelAsInput(_T("R7运动前控制器快照"), true))
+-		{
+-			MessageBox(_T("控制器MDH读取失败或未通过七轴结构检查。\r\n"
+-				"本次不会运动机器人。请查看右侧D/Alpha/Zero日志，修复后重试。"),
+-				_T("R7：控制器MDH被拒绝"), MB_OK | MB_ICONERROR);
+-			return false;
+-		}
+-	}
+-	else
+-	{
+-		if (!m_R7OriginalConfigValid || m_R7OriginalConfigDH.rows() < 5 ||
+-			m_R7OriginalConfigDH.cols() != m_RobotAxis)
+-		{
+-			AppendR6Monitor(_T("原始MDH不可用：启动配置快照未保存，禁止运动。"));
+-			MessageBox(_T("原始MDH快照无效，本次不会运动机器人。"),
+-				_T("R7：原始MDH不可用"), MB_OK | MB_ICONERROR);
+-			return false;
+-		}
+-		m_ThisRbtDH = m_R7OriginalConfigDH;
+-		m_R65InputSource = m_R7OriginalConfigSource + _T("（本次用户选择）");
+-		m_R6HaveOriginalDH = false;
+-		m_R6HaveResult = false;
+-		m_R6FeedbackBtn.EnableWindow(FALSE);
+-		m_SaveBtn.EnableWindow(FALSE);
+-		AppendR6Monitor(_T("用户选择：原始MDH。已恢复软件启动时从本地配置读取的Craig MDH；未修改控制器。"));
+-	}
+-
+-	ShowR65ModelContract(_T("R7用户已选择MDH来源"));
+-	ShowCurrentMdh(_T("运动前待确认输入"));
++	}
++
++	// R7.1 contract: every new acquisition starts from the immutable public
++	// HE3_GY-cfg.txt snapshot. Controller readback remains diagnostic/writeback
++	// evidence only and can never silently become the calibration seed.
++	m_ThisRbtDH = m_R7OriginalConfigDH;
++	m_R65InputSource = m_R7OriginalConfigSource + _T("（R7.1固定公共输入）");
++	m_R6HaveOriginalDH = false;
++	m_R6HaveResult = false;
++	m_R6FeedbackBtn.EnableWindow(FALSE);
++	m_SaveBtn.EnableWindow(FALSE);
++
++	AppendR6Monitor(_T("R7.1已强制恢复公共HE3_GY-cfg.txt Craig MDH；控制器快照不会作为本次算法输入。"));
++	ShowR65ModelContract(_T("R7.1固定公共MDH输入"));
++	ShowCurrentMdh(_T("运动前公共MDH输入"));
+ 
+ 	CString confirmation;
+-	confirmation.Format(_T("本次已选择：%s\r\n\r\n"
++	confirmation.Format(_T("R7.1本次算法输入固定为：%s\r\n\r\n"
+ 		"完整MDH已写入右侧日志。\r\n"
+-		"按‘确定’后才开始运动；按‘取消’则不运动。"),
++		"按‘确定’后开始运动；按‘取消’则不运动。"),
+ 		m_R65InputSource.GetString());
+-	if (MessageBox(confirmation, _T("R7：最终确认MDH输入"),
++	if (MessageBox(confirmation, _T("R7.1：确认公共MDH输入"),
+ 		MB_OKCANCEL | MB_ICONWARNING) != IDOK)
+ 		return false;
+ 
+-	AppendR6Monitor(_T("R7 MDH输入已人工二次确认，允许开始本次运动采集。"));
++	AppendR6Monitor(_T("R7.1公共MDH输入已确认，允许开始本次运动采集。"));
+ 	return true;
+ }
+ 
+@@ -1658,6 +1641,7 @@
+ 	double before = std::numeric_limits<double>::quiet_NaN();
+ 	double after = std::numeric_limits<double>::quiet_NaN();
+ 	double maximum = std::numeric_limits<double>::quiet_NaN();
++	double ropeBias = std::numeric_limits<double>::quiet_NaN();
+ 	std::ifstream input(std::string("./Result/") + newestName);
+ 	std::string row;
+ 	while (std::getline(input, row))
+@@ -1666,13 +1650,18 @@
+ 		if (comma == std::string::npos) continue;
+ 		const std::string key = row.substr(0, comma);
+ 		const double value = atof(row.substr(comma + 1).c_str());
+-		if (key == "mae_before_mm") before = value;
+-		else if (key == "mae_after_mm") after = value;
++		if (key == "mae_before_bias_mm" || key == "mae_before_mm") before = value;
++		else if (key == "geometry_mae_after_bias_mm" || key == "mae_after_mm") after = value;
+ 		else if (key == "max_after_mm") maximum = value;
++		else if (key == "rope_bias_mm") ropeBias = value;
+ 	}
+ 	CString summary;
+-	summary.Format(_T("最近一次历史结果（%S，不代表本次启动实时值）：MAE %.3f -> %.3f mm，标定后MAX %.3f mm。"),
+-		newestName.c_str(), before, after, maximum);
++	if (std::isfinite(ropeBias))
++		summary.Format(_T("最近一次历史结果（%S，不代表本次启动实时值）：bL=%+.3f mm，去零偏前MAE %.3f mm，几何MAE %.3f mm，标定后MAX %.3f mm。"),
++			newestName.c_str(), ropeBias, before, after, maximum);
++	else
++		summary.Format(_T("最近一次历史结果（%S，R7旧格式）：MAE %.3f -> %.3f mm，标定后MAX %.3f mm。"),
++			newestName.c_str(), before, after, maximum);
+ 	AppendR6Monitor(summary, false);
+ }
+ 
+@@ -1806,18 +1795,19 @@
+ 			m_ThisRbt.ToolOffset, m_CalibResult, oldError[0], nowError[0], &v3Report);
+ 		m_R6LastReport = v3Report;
+ 		CString monitorResult;
+-		monitorResult.Format(_T("计算完成：status=%d，MAE %.3f -> %.3f mm，MAX %.3f -> %.3f mm，rank=%d/%d，condition=%.1f。"),
+-			v3Status, v3Report.maeBeforeM * 1000.0, v3Report.maeAfterM * 1000.0,
++		monitorResult.Format(_T("计算完成：status=%d，拉线零偏 bL=%+.3f mm，去零偏前MAE=%.3f mm，去零偏后几何MAE=%.3f mm，MAX %.3f -> %.3f mm，rank=%d/%d，condition=%.1f。"),
++			v3Status, v3Report.ropeBiasM * 1000.0,
++			v3Report.maeBeforeM * 1000.0, v3Report.maeAfterM * 1000.0,
+ 			v3Report.maxAbsBeforeM * 1000.0, v3Report.maxAbsAfterM * 1000.0,
+ 			v3Report.jacobianRank, v3Report.activeCount, v3Report.jacobianCondition);
+ 		AppendR6Monitor(monitorResult);
+ 
+ 		CString v3Log;
+ 		v3Log.Format(
+-			_T("V3 build=%S status=%d iteration=%d active=%d rank=%d condition=%.6g MAE(mm)=%.6f -> %.6f MAX(mm)=%.6f -> %.6f\n"),
++			_T("V3 build=%S status=%d iteration=%d active=%d rank=%d condition=%.6g bL(mm)=%+.6f MAE_before_bias(mm)=%.6f geometry_MAE_after_bias(mm)=%.6f MAX(mm)=%.6f -> %.6f\n"),
+ 			CalibrationV3BuildId(), v3Status, v3Report.iterations,
+ 			v3Report.activeCount, v3Report.jacobianRank, v3Report.jacobianCondition,
+-			v3Report.maeBeforeM * 1000.0, v3Report.maeAfterM * 1000.0,
++			v3Report.ropeBiasM * 1000.0, v3Report.maeBeforeM * 1000.0, v3Report.maeAfterM * 1000.0,
+ 			v3Report.maxAbsBeforeM * 1000.0, v3Report.maxAbsAfterM * 1000.0);
+ 		OutputDebugString(v3Log);
+ 		m_R6FeedbackBtn.EnableWindow(m_R6HaveResult ? TRUE : FALSE);
+@@ -1841,6 +1831,15 @@
+ 			diagnostic << "active_count," << v3Report.activeCount << "\n";
+ 			diagnostic << "rank," << v3Report.jacobianRank << "\n";
+ 			diagnostic << "condition," << v3Report.jacobianCondition << "\n";
++			diagnostic << "condition_gate_max,3000\n";
++			diagnostic << "augmented_nuisance_count,4\n";
++			diagnostic << "rope_bias_mm," << v3Report.ropeBiasM * 1000.0 << "\n";
++			diagnostic << "measurement_model,L_measured=norm(P-lambda)+bL\n";
++			diagnostic << "rope_fixed_offset_nominal_mm,62.5\n";
++			diagnostic << "rope_fixed_offset_effective_mm," << 62.5 - v3Report.ropeBiasM * 1000.0 << "\n";
++			diagnostic << "mae_before_bias_mm," << v3Report.maeBeforeM * 1000.0 << "\n";
++			diagnostic << "geometry_mae_after_bias_mm," << v3Report.maeAfterM * 1000.0 << "\n";
++			// Legacy keys retained for existing tooling.
+ 			diagnostic << "mae_before_mm," << v3Report.maeBeforeM * 1000.0 << "\n";
+ 			diagnostic << "mae_after_mm," << v3Report.maeAfterM * 1000.0 << "\n";
+ 			diagnostic << "max_before_mm," << v3Report.maxAbsBeforeM * 1000.0 << "\n";
+@@ -1856,6 +1855,7 @@
+ 				if (m_R61Q6CandidateActive) diagnostic << "|q6";
+ 				diagnostic << "\n";
+ 				diagnostic << "structurally_held,Alpha7|q7|A1-A7|D1|D6|D7|q1|Beta1-Beta7\n";
++				diagnostic << "measurement_nuisance_parameters,anchor_x|anchor_y|anchor_z|bL\n";
+ 			diagnostic << "laser_population_d2_d5_max_span_mm,1.798\n";
+ 			diagnostic << "laser_population_alpha_q_max_span_deg,1.079407\n";
+ 			diagnostic << "terminal_structure_d7_mm," << (m_ThisRbtDH(1, m_RobotAxis - 1) - m_ThisRbt.ToolOffset) * 1000.0 << "\n";
+@@ -1866,7 +1866,7 @@
+ 			diagnostic << "q7_sensitivity_rms_mm_per_deg," << m_R61Q7SensitivityMmPerDeg << "\n";
+ 			diagnostic << "q6_alpha6_column_cosine," << m_R61Q6Alpha6Cosine << "\n";
+ 			diagnostic << "q6_candidate_active," << (m_R61Q6CandidateActive ? 1 : 0) << "\n";
+-			diagnostic << "iteration,mae_mm,max_mm,step_scale";
++			diagnostic << "iteration,geometry_mae_after_bias_mm,max_mm,step_scale,rope_bias_mm";
+ 			for (int joint = 0; joint < m_RobotAxis; ++joint) diagnostic << ",d" << (joint + 1) << "_mm";
+ 			for (int joint = 0; joint < m_RobotAxis; ++joint) diagnostic << ",alpha" << (joint + 1) << "_deg";
+ 			for (int joint = 0; joint < m_RobotAxis; ++joint) diagnostic << ",q0_" << (joint + 1) << "_deg";
+@@ -1875,7 +1875,7 @@
+ 			{
+ 				const CalibrationV3IterationRecord& rec = m_R6Trace.record[traceIndex];
+ 				diagnostic << rec.iteration << ',' << rec.maeM * 1000.0 << ','
+-					<< rec.maxAbsM * 1000.0 << ',' << rec.stepScale;
++					<< rec.maxAbsM * 1000.0 << ',' << rec.stepScale << ',' << rec.ropeBiasM * 1000.0;
+ 				for (int joint = 0; joint < m_RobotAxis; ++joint) diagnostic << ',' << rec.d[joint] * 1000.0;
+ 				for (int joint = 0; joint < m_RobotAxis; ++joint) diagnostic << ',' << rec.alpha[joint] * 180.0 / PI;
+ 				for (int joint = 0; joint < m_RobotAxis; ++joint) diagnostic << ',' << rec.q0[joint] * 180.0 / PI;
+@@ -1891,7 +1891,7 @@
+ 			{
+ 				diagnostic << ",q" << (joint + 1) << "_rad";
+ 			}
+-			diagnostic << ",sample_std_mm,residual_before_mm,residual_after_mm\n";
++			diagnostic << ",sample_std_mm,rope_bias_corrected_mm,residual_before_bias_mm,residual_after_geometry_mm\n";
+ 			for (int point = 0; point < m_TotalNum; ++point)
+ 			{
+ 				const double ropeWithOffsetM = EncoderValue(point);
+@@ -1905,6 +1905,7 @@
+ 				const double sampleStdMm = (point < static_cast<int>(m_R5EncoderStdCounts.size()))
+ 					? m_R5EncoderStdCounts[static_cast<size_t>(point)] / 284.94 : 0.0;
+ 				diagnostic << ',' << sampleStdMm
++					<< ',' << ropeWithOffsetM * 1000.0 - v3Report.ropeBiasM * 1000.0
+ 					<< ',' << oldError[0][point] * 1000.0
+ 					<< ',' << nowError[0][point] * 1000.0 << "\n";
+ 			}
+@@ -1973,9 +1974,10 @@
+ 			}
+ 		}
+ 		const bool residualGate = v3Report.maeAfterM <= 0.002 && v3Report.maxAbsAfterM <= 0.010;
+-		// The full-rank 82-point Craig-MDH field set is consistently near 2.1e3.
+-		// Keep the gate finite and bounded, but do not reject this measured design.
+-		const bool conditionGate = std::isfinite(v3Report.jacobianCondition) && v3Report.jacobianCondition <= 2500.0;
++		// R7 was near 2.1e3 with 15 robot + 3 anchor columns. R7.1 adds the
++		// independent bL column; the same 82-point field data is about 2.64e3.
++		// Use a narrow 3.0e3 ceiling while still requiring full augmented rank.
++		const bool conditionGate = std::isfinite(v3Report.jacobianCondition) && v3Report.jacobianCondition <= 3000.0;
+ 		const bool rankGate = v3Report.jacobianRank == v3Report.activeCount;
+ 		const bool motionGate = maxTargetErrorDeg <= 0.1;
+ 		const bool repeatGate = maxSampleStdMm <= 0.5;
+@@ -2014,7 +2016,7 @@
+ 				lengthGate && alphaGate && zeroGate && laserEnvelopeGate;
+ 
+ 		CString gateLog;
+-			gateLog.Format(_T("R7 gate pass=%d residual=%d condition=%d rank=%d motion=%d repeat=%d fixture=%d point19=%d observability=%d length=%d alpha=%d zero=%d laser_envelope=%d q6_active=%d max_target_error_deg=%.6f bad_point=%d max_sample_std_mm=%.6f j7_range_mm=%.6f point19_range_mm=%.6f q6_sensitivity_mm_per_deg=%.6f q7_sensitivity_mm_per_deg=%.9f q6_alpha6_cosine=%.6f\n"),
++			gateLog.Format(_T("R7.1 gate pass=%d residual=%d condition=%d rank=%d motion=%d repeat=%d fixture=%d point19=%d observability=%d length=%d alpha=%d zero=%d laser_envelope=%d q6_active=%d max_target_error_deg=%.6f bad_point=%d max_sample_std_mm=%.6f j7_range_mm=%.6f point19_range_mm=%.6f q6_sensitivity_mm_per_deg=%.6f q7_sensitivity_mm_per_deg=%.9f q6_alpha6_cosine=%.6f\n"),
+ 				m_R5CalibrationPassed ? 1 : 0, residualGate ? 1 : 0, conditionGate ? 1 : 0,
+ 			rankGate ? 1 : 0, motionGate ? 1 : 0,
+ 			repeatGate ? 1 : 0, fixtureGate ? 1 : 0, point19Gate ? 1 : 0,
+@@ -2055,6 +2057,8 @@
+ 		m_ErrorBefore.SetWindowTextW(str);
+ 		str.Format(_T("%.3lf"), aveNow);
+ 		m_ErrorAfter.SetWindowTextW(str);
++		str.Format(_T("%+.3lf"), v3Report.ropeBiasM * 1000.0);
++		m_RopeBias.SetWindowTextW(str);
+ 
+ 		//角度转编码器脉冲值
+ 		for (int ii = 0; ii < 6; ii++) {
+@@ -2082,14 +2086,14 @@
+ 	m_SaveBtn.EnableWindow(m_R5CalibrationPassed);
+ 	if (!m_R5CalibrationPassed && !m_R63FeedbackValidationRunning)
+ 	{
+-			MessageBox(_T("R7计算已完成，但未通过量产安全门限。\r\n"
+-			"要求：MAE<=2mm、最大残差<=10mm、满秩、条件数<=2500、\r\n"
++			MessageBox(_T("R7.1计算已完成，但未通过量产安全门限。\r\n"
++			"要求：去零偏后几何MAE<=2mm、最大残差<=10mm、满秩、条件数<=3000、\r\n"
+ 			"单点5次标准差<=0.5mm、\r\n"
+ 			"q6按解析雅可比自动判定：零列时固定；可见时必须有有效敏感度且不能与alpha6重合；\r\n"
+ 			"q7敏感度必须接近0；\r\n"
+ 				"目标/实际关节误差<=0.1度、杆长<=6mm、alpha<=1.5度、零位<=2度，且D2~D5位于激光8机扩展包络。\r\n"
+ 			"结果仅供诊断，已禁止保存和写回机器人。"),
+-				_T("R7标定结果未通过"), MB_OK | MB_ICONWARNING);
++				_T("R7.1标定结果未通过"), MB_OK | MB_ICONWARNING);
+ 	}
+ 	m_CalibBtn.EnableWindow(false);
+ }
+@@ -2195,23 +2199,25 @@
+ 		feedback << std::setprecision(15)
+ 			<< "build," << CalibrationV3BuildId() << '\n'
+ 			<< "status," << secondStatus << '\n'
+-			<< "mae_before_mm," << secondReport.maeBeforeM * 1000.0 << '\n'
+-			<< "mae_after_mm," << secondReport.maeAfterM * 1000.0 << '\n'
++			<< "rope_bias_mm," << secondReport.ropeBiasM * 1000.0 << '\n'
++			<< "mae_before_bias_mm," << secondReport.maeBeforeM * 1000.0 << '\n'
++			<< "geometry_mae_after_bias_mm," << secondReport.maeAfterM * 1000.0 << '\n'
+ 			<< "max_after_mm," << secondReport.maxAbsAfterM * 1000.0 << '\n'
+-			<< "iteration,mae_mm,max_mm,step_scale\n";
++			<< "iteration,geometry_mae_after_bias_mm,max_mm,step_scale,rope_bias_mm\n";
+ 		for (int i = 0; i < secondTrace.count; ++i)
+ 			feedback << secondTrace.record[i].iteration << ',' << secondTrace.record[i].maeM * 1000.0
+-				<< ',' << secondTrace.record[i].maxAbsM * 1000.0 << ',' << secondTrace.record[i].stepScale << '\n';
++				<< ',' << secondTrace.record[i].maxAbsM * 1000.0 << ',' << secondTrace.record[i].stepScale
++				<< ',' << secondTrace.record[i].ropeBiasM * 1000.0 << '\n';
+ 	}
+ 
+ 	CString summary;
+ 	summary.Format(_T("同一批数据复输入检验完成（status=%d，不运动、不写机器人、不替换第一次结果）。\r\n\r\n"
+-		"第一次：MAE %.3f -> %.3f mm，最大残差 %.3f mm\r\n"
+-		"第二次：MAE %.3f -> %.3f mm，最大残差 %.3f mm\r\n\r\n"
++		"第一次：bL=%+.3f mm，去零偏前MAE %.3f mm，几何MAE %.3f mm，最大残差 %.3f mm\r\n"
++		"第二次：bL=%+.3f mm，去零偏前MAE %.3f mm，几何MAE %.3f mm，最大残差 %.3f mm\r\n\r\n"
+ 		"第二次仅检查收敛趋势，不是独立精度验证；详细结果见 *_feedback2.csv。"),
+-		secondStatus, firstReport.maeBeforeM * 1000.0, firstReport.maeAfterM * 1000.0,
++		secondStatus, firstReport.ropeBiasM * 1000.0, firstReport.maeBeforeM * 1000.0, firstReport.maeAfterM * 1000.0,
+ 		firstReport.maxAbsAfterM * 1000.0,
+-		secondReport.maeBeforeM * 1000.0, secondReport.maeAfterM * 1000.0,
++		secondReport.ropeBiasM * 1000.0, secondReport.maeBeforeM * 1000.0, secondReport.maeAfterM * 1000.0,
+ 		secondReport.maxAbsAfterM * 1000.0);
+ 	AppendR6Monitor(summary);
+ 	MessageBox(summary, _T("R7复输入检验"), MB_OK | MB_ICONINFORMATION);
+@@ -2238,21 +2244,21 @@
+ 	ShowR65ModelContract(_T("保存候选前"));
+ 	ShowCurrentMdh(_T("保存操作前的算法原始输入"));
+ 	CString saveInfo;
+-	saveInfo.Format(_T("准备R7完整写回：MAE %.3f mm，MAX %.3f mm，安全门限=%s。"),
++	saveInfo.Format(_T("准备R7.1完整写回：去零偏后几何MAE %.3f mm，MAX %.3f mm，bL=%+.3f mm（仅测量链，不写MDH），安全门限=%s。"),
+ 		m_R6LastReport.maeAfterM * 1000.0, m_R6LastReport.maxAbsAfterM * 1000.0,
+-		m_R5CalibrationPassed ? _T("通过") : _T("未通过"));
++		m_R6LastReport.ropeBiasM * 1000.0, m_R5CalibrationPassed ? _T("通过") : _T("未通过"));
+ 	AppendR6Monitor(saveInfo);
+ 	if (!m_R5CalibrationPassed || !m_R6HaveResult || m_RobotAxis != 7)
+ 	{
+ 		AppendR6Monitor(_T("写回被阻止：结果未通过安全门限、没有有效候选或不是HE3七轴。"));
+-		MessageBox(_T("当前结果不满足R7写回条件，未修改机器人。"),
+-			_T("R7写回保护"), MB_OK | MB_ICONERROR);
++		MessageBox(_T("当前结果不满足R7.1写回条件，未修改机器人。"),
++			_T("R7.1写回保护"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 	if (!ReloadControllerModelAsInput(_T("写回前备份快照"), false))
+ 	{
+ 		MessageBox(_T("无法完整读取控制器D/Alpha/零位，未执行写回。"),
+-			_T("R7写回保护"), MB_OK | MB_ICONERROR);
++			_T("R7.1写回保护"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 
+@@ -2283,7 +2289,7 @@
+ 	}
+ 
+ 	CString candidateLog;
+-	candidateLog.Format(_T("R7候选（写入前）\r\nD(mm): %s\r\n旧式Alpha(deg): %s\r\nZero(cnt): %s\r\n"),
++	candidateLog.Format(_T("R7.1候选（写入前；bL不在候选中）\r\nD(mm): %s\r\n旧式Alpha(deg): %s\r\nZero(cnt): %s\r\n"),
+ 		FormatR65Vector(candidateD, 5).GetString(), FormatR65Vector(candidateAlpha, 5).GetString(),
+ 		FormatR65Vector(candidateZero, 0).GetString());
+ 	AppendR6Monitor(candidateLog);
+@@ -2291,13 +2297,13 @@
+ 	if (!ValidateR65Candidate(candidateD, candidateAlpha, candidateZero, candidateFailure))
+ 	{
+ 		AppendR6Monitor(_T("候选合理性检查失败：") + candidateFailure);
+-		MessageBox(candidateFailure, _T("R7写回保护"), MB_OK | MB_ICONERROR);
++		MessageBox(candidateFailure, _T("R7.1写回保护"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 	if (PowerOff() != 0)
+ 	{
+ 		AppendR6Monitor(_T("机器人下电命令未确认成功，禁止写参数。"));
+-		MessageBox(_T("机器人下电未确认，未执行写回。"), _T("R7写回保护"), MB_OK | MB_ICONERROR);
++		MessageBox(_T("机器人下电未确认，未执行写回。"), _T("R7.1写回保护"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 
+@@ -2329,7 +2335,7 @@
+ 			WriteControllerValueVerified(m_IDNZeroEncoderValue, joint + 1,
+ 				beforeZero[static_cast<size_t>(joint)], 0.01, ignored);
+ 		MessageBox(_T("写回或回读校验失败，已尝试恢复写入前快照，未持久化。请查看右侧日志。"),
+-			_T("R7写回失败"), MB_OK | MB_ICONERROR);
++			_T("R7.1写回失败"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 
+@@ -2337,35 +2343,38 @@
+ 	{
+ 		AppendR6Monitor(_T("所有逐项回读通过，但控制器21.23 save失败。参数可能只在运行内存中；停止后续操作并人工检查。"));
+ 		MessageBox(_T("参数逐项写入成功，但持久化保存失败。请勿继续测试，先检查控制器。"),
+-			_T("R7保存失败"), MB_OK | MB_ICONERROR);
++			_T("R7.1保存失败"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+-	AppendR6Monitor(_T("21.23 save返回成功；现在重新读取D/Alpha/零位，并把回读值转换为下一次Craig MDH输入。"));
+-	if (!ReloadControllerModelAsInput(_T("持久化保存后回读"), true))
++	AppendR6Monitor(_T("21.23 save返回成功；现在重新读取D/Alpha/零位作为闭环证据；公共MDH算法输入保持不变。"));
++	if (!ReloadControllerModelAsInput(_T("持久化保存后回读"), false))
+ 	{
+ 		MessageBox(_T("保存命令成功，但保存后完整回读失败。不要开始下一轮，请查看右侧日志。"),
+-			_T("R7回读失败"), MB_OK | MB_ICONERROR);
++			_T("R7.1回读失败"), MB_OK | MB_ICONERROR);
+ 		return;
+ 	}
+ 
+ 	_mkdir("./Result");
+ 	const std::string stamp = m_FinishTime.empty() ? "manual" : m_FinishTime;
+-	const std::string path = "./Result/R7Writeback_" + stamp + ".csv";
++	const std::string path = "./Result/R71Writeback_" + stamp + ".csv";
+ 	std::ofstream out(path, std::ios::out | std::ios::trunc);
+ 	if (out)
+ 	{
+ 		out << std::setprecision(15);
+ 		out << "build," << CalibrationV3BuildId() << "\n";
+-		out << "input_source,controller_readback\n";
++		out << "calibration_input_source," << static_cast<const char*>(CT2A(m_R65InputSource)) << "\n";
++		out << "writeback_baseline_source,controller_readback\n";
++		out << "rope_bias_mm," << (m_R6LastReport.ropeBiasM * 1000.0) << "\n";
++		out << "rope_bias_written_to_mdh,0\n";
+ 		out << "parameter,index,before,candidate,readback\n";
+ 		for (int i = 0; i < 7; ++i) out << "D," << (i + 1) << ',' << beforeD[i] << ',' << candidateD[i] << ',' << m_R65ControllerDmm[i] << "\n";
+ 		for (int i = 0; i < 7; ++i) out << "AlphaLegacy," << (i + 1) << ',' << beforeAlpha[i] << ',' << candidateAlpha[i] << ',' << m_R65ControllerLegacyAlphaDeg[i] << "\n";
+ 		for (int i = 0; i < 7; ++i) out << "ZeroCount," << (i + 1) << ',' << beforeZero[i] << ',' << candidateZero[i] << ',' << m_R65ControllerZeroCounts[i] << "\n";
+ 	}
+-	AppendR6Monitor(_T("R7闭环完成：保存后的控制器回读已成为当前内存输入；下一次点‘开始’时仍会要求重新选择MDH来源。写回记录：") + CString(path.c_str()));
++	AppendR6Monitor(_T("R7.1闭环完成：保存后的控制器回读仅作为闭环证据；下一次点‘开始’会再次强制恢复公共HE3_GY-cfg.txt作为算法输入。写回记录：") + CString(path.c_str()));
+ 	m_SaveBtn.EnableWindow(FALSE);
+-	MessageBox(_T("保存、逐项回读和下一轮输入更新均成功。下一步必须重新采集，不能用旧拉线数据宣称复验精度。"),
+-		_T("R7闭环完成"), MB_OK | MB_ICONINFORMATION);
++	MessageBox(_T("保存和逐项回读成功；bL未写入MDH。下一轮开始时仍会使用公共HE3_GY-cfg.txt，并且必须重新采集，不能用旧拉线数据宣称复验精度。"),
++		_T("R7.1闭环完成"), MB_OK | MB_ICONINFORMATION);
+ }
+ 
+ //选择标定模式
+@@ -2509,10 +2518,10 @@
+ 
+ 	m_ThisRbtDH(1, m_RobotAxis - 1) += m_ThisRbt.ToolOffset;
+ 	// Preserve the exact file-loaded model before any controller snapshot can
+-	// replace it. Selecting "original MDH" restores this immutable copy.
++	// replace it. R7.1 always restores this immutable public-config copy before motion.
+ 	m_R7OriginalConfigDH = m_ThisRbtDH;
+ 	m_R7OriginalConfigValid = true;
+-	m_R7OriginalConfigSource.Format(_T("原始MDH（%S/%S%S）"),
++	m_R7OriginalConfigSource.Format(_T("公共MDH（%S/%S%S）"),
+ 		_rbtConfigPath.c_str(), rbtType.c_str(), _configExtension.c_str());
+ 	m_R65InputSource = m_R7OriginalConfigSource;
+ 
+--- R7/source/RopeEncoderCalibrationV3/resource.h
++++ R7.1/source/RopeEncoderCalibrationV3/resource.h
+@@ -42,6 +42,8 @@
+ #define IDC_STATIC4                     1039
+ #define IDC_STATIC5                     1040
+ #define IDC_STATIC6                     1041
++#define IDC_EDIT12                      1042
++#define IDC_STATIC7                     1043
+ #define IDC_R6_FEEDBACK                 5101
+ #define IDC_R6_RESTORE                  5102
+ #define IDC_R6_MONITOR                  5103
+@@ -52,7 +54,7 @@
+ #ifndef APSTUDIO_READONLY_SYMBOLS
+ #define _APS_NEXT_RESOURCE_VALUE        316
+ #define _APS_NEXT_COMMAND_VALUE         32771
+-#define _APS_NEXT_CONTROL_VALUE         1037
++#define _APS_NEXT_CONTROL_VALUE         1044
+ #define _APS_NEXT_SYMED_VALUE           310
+ #endif
+ #endif
+--- R7/source/RopeEncoderCalibrationV3/RopeEncoderCalibration.rc
++++ R7.1/source/RopeEncoderCalibrationV3/RopeEncoderCalibration.rc
+@@ -211,7 +211,7 @@
+     PUSHBUTTON      "Button1",IDC_BUTTON1,117,148,50,14
+ END
+ 
+-IDD_DIALOG1 DIALOGEX 0, 0, 517, 362
++IDD_DIALOG1 DIALOGEX 0, 0, 517, 384
+ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+ CAPTION "拉线编码器标定工具"
+ FONT 8, "MS Shell Dlg", 400, 0, 0x1
+@@ -231,7 +231,7 @@
+     LTEXT           "Cell IP",IDC_STATIC,35,55,52,8
+     LTEXT           "机器人类型",IDC_STATIC,310,31,41,8
+     LTEXT           "标定方式",IDC_STATIC,311,55,33,8
+-    GROUPBOX        "标定结果",IDC_STATIC,25,177,474,171
++    GROUPBOX        "标定结果",IDC_STATIC,25,177,474,193
+     COMBOBOX        IDC_COMBO3,409,199,48,30,CBS_DROPDOWN | CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+     LTEXT           "速度",IDC_STATIC,376,200,17,8
+     LTEXT           "编码器零点",IDC_STATIC,44,200,41,8
+@@ -253,10 +253,12 @@
+     PUSHBUTTON      "确定",IDC_BUTTON9,438,54,50,14,NOT WS_VISIBLE | WS_DISABLED
+     PUSHBUTTON      "回零点",IDC_BUTTON10,409,223,50,14,WS_DISABLED
+     PUSHBUTTON      "断开连接",IDC_BUTTON11,214,52,50,14,WS_DISABLED
+-    LTEXT           "标定前绝对精度误差平均值(mm)",IDC_STATIC5,44,309,113,8
++    LTEXT           "去零偏前 MAE(mm)",IDC_STATIC5,44,309,113,8
+     EDITTEXT        IDC_EDIT10,167,307,191,14,ES_AUTOHSCROLL | ES_READONLY
+-    LTEXT           "标定后绝对精度误差平均值(mm)",IDC_STATIC,44,330,113,8
++    LTEXT           "去零偏后几何 MAE(mm)",IDC_STATIC,44,330,113,8
+     EDITTEXT        IDC_EDIT11,167,328,191,14,ES_AUTOHSCROLL | ES_READONLY
++    LTEXT           "拉线零偏 bL(mm)",IDC_STATIC7,44,351,113,8
++    EDITTEXT        IDC_EDIT12,167,349,191,14,ES_AUTOHSCROLL | ES_READONLY
+     PUSHBUTTON      "开始",IDC_BUTTON2,33,90,50,14,WS_DISABLED
+     PUSHBUTTON      "继续",IDC_BUTTON3,33,110,50,14,WS_DISABLED
+     PUSHBUTTON      "暂停",IDC_BUTTON4,33,130,50,14,NOT WS_VISIBLE | WS_DISABLED
+--- R7/source/V3SyntheticTest/V3SyntheticTest.cpp
++++ R7.1/source/V3SyntheticTest/V3SyntheticTest.cpp
+@@ -132,6 +132,51 @@
+               << " condition=" << reportQ5.jacobianCondition << "\n"
+               << "q5_test=" << (passQ5 ? "PASS" : "FAIL") << "\n";
+ 
++    // R7.1 regression: inject only a common pull-wire absolute-length bias.
++    // The solver must recover it as bL while leaving the robot d5 correction
++    // essentially zero. This directly guards against hiding a tape/encoder zero
++    // error inside MDH.
++    constexpr double kInjectedRopeBiasM = 0.00275;
++    std::vector<double> ropeRawBias(kSamples);
++    for (int s = 0; s < kSamples; ++s)
++    {
++        double point[3] = {};
++        const int pointStatus = CalibrationV3EvaluatePointAndJacobian(
++            kAxis, a, dNominal, alpha, zero, zero, zero,
++            joints.data() + s * kAxis, fixture, point, jacobian.data());
++        if (pointStatus != CALV3_OK) return 5;
++        const double dx = point[0] - anchor[0];
++        const double dy = point[1] - anchor[1];
++        const double dz = point[2] - anchor[2];
++        ropeRawBias[s] = std::sqrt(dx * dx + dy * dy + dz * dz)
++            + kInjectedRopeBiasM - ropeOffset;
++    }
++
++    int activeBias[4 * kAxis] = {};
++    activeBias[kAxis + 4] = 1; // keep one robot column observable; truth correction is zero
++    std::vector<double> outABias(kAxis), outDBias(kAxis), outAlphaBias(kAxis), outQ0Bias(kAxis);
++    std::vector<double> deltaBias(4 * kAxis), beforeBias(kSamples), afterBias(kSamples);
++    CalibrationV3Report reportBias = {};
++    const int statusBias = CalibrationV3Analytic(
++        kAxis, kSamples, a, dNominal, alpha, zero, zero, zero,
++        joints.data(), ropeRawBias.data(), ropeOffset, fixture, activeBias,
++        30, 1e-12, 1, 1e8,
++        outABias.data(), outDBias.data(), outAlphaBias.data(), outQ0Bias.data(), deltaBias.data(),
++        beforeBias.data(), afterBias.data(), &reportBias);
++    const double recoveredBiasMm = reportBias.ropeBiasM * 1000.0;
++    const double falseD5Mm = deltaBias[kAxis + 4] * 1000.0;
++    const bool biasSuccessStatus = statusBias == CALV3_OK || statusBias == CALV3_STOP_NO_IMPROVEMENT;
++    const bool passBias = biasSuccessStatus && reportBias.maeAfterM < 1e-7 &&
++        std::abs(recoveredBiasMm - kInjectedRopeBiasM * 1000.0) < 0.01 &&
++        std::abs(falseD5Mm) < 0.01;
++    std::cout << "bL status=" << statusBias
++              << " raw/geometric MAE(mm)=" << reportBias.maeBeforeM * 1000.0 << " -> "
++              << reportBias.maeAfterM * 1000.0 << "\n"
++              << "bL expected/recovered(mm): " << kInjectedRopeBiasM * 1000.0
++              << " / " << recoveredBiasMm << "\n"
++              << "d5 false correction(mm): " << falseD5Mm << "\n"
++              << "bL_test=" << (passBias ? "PASS" : "FAIL") << "\n";
++
+     // Exact analytic point-Jacobian evidence for the current MDH/fixture.
+     // The measurement point lies on both terminal rotation axes in this model,
+     // so q6 and q7 must be zero columns.  Forcing either one into least squares
+@@ -162,7 +207,7 @@
+               << "q7 point-Jacobian column norm=" << q7ColumnNorm
+               << " structural_zero=" << (passQ7StructuralZero ? "PASS" : "FAIL") << "\n";
+ 
+-    const bool pass = passD5 && passQ5 && passQ6StructuralZero && passQ7StructuralZero;
++    const bool pass = passD5 && passQ5 && passBias && passQ6StructuralZero && passQ7StructuralZero;
+     std::cout << "overall=" << (pass ? "PASS" : "FAIL") << "\n";
+ 
+     std::cout << "\nPress Enter to close...";

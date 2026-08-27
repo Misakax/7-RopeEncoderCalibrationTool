@@ -1,0 +1,30 @@
+# Visual Studio 缓存
+.vs/
+**/.vs/
+**/ipch/
+**/Debug/
+
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+*.sdf
+
+# 编译中间文件
+*.obj
+*.ilk
+*.tlog
+*.pch
+*.idb
+*.pdb
+
+# 大型备份压缩文件
+*.zip
+*.7z~$*
+
+
+# Visual Studio build intermediates
+**/obj/
+*.iobj
+*.ipdb
+*.7z

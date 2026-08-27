@@ -1,0 +1,3 @@
+P=-0.324209382306,-0.546560163517,0.108783956274
+maxAbsDerivativeError=7.33613725323e-10 maxRelDerivativeError=6.12323399574e-05 worstRow=1 worstCol=15
+q7 column norm=0

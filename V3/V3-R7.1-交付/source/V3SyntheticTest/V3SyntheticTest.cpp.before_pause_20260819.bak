@@ -1,0 +1,91 @@
+#include "CalibrationV3Analytic.h"
+
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <vector>
+
+namespace
+{
+constexpr int kAxis = 7;
+constexpr int kSamples = 96;
+constexpr double kPi = 3.1415926535897932384626433832795;
+}
+
+int main()
+{
+    const double a[kAxis] = {0, 0, 0, 0, 0, 0, 0};
+    const double dNominal[kAxis] = {0.0000006, 0.0505064, 0.4911552, -0.1186827,
+                                     0.3178316, -0.0007692, 0.1417026};
+    double dTrue[kAxis];
+    for (int i = 0; i < kAxis; ++i) dTrue[i] = dNominal[i];
+    // Known-truth regression: the synthetic robot has d5 longer by 0.8 mm.
+    // V3 starts from V1 nominal data and must recover that injected error.
+    constexpr double kInjectedD5M = 0.0008;
+    dTrue[4] += kInjectedD5M;
+
+    const double alpha[kAxis] = {kPi / 2, -kPi / 2, kPi / 2, -kPi / 2,
+                                 kPi / 2, -kPi / 2, 0};
+    const double zero[kAxis] = {};
+    const double q0True[kAxis] = {};
+    const double fixture[3] = {0, 0, 0};
+    const double anchor[3] = {0.85, -0.42, 0.73};
+    const double ropeOffset = 0.0625;
+
+    std::vector<double> joints(kSamples * kAxis);
+    for (int s = 0; s < kSamples; ++s)
+    {
+        const double t = 2.0 * kPi * s / kSamples;
+        joints[s * kAxis + 0] = 0.8 * std::sin(t);
+        joints[s * kAxis + 1] = 0.45 * std::sin(2.0 * t + 0.2);
+        joints[s * kAxis + 2] = 0.65 * std::cos(1.5 * t - 0.1);
+        joints[s * kAxis + 3] = -kPi / 2 + 0.40 * std::sin(2.5 * t + 0.4);
+        joints[s * kAxis + 4] = 0.9 * std::cos(1.2 * t);
+        joints[s * kAxis + 5] = 0.55 * std::sin(3.0 * t - 0.3);
+        joints[s * kAxis + 6] = 1.4 * std::cos(0.7 * t + 0.5);
+    }
+
+    std::vector<double> ropeRaw(kSamples);
+    std::vector<double> jacobian(3 * 4 * kAxis);
+    for (int s = 0; s < kSamples; ++s)
+    {
+        double point[3] = {};
+        const int status = CalibrationV3EvaluatePointAndJacobian(
+            kAxis, a, dTrue, alpha, zero, zero, q0True,
+            joints.data() + s * kAxis, fixture, point, jacobian.data());
+        if (status != CALV3_OK) return 2;
+        const double dx = point[0] - anchor[0];
+        const double dy = point[1] - anchor[1];
+        const double dz = point[2] - anchor[2];
+        ropeRaw[s] = std::sqrt(dx * dx + dy * dy + dz * dz) - ropeOffset;
+    }
+
+    int active[4 * kAxis] = {};
+    active[kAxis + 4] = 1;      // d5
+
+    std::vector<double> outA(kAxis), outD(kAxis), outAlpha(kAxis), outQ0(kAxis);
+    std::vector<double> delta(4 * kAxis), before(kSamples), after(kSamples);
+    CalibrationV3Report report = {};
+    const int status = CalibrationV3Analytic(
+        kAxis, kSamples, a, dNominal, alpha, zero, zero, zero,
+        joints.data(), ropeRaw.data(), ropeOffset, fixture, active,
+        20, 1e-12, 1, 1e8,
+        outA.data(), outD.data(), outAlpha.data(), outQ0.data(), delta.data(),
+        before.data(), after.data(), &report);
+
+    const double recoveredD5Mm = delta[kAxis + 4] * 1000.0;
+    std::cout << std::setprecision(12)
+              << "build=" << CalibrationV3BuildId() << " status=" << status << "\n"
+              << "MAE(mm): " << report.maeBeforeM * 1000.0 << " -> "
+              << report.maeAfterM * 1000.0 << "\n"
+              << "d5 expected/recovered(mm): " << kInjectedD5M * 1000.0
+              << " / " << recoveredD5Mm << "\n"
+              << "rank=" << report.jacobianRank << "/" << report.activeCount
+              << " condition=" << report.jacobianCondition << "\n";
+
+    const bool successStatus = status == CALV3_OK || status == CALV3_STOP_NO_IMPROVEMENT;
+    const bool pass = successStatus && report.maeAfterM < 1e-7 &&
+        std::abs(recoveredD5Mm - kInjectedD5M * 1000.0) < 0.01;
+    std::cout << (pass ? "PASS" : "FAIL") << "\n";
+    return pass ? 0 : 1;
+}

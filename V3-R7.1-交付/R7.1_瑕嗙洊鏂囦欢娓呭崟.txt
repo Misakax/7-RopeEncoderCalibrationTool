@@ -1,0 +1,20 @@
+R7 -> R7.1 changed files
+=======================
+source/CalibrationV3Analytic/CalibrationV3Analytic.h
+source/CalibrationV3Analytic/CalibrationV3Analytic.cpp
+source/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.h
+source/RopeEncoderCalibrationV3/RopeEncoderCalibrationDlg.cpp
+source/RopeEncoderCalibrationV3/resource.h
+source/RopeEncoderCalibrationV3/RopeEncoderCalibration.rc
+source/V3SyntheticTest/V3SyntheticTest.cpp
+
+Key additions
+-------------
+- independent bL nuisance scalar in measurement model
+- bL + pre-bias MAE + post-bias geometry MAE in GUI/CSV
+- fixed public HE3_GY-cfg.txt calibration input on every start
+- controller readback kept diagnostic/writeback-only
+- bL explicitly excluded from controller/MDH writeback
+- augmented full-rank check (robot active columns + anchor xyz + bL)
+- condition gate 2500 -> 3000 for the added bL column
+- synthetic regression for injected rope bias

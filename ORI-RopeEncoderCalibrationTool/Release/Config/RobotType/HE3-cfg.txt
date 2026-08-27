@@ -1,0 +1,14 @@
+1,0,[Robot Type(0:Scara; 1:Delta; 2:SixAxis; 3:Cobot)] = 3
+2,0,[Robot Axis] = 6
+3,0,[Calbration location number] = 6
+4,0,[Tool offset(length)] = 49
+5,0,[mDH a] = 0, 0, -0.4, -0.3, 0, 0
+6,0,[mDH alpha] = 0,  90, 0, 0, 90, -90
+7,0,[mDH d] = 0.084, 0, 0, 0.1635, 0.13, 0.075
+8,0,[mDH theta] = 0,  0, 0, 0, 0, 0
+9,0,[mDH beta] = 0,  0, 0, 0, 0, 0
+10,0,[Move direction] = 1,1,-1,-1,1,1
+11,0,[Encoder line number] = 524288,524288,524288,524288,524288,524288
+12,0,[Motion waittime] = 60000
+13,0,[Get location wattime] = 800
+14,0,[Config File version] = 3.2.0
