@@ -1,0 +1,100 @@
+name: HE3 Windows Release x86 Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-x86:
+    name: VS2022 Release x86
+    runs-on: windows-2022
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: '[17.0,18.0)'
+          msbuild-architecture: x86
+
+      - name: Show toolchain
+        shell: pwsh
+        run: |
+          Write-Host "Runner OS: $env:RUNNER_OS"
+          Write-Host "MSBuild:"
+          Get-Command msbuild | Format-List Source,Version
+          msbuild -version
+
+      - name: Verify solution exists
+        shell: pwsh
+        run: |
+          $solution = "R7.1-Build/HE3_RopeCalibration_R7.1_Minimal.sln"
+          if (-not (Test-Path -LiteralPath $solution)) {
+            throw "Solution not found: $solution"
+          }
+          Write-Host "Solution: $solution"
+
+      - name: Build Release x86
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $solution = "R7.1-Build/HE3_RopeCalibration_R7.1_Minimal.sln"
+          $logDir = "ci-logs"
+          New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+
+          & msbuild $solution `
+            /m `
+            /t:Rebuild `
+            /p:Configuration=Release `
+            /p:Platform=x86 `
+            /verbosity:minimal `
+            /nologo `
+            /fl `
+            /flp:"logfile=$logDir/msbuild.log;verbosity=diagnostic" `
+            /bl:"$logDir/msbuild.binlog"
+
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -ne 0) {
+            throw "MSBuild failed with exit code $exitCode"
+          }
+
+      - name: Verify build outputs
+        shell: pwsh
+        run: |
+          $exe = "R7.1-Build/bin/Win32/Release/HE3_RopeCalibration_V3_Tool.exe"
+          $dll = "R7.1-Build/bin/Win32/Release/CalibrationV3Analytic.dll"
+
+          if (-not (Test-Path -LiteralPath $exe)) { throw "Missing EXE: $exe" }
+          if (-not (Test-Path -LiteralPath $dll)) { throw "Missing DLL: $dll" }
+
+          Get-Item $exe, $dll | Select-Object FullName, Length, LastWriteTime
+
+      - name: Upload EXE and DLL
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: HE3-RopeCalibration-Windows-Release-x86-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            R7.1-Build/bin/Win32/Release/HE3_RopeCalibration_V3_Tool.exe
+            R7.1-Build/bin/Win32/Release/CalibrationV3Analytic.dll
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: HE3-build-logs-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            ci-logs/msbuild.log
+            ci-logs/msbuild.binlog
