@@ -102,13 +102,17 @@ jobs:
           $exe = "R7.1-Build/bin/Win32/Release/HE3_RopeCalibration_V3_Tool.exe"
           $dll = "R7.1-Build/bin/Win32/Release/CalibrationV3Analytic.dll"
 
-          if (-not (Test-Path -LiteralPath $exe)) { throw "Missing EXE: $exe" }
-          if (-not (Test-Path -LiteralPath $dll)) { throw "Missing DLL: $dll" }  if (-not (Test-Path -LiteralPath $dll)) { throw "缺少 DLL: $dll" }
+          if (-not (Test-Path -LiteralPath $exe)) {
+            throw "Missing EXE: $exe"
+          }
+
+          if (-not (Test-Path -LiteralPath $dll)) {
+            throw "Missing DLL: $dll"
+          }
 
           Get-Item $exe, $dll | Select-Object FullName, Length, LastWriteTime
 
       - name: Upload EXE and DLL
-- name: 上传 EXE 和 DLL
         if: success()
         uses: actions/upload-artifact@v6
         with:
