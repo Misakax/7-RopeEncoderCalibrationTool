@@ -16,31 +16,61 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout build sources only
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/
+            /R7.1-Build/HE3_RopeCalibration_R7.1_Minimal.sln
+            /R7.1-Build/CalibrationV3Analytic/
+            /R7.1-Build/RopeEncoderCalibrationV3/
+            /R7.1-Build/eigen3/
+            /R7.1-Build/websocketpp-master/
+            /R7.1-Build/asio-1.12.2/include/
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
         with:
           vs-version: '[17.0,18.0)'
           msbuild-architecture: x86
 
-      - name: Show toolchain
+      - name: Show checkout and toolchain
         shell: pwsh
         run: |
           Write-Host "Runner OS: $env:RUNNER_OS"
+          Write-Host "Workspace: $env:GITHUB_WORKSPACE"
+          Write-Host "Checked-out top level:"
+          Get-ChildItem -Force | Select-Object Name, Mode
+          Write-Host "R7.1-Build:"
+          Get-ChildItem -LiteralPath "R7.1-Build" | Select-Object Name, Mode
           Write-Host "MSBuild:"
           Get-Command msbuild | Format-List Source,Version
           msbuild -version
 
-      - name: Verify solution exists
+      - name: Verify required build inputs
         shell: pwsh
         run: |
-          $solution = "R7.1-Build/HE3_RopeCalibration_R7.1_Minimal.sln"
-          if (-not (Test-Path -LiteralPath $solution)) {
-            throw "Solution not found: $solution"
+          $required = @(
+            "R7.1-Build/HE3_RopeCalibration_R7.1_Minimal.sln",
+            "R7.1-Build/CalibrationV3Analytic/CalibrationV3Analytic.vcxproj",
+            "R7.1-Build/RopeEncoderCalibrationV3/RopeEncoderCalibration.vcxproj",
+            "R7.1-Build/eigen3",
+            "R7.1-Build/websocketpp-master",
+            "R7.1-Build/asio-1.12.2/include"
+          )
+
+          foreach ($item in $required) {
+            if (-not (Test-Path -LiteralPath $item)) {
+              throw "Required build input not found: $item"
+            }
+            Write-Host "OK: $item"
           }
-          Write-Host "Solution: $solution"
+
+          if (Test-Path -LiteralPath "R7.1-Build/asio-1.12.2/doc") {
+            throw "Sparse checkout unexpectedly included asio documentation."
+          }
 
       - name: Build Release x86
         shell: pwsh
@@ -73,13 +103,14 @@ jobs:
           $dll = "R7.1-Build/bin/Win32/Release/CalibrationV3Analytic.dll"
 
           if (-not (Test-Path -LiteralPath $exe)) { throw "Missing EXE: $exe" }
-          if (-not (Test-Path -LiteralPath $dll)) { throw "Missing DLL: $dll" }
+          if (-not (Test-Path -LiteralPath $dll)) { throw "Missing DLL: $dll" }  if (-not (Test-Path -LiteralPath $dll)) { throw "缺少 DLL: $dll" }
 
           Get-Item $exe, $dll | Select-Object FullName, Length, LastWriteTime
 
       - name: Upload EXE and DLL
+- name: 上传 EXE 和 DLL
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: HE3-RopeCalibration-Windows-Release-x86-${{ github.sha }}
           if-no-files-found: error
@@ -89,11 +120,12 @@ jobs:
             R7.1-Build/bin/Win32/Release/CalibrationV3Analytic.dll
 
       - name: Upload build logs
+- name: 上传构建日志
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: HE3-build-logs-${{ github.sha }}
-          if-no-files-found: warn
+          if-no-files-found: ignore
           retention-days: 30
           path: |
             ci-logs/msbuild.log
