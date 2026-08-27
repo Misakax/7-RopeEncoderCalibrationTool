@@ -93,10 +93,13 @@ jobs:
             "R7.1-Build/RopeEncoderCalibrationV3",
             "R7.1-Build/CalibrationV3Analytic"
           )
+          # Only normalize files parsed by the C/C++ compiler.
+          # Resource files (.rc/.rc2) are intentionally left untouched:
+          # the legacy HE3 .rc already carries '#pragma code_page(936)' and
+          # rc.exe has its own resource-file encoding rules.
           $textExtensions = @(
             ".c", ".cc", ".cpp", ".cxx",
-            ".h", ".hh", ".hpp",
-            ".rc", ".rc2", ".idl", ".def"
+            ".h", ".hh", ".hpp", ".inl"
           )
 
           $converted = @()
