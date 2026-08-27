@@ -124,7 +124,6 @@ jobs:
             R7.1-Build/bin/Win32/Release/CalibrationV3Analytic.dll
 
       - name: Upload build logs
-- name: 上传构建日志
         if: always()
         uses: actions/upload-artifact@v6
         with:
