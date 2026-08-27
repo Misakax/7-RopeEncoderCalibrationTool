@@ -41,10 +41,6 @@ jobs:
         run: |
           Write-Host "Runner OS: $env:RUNNER_OS"
           Write-Host "Workspace: $env:GITHUB_WORKSPACE"
-          Write-Host "Checked-out top level:"
-          Get-ChildItem -Force | Select-Object Name, Mode
-          Write-Host "R7.1-Build:"
-          Get-ChildItem -LiteralPath "R7.1-Build" | Select-Object Name, Mode
           Write-Host "MSBuild:"
           Get-Command msbuild | Format-List Source,Version
           msbuild -version
@@ -72,6 +68,95 @@ jobs:
             throw "Sparse checkout unexpectedly included asio documentation."
           }
 
+      - name: Normalize legacy GBK sources to UTF-8
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          try {
+            [System.Text.Encoding]::RegisterProvider(
+              [System.Text.CodePagesEncodingProvider]::Instance
+            )
+          } catch {
+            Write-Host "CodePagesEncodingProvider registration not required on this runner."
+          }
+
+          $strictUtf8 = [System.Text.UTF8Encoding]::new($false, $true)
+          $utf8Bom = [System.Text.UTF8Encoding]::new($true)
+          $gbk = [System.Text.Encoding]::GetEncoding(
+            936,
+            [System.Text.EncoderFallback]::ExceptionFallback,
+            [System.Text.DecoderFallback]::ExceptionFallback
+          )
+
+          $roots = @(
+            "R7.1-Build/RopeEncoderCalibrationV3",
+            "R7.1-Build/CalibrationV3Analytic"
+          )
+          $textExtensions = @(
+            ".c", ".cc", ".cpp", ".cxx",
+            ".h", ".hh", ".hpp",
+            ".rc", ".rc2", ".idl", ".def"
+          )
+
+          $converted = @()
+
+          foreach ($root in $roots) {
+            Get-ChildItem -LiteralPath $root -Recurse -File | ForEach-Object {
+              $file = $_
+              if ($textExtensions -notcontains $file.Extension.ToLowerInvariant()) {
+                return
+              }
+
+              $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
+
+              try {
+                $null = $strictUtf8.GetString($bytes)
+                return
+              } catch {
+                # Not valid UTF-8. The legacy HE3/V1 sources were authored
+                # on Chinese Windows and are CP936/GBK.
+              }
+
+              try {
+                $text = $gbk.GetString($bytes)
+              } catch {
+                throw "Source is neither valid UTF-8 nor valid CP936/GBK: $($file.FullName)"
+              }
+
+              [System.IO.File]::WriteAllText($file.FullName, $text, $utf8Bom)
+              $converted += $file.FullName
+            }
+          }
+
+          Write-Host "Converted legacy CP936/GBK files to UTF-8 BOM:"
+          if ($converted.Count -eq 0) {
+            Write-Host "(none)"
+          } else {
+            $converted | ForEach-Object { Write-Host "  $_" }
+          }
+
+          # These three files caused the first cloud build failure.
+          # After normalization they must all decode as strict UTF-8.
+          $mustBeUtf8 = @(
+            "R7.1-Build/RopeEncoderCalibrationV3/RoughCalibrationDlg.cpp",
+            "R7.1-Build/RopeEncoderCalibrationV3/QKMLinkComm.cpp",
+            "R7.1-Build/RopeEncoderCalibrationV3/FileOperation.cpp"
+          )
+
+          foreach ($item in $mustBeUtf8) {
+            if (-not (Test-Path -LiteralPath $item)) {
+              throw "Expected source file not found: $item"
+            }
+            $bytes = [System.IO.File]::ReadAllBytes($item)
+            try {
+              $null = $strictUtf8.GetString($bytes)
+              Write-Host "UTF-8 OK: $item"
+            } catch {
+              throw "UTF-8 normalization failed: $item"
+            }
+          }
+
       - name: Build Release x86
         shell: pwsh
         run: |
@@ -79,6 +164,12 @@ jobs:
           $solution = "R7.1-Build/HE3_RopeCalibration_R7.1_Minimal.sln"
           $logDir = "ci-logs"
           New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+
+          # Source files are normalized to UTF-8 above. Keep the execution
+          # character set at CP936 to match the original Chinese-Windows V1 build
+          # for narrow string literals while parsing source as UTF-8.
+          $env:CL = "/source-charset:utf-8 /execution-charset:.936 $env:CL"
+          Write-Host "CL=$env:CL"
 
           & msbuild $solution `
             /m `
