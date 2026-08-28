@@ -22,6 +22,7 @@
 #include <WinSock2.h>
 #include "QKMLinkComm.h"
 #include "RoughCalibrationDlg.h"
+#include "R74DiagnosticMatch.h"
 #include <string>
 
 #include <iostream>
@@ -41,7 +42,7 @@ using namespace kagula;
 
 #pragma region 全局变量
 //软件版本
-CString m_Version = _T(" HE3 V3 Analytic R7.3 Controller-First + Same-Data Closed-Loop Replay 2026.08.26");
+CString m_Version = _T(" HE3 V3 Analytic R7.4 Diagnostic-Matched Replay + Local-Build Sync 2026.08.28");
 //文件的路径
 string m_FilePath;
 //查询编码器值的指令
@@ -418,6 +419,37 @@ BOOL RopeEncoderCalibrationDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
+	// R7.4: pin all legacy relative paths (Config/Result/data/log/Joint) to
+	// the executable directory. Explorer/shortcut CWD must never choose the model.
+	TCHAR modulePath[MAX_PATH] = {};
+	const DWORD modulePathLen = GetModuleFileName(NULL, modulePath, _countof(modulePath));
+	if (modulePathLen == 0 || modulePathLen >= _countof(modulePath))
+	{
+		MessageBox(_T("无法确定程序所在目录，已停止启动，避免读取错误的Config。"),
+			_T("R7.4 启动路径错误"), MB_OK | MB_ICONERROR);
+		EndDialog(IDCANCEL);
+		return FALSE;
+	}
+
+	CString exeDir(modulePath);
+	const int lastSlash = exeDir.ReverseFind(_T('\\'));
+	if (lastSlash <= 0)
+	{
+		MessageBox(_T("程序路径格式异常，已停止启动。"),
+			_T("R7.4 启动路径错误"), MB_OK | MB_ICONERROR);
+		EndDialog(IDCANCEL);
+		return FALSE;
+	}
+	exeDir = exeDir.Left(lastSlash);
+	if (!SetCurrentDirectory(exeDir))
+	{
+		CString pathError;
+		pathError.Format(_T("无法把工作目录切换到程序目录：\r\n%s\r\n已停止启动。"), exeDir.GetString());
+		MessageBox(pathError, _T("R7.4 启动路径错误"), MB_OK | MB_ICONERROR);
+		EndDialog(IDCANCEL);
+		return FALSE;
+	}
+
 	CString windowTitle;
 
 	CString tempCstring;
@@ -459,7 +491,7 @@ BOOL RopeEncoderCalibrationDlg::OnInitDialog()
 		this, IDC_R6_RESTORE);
 	m_R6FeedbackBtn.EnableWindow(FALSE);
 	m_R6RestoreBtn.EnableWindow(FALSE);
-	AppendR6Monitor(_T("R7.3闭环监控已启动。开始前可选择控制器实时回读或公共HE3_GY-cfg作为算法输入；控制器有效时默认推荐控制器。控制器闭环复算不运动，使用上一轮同一批82点检验第一轮修复结果是否为稳定固定点。"), false);
+	AppendR6Monitor(_T("R7.4闭环监控已启动。控制器闭环复算会扫描历史V3Diagnostic，并自动选择与当前控制器D/Alpha最匹配的一份；不再按文件时间盲选最新结果。"), false);
 
 	//设置初始 IP
 	m_RbtIPAdr.SetAddress(192, 168, 10, 120);
@@ -482,6 +514,19 @@ BOOL RopeEncoderCalibrationDlg::OnInitDialog()
 		tempCstring = robotList[i].c_str();
 		OutputDebugStringA(robotList[i].c_str());
 		m_RbtTypeCombo.InsertString(i,tempCstring);
+	}
+
+	if (robotList.empty())
+	{
+		CString configError;
+		configError.Format(
+			_T("程序目录下没有可用的机器人配置。\r\n\r\n期望目录：%S\r\n")
+			_T("R7.4 已阻止空下拉框继续进入 GetLBText/ReadConfigFile。"),
+			_rbtConfigPath.c_str());
+		AppendR6Monitor(configError);
+		MessageBox(configError, _T("缺少 Config/RobotType"), MB_OK | MB_ICONERROR);
+		EndDialog(IDCANCEL);
+		return FALSE;
 	}
 
 	CRect rect;
@@ -2236,8 +2281,76 @@ static std::vector<std::string> SplitR73Csv(const std::string& line)
 	return fields;
 }
 
-static bool LoadLatestR73Diagnostic(int axis, int expectedPoints,
-	R73ReplayData& data, CString& failure)
+static bool ReadR74DiagnosticSolvedModel(const std::string& path, int axis, int expectedPoints,
+	std::vector<double>& solvedD, std::vector<double>& solvedAlpha)
+{
+	std::ifstream input(path);
+	if (!input) return false;
+
+	solvedD.assign(static_cast<size_t>(axis), 0.0);
+	solvedAlpha.assign(static_cast<size_t>(axis), 0.0);
+	bool inIterations = false;
+	bool inPoints = false;
+	bool haveIteration = false;
+	std::vector<int> pointSeen(static_cast<size_t>(expectedPoints), 0);
+	int pointCount = 0;
+	std::string line;
+	while (std::getline(input, line))
+	{
+		if (!line.empty() && line.back() == '\r') line.pop_back();
+		if (line.rfind("iteration,geometry_mae_after_bias_mm", 0) == 0)
+		{
+			inIterations = true;
+			inPoints = false;
+			continue;
+		}
+		if (line.rfind("result_slot,", 0) == 0)
+		{
+			inIterations = false;
+			continue;
+		}
+		if (line.rfind("point,rope_raw_mm,rope_with_fixed_offset_mm", 0) == 0)
+		{
+			inIterations = false;
+			inPoints = true;
+			continue;
+		}
+
+		const std::vector<std::string> f = SplitR73Csv(line);
+		if (inIterations)
+		{
+			const size_t required = static_cast<size_t>(5 + 3 * axis);
+			if (f.size() < required) continue;
+			char* endPtr = NULL;
+			strtol(f[0].c_str(), &endPtr, 10);
+			if (endPtr == f[0].c_str() || *endPtr != '\0') continue;
+			for (int joint = 0; joint < axis; ++joint)
+			{
+				solvedD[static_cast<size_t>(joint)] =
+					atof(f[static_cast<size_t>(5 + joint)].c_str()) / 1000.0;
+				solvedAlpha[static_cast<size_t>(joint)] =
+					atof(f[static_cast<size_t>(5 + axis + joint)].c_str()) * PI / 180.0;
+			}
+			haveIteration = true;
+			continue;
+		}
+		if (inPoints && f.size() >= static_cast<size_t>(3 + axis))
+		{
+			const int point = atoi(f[0].c_str()) - 1;
+			if (point >= 0 && point < expectedPoints && !pointSeen[static_cast<size_t>(point)])
+			{
+				pointSeen[static_cast<size_t>(point)] = 1;
+				++pointCount;
+			}
+		}
+	}
+	return haveIteration && pointCount == expectedPoints;
+}
+
+static bool LoadMatchingR74Diagnostic(int axis, int expectedPoints,
+	const std::vector<double>& controllerDmm,
+	const std::vector<double>& controllerAlphaLegacyDeg,
+	R73ReplayData& data, r74::DiagnosticMatch& selectedMatch, CString& failure)
 {
 	const char* resultDirs[] = {
 		"./Result",
@@ -2246,6 +2359,9 @@ static bool LoadLatestR73Diagnostic(int axis, int expectedPoints,
 	};
 	std::string bestPath;
 	__time64_t bestTime = 0;
+	r74::DiagnosticMatch bestMatch;
+	int candidateCount = 0;
+	int readableCount = 0;
 	for (const char* resultDir : resultDirs)
 	{
 		const std::string pattern = std::string(resultDir) + "/V3Diagnostic_*.csv";
@@ -2258,10 +2374,25 @@ static bool LoadLatestR73Diagnostic(int axis, int expectedPoints,
 			if ((fileData.attrib & _A_SUBDIR) != 0) continue;
 			if (name.find("_feedback2") != std::string::npos) continue;
 			if (name.find("_controllerReplay") != std::string::npos) continue;
-			if (fileData.time_write >= bestTime)
+			++candidateCount;
+
+			const std::string candidatePath = std::string(resultDir) + "/" + name;
+			std::vector<double> solvedD;
+			std::vector<double> solvedAlpha;
+			if (!ReadR74DiagnosticSolvedModel(candidatePath, axis, expectedPoints, solvedD, solvedAlpha))
+				continue;
+			++readableCount;
+
+			const r74::DiagnosticMatch match = r74::ScoreDiagnostic(
+				controllerDmm, controllerAlphaLegacyDeg, solvedD, solvedAlpha);
+			const bool sameScore = bestMatch.valid && match.valid &&
+				std::fabs(match.normalizedScore - bestMatch.normalizedScore) <= 1e-12;
+			if (r74::BetterMatch(match, bestMatch) ||
+				(sameScore && fileData.time_write > bestTime))
 			{
+				bestMatch = match;
 				bestTime = fileData.time_write;
-				bestPath = std::string(resultDir) + "/" + name;
+				bestPath = candidatePath;
 			}
 		} while (_findnext(handle, &fileData) == 0);
 		_findclose(handle);
@@ -2269,9 +2400,21 @@ static bool LoadLatestR73Diagnostic(int axis, int expectedPoints,
 
 	if (bestPath.empty())
 	{
-		failure = _T("未找到上一轮V3Diagnostic_*.csv。已搜索当前Result、工程RopeEncoderCalibrationV3\\Result和EXE相对工程Result。");
+		failure.Format(_T("未找到可解析的V3Diagnostic。扫描候选=%d，可解析=%d。"),
+			candidateCount, readableCount);
 		return false;
 	}
+	if (!bestMatch.accepted)
+	{
+		failure.Format(
+			_T("R7.4扫描了%d个Diagnostic（可解析%d个），但没有一份与当前控制器匹配。\r\n")
+			_T("最佳候选：%S\r\nD2~D5最大差=%.6f mm，Alpha1~6最大差=%.6f deg。\r\n")
+			_T("门限均为0.020000；为防止混用机器人数据，本次拒绝复算。"),
+			candidateCount, readableCount, bestPath.c_str(),
+			bestMatch.maxDMm, bestMatch.maxAlphaDeg);
+		return false;
+	}
+	selectedMatch = bestMatch;
 
 	data.sourcePath = bestPath;
 	std::ifstream input(data.sourcePath);
@@ -2391,16 +2534,7 @@ void RopeEncoderCalibrationDlg::OnBnClickedR6Feedback()
 		return;
 	}
 
-	R73ReplayData replay;
-	CString loadFailure;
-	if (!LoadLatestR73Diagnostic(m_RobotAxis, m_TotalNum, replay, loadFailure))
-	{
-		AppendR6Monitor(_T("R7.3闭环复算失败：") + loadFailure);
-		MessageBox(loadFailure, _T("R7.3控制器闭环复算"), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	if (!ReloadControllerModelAsInput(_T("R7.3控制器闭环复算前实时回读"), false))
+	if (!ReloadControllerModelAsInput(_T("R7.4控制器闭环复算前实时回读"), false))
 	{
 		MessageBox(_T("无法实时读取当前控制器D/Alpha/Zero；未执行复算。"),
 			_T("R7.3控制器闭环复算"), MB_OK | MB_ICONERROR);
@@ -2421,31 +2555,23 @@ void RopeEncoderCalibrationDlg::OnBnClickedR6Feedback()
 		return;
 	}
 
-	// Make sure the replay dataset really belongs to the model currently stored
-	// in the controller.  Only controller quantization-level differences are expected.
-	double maxControllerDMatchMm = 0.0;
-	for (int joint = 1; joint <= 4; ++joint)
-		maxControllerDMatchMm = (std::max)(maxControllerDMatchMm,
-			std::fabs(m_R65ControllerDmm[static_cast<size_t>(joint)] -
-				replay.solvedD[static_cast<size_t>(joint)] * 1000.0));
-	double maxControllerAlphaMatchDeg = 0.0;
-	for (int physicalAlpha = 0; physicalAlpha < 6; ++physicalAlpha)
-		maxControllerAlphaMatchDeg = (std::max)(maxControllerAlphaMatchDeg,
-			std::fabs(m_R65ControllerLegacyAlphaDeg[static_cast<size_t>(physicalAlpha)] -
-				replay.solvedAlpha[static_cast<size_t>(physicalAlpha + 1)] * 180.0 / PI));
-
-	if (maxControllerDMatchMm > 0.02 || maxControllerAlphaMatchDeg > 0.02)
+	R73ReplayData replay;
+	r74::DiagnosticMatch diagnosticMatch;
+	CString loadFailure;
+	if (!LoadMatchingR74Diagnostic(
+		m_RobotAxis, m_TotalNum, m_R65ControllerDmm, m_R65ControllerLegacyAlphaDeg,
+		replay, diagnosticMatch, loadFailure))
 	{
-		CString mismatch;
-		mismatch.Format(
-			_T("当前控制器与最新第一轮诊断结果不匹配，拒绝混用数据。\r\n")
-			_T("D2~D5最大差=%.6f mm，Alpha1~6最大差=%.6f deg。\r\n")
-			_T("请确认Result目录中的最新V3Diagnostic属于当前机器人。"),
-			maxControllerDMatchMm, maxControllerAlphaMatchDeg);
-		AppendR6Monitor(mismatch);
-		MessageBox(mismatch, _T("R7.3控制器闭环复算"), MB_OK | MB_ICONERROR);
+		AppendR6Monitor(_T("R7.4闭环复算自动配对失败：") + loadFailure);
+		MessageBox(loadFailure, _T("R7.4控制器闭环复算"), MB_OK | MB_ICONERROR);
 		return;
 	}
+
+	CString matchedDiagnostic;
+	matchedDiagnostic.Format(
+		_T("R7.4已自动配对Diagnostic：%S\r\nD2~D5最大差=%.6f mm，Alpha1~6最大差=%.6f deg。"),
+		replay.sourcePath.c_str(), diagnosticMatch.maxDMm, diagnosticMatch.maxAlphaDeg);
+	AppendR6Monitor(matchedDiagnostic);
 
 	MatrixXd controllerSeed =
 		(m_R7OriginalConfigValid && m_R7OriginalConfigDH.rows() >= 5 &&
@@ -3118,7 +3244,14 @@ void RopeEncoderCalibrationDlg::OnCbnSelchangeCombo1()
 {
 	CString selectitem;
 	CString str;
-	m_RbtTypeCombo.GetLBText(m_RbtTypeCombo.GetCurSel(), selectitem);
+	const int selectedRobot = m_RbtTypeCombo.GetCurSel();
+	if (selectedRobot == CB_ERR)
+	{
+		AppendR6Monitor(_T("R7.4：机器人型号未选择，已阻止读取空配置。"));
+		GetDlgItem(IDC_BUTTON1)->EnableWindow(false);
+		return;
+	}
+	m_RbtTypeCombo.GetLBText(selectedRobot, selectitem);
 	string rbtType = CT2A(selectitem.GetBuffer(0));
 	ReadConfigFile(_rbtConfigPath + '/' + rbtType + _configExtension, m_ThisRbt);
 
@@ -3200,9 +3333,9 @@ void RopeEncoderCalibrationDlg::OnCbnSelchangeCombo1()
 
 	}
 
-	// TODO: Add your control notification handler code here	
-	string curPath = getcwd(NULL, 0);
-	m_FilePath = curPath + LocPath + rbtType + ".txt";
+	// R7.4: OnInitDialog pins CWD to the EXE directory, so keep this path
+	// relative and deterministic. This also removes the getcwd(NULL, 0) leak.
+	m_FilePath = LocPath + rbtType + ".txt";
 
 	if (File_Exist(m_FilePath))
 	{

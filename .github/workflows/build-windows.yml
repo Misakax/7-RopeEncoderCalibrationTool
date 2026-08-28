@@ -1,10 +1,9 @@
 name: HE3 Windows Release x86 Build
 
+# R7.4: normal main pushes are already gated by a successful local VS2022
+# Release|x86 build. Keep cloud build only as an explicit manual fallback.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 permissions:
   contents: read

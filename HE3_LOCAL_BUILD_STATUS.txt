@@ -1,0 +1,11 @@
+﻿status=PASS
+version=R7.4
+built_at=2026-08-28 10:29:22
+source_base_sha=f4f356dbaa8b72f3e741cc7b90855a7978d2f515
+configuration=Release|x86
+diagnostic_match_test=PASS
+robot_axis=7
+calibration_poses=82
+exe=R7.1-Build/bin/Win32/Release/HE3_RopeCalibration_V3_Tool.exe
+logs=_local_build/logs/20260828_102853
+note=This source tree was compiled locally before commit/push.
